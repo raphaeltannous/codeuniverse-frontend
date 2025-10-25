@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+
+SESSION_NAME="$(basename "$PWD" | tr ".,:" "___")"
+
+if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+  # Window 1: helix
+  tmux rename-window -t "$SESSION_NAME:1" helix
+  tmux send-keys -t "$SESSION_NAME:1" "helix" C-m
+
+  # Window 2: vite
+  tmux new-window -t "$SESSION_NAME:2" -n "vite"
+  tmux send-keys -t "$SESSION_NAME:2" "npm run dev" C-m
+
+  # Window 3: shell
+  tmux new-window -t "$SESSION_NAME:3" -n "shell"
+
+  # Custom binding to reload make
+  # tmux bind u run-shell "tmux display-message 'Restarting vite...'; tmux send-keys -t '$SESSION_NAME:2' C-c 'npm run dev' C-m"
+
+  # Focus on window 1
+  tmux select-window -t "$SESSION_NAME:1"
+fi
