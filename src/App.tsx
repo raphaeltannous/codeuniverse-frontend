@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import Header from "./components/Header";
+import { RouterProvider } from "react-router";
+import AppRoutes from "./AppRoutes";
 
 function App() {
   useEffect(() => {
@@ -8,10 +9,8 @@ function App() {
 
 
   return (
-    <>
-      <Header/>
-    </>
-  )
+    <RouterProvider router={AppRoutes} />
+ )
 }
 
 export default App
