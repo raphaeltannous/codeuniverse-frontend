@@ -48,3 +48,9 @@
 
 // Utilities
 @import "bootstrap/scss/utilities/api";
+
+// Custom
+@import "custom/header";
+@import "custom/footer";
+
+@import "custom/platform/signup";

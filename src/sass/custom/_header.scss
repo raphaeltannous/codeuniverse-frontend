@@ -1,0 +1,22 @@
+#navbar-profile-dropdown {
+  &::after {
+    display: none !important;
+  }
+}
+
+.platform-navbar {
+  height: 60px;
+}
+
+.center-content-between-header-footer {
+  /* 100% Viewport Height minus Header Height (60px) minus Footer Height (50px) */
+  min-height: calc(100vh - 60px - 50px);
+
+  /* Use Flexbox properties to center */
+  display: flex;
+  align-items: center;
+  /* Centers vertically */
+  justify-content: center;
+  /* Centers horizontally (if needed for flex items) */
+  width: 100%;
+}
