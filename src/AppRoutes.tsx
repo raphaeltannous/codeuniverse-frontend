@@ -8,6 +8,9 @@ import PlatformLayout from "./layouts/Platform";
 import PlatformAccounts from "./pages/Platform/Accounts";
 import PlatformAccountsLogin from "./pages/Platform/Accounts/Login";
 import PlatformAccountsSignup from "./pages/Platform/Accounts/Signup";
+import PlatformAccountsPasswordResetRequest from "./pages/Platform/Accounts/PasswordResetRequest";
+import PlatformAccountsPasswordReset from "./pages/Platform/Accounts/PasswordReset";
+import PlatformAccountsLoginMFA from "./pages/Platform/Accounts/LoginMfa";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -29,7 +32,10 @@ const AppRoutes = createBrowserRouter(
            children: [
              { index: true, element: <PlatformAccountsLogin /> },
              { path: "login", element: <PlatformAccountsLogin /> },
+             { path: "login/mfa", element: <PlatformAccountsLoginMFA /> },
              { path: "signup", element: <PlatformAccountsSignup /> },
+             { path: "password/request", element: <PlatformAccountsPasswordResetRequest /> },
+             { path: "password/reset", element: <PlatformAccountsPasswordReset /> },
            ]
         },
       ]
