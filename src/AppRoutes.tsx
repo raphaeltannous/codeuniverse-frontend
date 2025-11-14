@@ -34,6 +34,7 @@ const AppRoutes = createBrowserRouter(
              { path: "login", element: <PlatformAccountsLogin /> },
              { path: "login/mfa", element: <PlatformAccountsLoginMFA /> },
              { path: "signup", element: <PlatformAccountsSignup /> },
+             { path: "signup/email-verification" , }, // TODO Create page
              { path: "password/request", element: <PlatformAccountsPasswordResetRequest /> },
              { path: "password/reset", element: <PlatformAccountsPasswordReset /> },
            ]
