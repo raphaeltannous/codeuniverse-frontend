@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 import { RouterProvider } from "react-router";
 import AppRoutes from "./AppRoutes";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function App() {
   useEffect(() => {
@@ -9,7 +12,9 @@ function App() {
 
 
   return (
-    <RouterProvider router={AppRoutes} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={AppRoutes} />
+    </QueryClientProvider>
  )
 }
 
