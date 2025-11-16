@@ -11,6 +11,7 @@ import PlatformAccountsSignup from "./pages/Platform/Accounts/Signup";
 import PlatformAccountsPasswordResetRequest from "./pages/Platform/Accounts/PasswordResetRequest";
 import PlatformAccountsPasswordReset from "./pages/Platform/Accounts/PasswordReset";
 import PlatformAccountsLoginMFA from "./pages/Platform/Accounts/LoginMfa";
+import PlatformAccountsEmailVerification from "./pages/Platform/Accounts/EmailVerification";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -34,7 +35,7 @@ const AppRoutes = createBrowserRouter(
              { path: "login", element: <PlatformAccountsLogin /> },
              { path: "login/mfa", element: <PlatformAccountsLoginMFA /> },
              { path: "signup", element: <PlatformAccountsSignup /> },
-             { path: "signup/email-verification" , }, // TODO Create page
+             { path: "signup/email-verification" , element: <PlatformAccountsEmailVerification /> },
              { path: "password/request", element: <PlatformAccountsPasswordResetRequest /> },
              { path: "password/reset", element: <PlatformAccountsPasswordReset /> },
            ]
