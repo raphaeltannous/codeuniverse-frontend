@@ -1,7 +1,8 @@
 import { Button, Container, Form, Image } from "react-bootstrap";
 import logo from "../../../../assets/logo.svg";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { Activity, useState, type ChangeEvent, type FormEvent } from "react";
 import { NavLink } from "react-router";
+import { useMutation } from "@tanstack/react-query";
 
 interface SignupForm {
   username: string;
@@ -11,6 +12,18 @@ interface SignupForm {
 }
 
 export default function PlatformAccountsSignup() {
+  const signupMutation = useMutation({
+    mutationFn: async (body: SignupForm) => {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("Signup failed");
+      return res.text();
+    },
+  });
+
   const [form, setForm] = useState<SignupForm>({
     username: "",
     password: "",
@@ -25,7 +38,7 @@ export default function PlatformAccountsSignup() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // TODO: POST Request
+    signupMutation.mutate(form);
   };
 
   return (
@@ -68,6 +81,12 @@ export default function PlatformAccountsSignup() {
             placeholder="Email"
             className="mb-3"
           />
+
+          <Activity mode={signupMutation.isSuccess ? 'visible' : 'hidden'}>
+            <div className="text-succes mb-3">
+              {signupMutation.data}
+            </div>
+          </Activity>
 
           <Button type="submit" variant="secondary" className="w-100 mb-3">
             Sign Up
