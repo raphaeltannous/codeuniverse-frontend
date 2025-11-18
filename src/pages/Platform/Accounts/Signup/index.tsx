@@ -11,16 +11,30 @@ interface SignupForm {
   email: string;
 }
 
+type APIError = {
+  code: string;
+  message: string;
+}
+
+type SignupResponse = {
+  username: string;
+};
+
 export default function PlatformAccountsSignup() {
-  const signupMutation = useMutation({
+  const signupMutation = useMutation<SignupResponse, APIError, SignupForm>({
     mutationFn: async (body: SignupForm) => {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error("Signup failed");
-      return res.text();
+
+      if (!res.ok) {
+        const err = (await res.json()) as APIError;
+        throw err;
+      };
+
+      return (await res.json()) as SignupResponse;
     },
   });
 
@@ -33,11 +47,11 @@ export default function PlatformAccountsSignup() {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
-    console.log(form)
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
     signupMutation.mutate(form);
   };
 
@@ -83,8 +97,13 @@ export default function PlatformAccountsSignup() {
           />
 
           <Activity mode={signupMutation.isSuccess ? 'visible' : 'hidden'}>
-            <div className="text-succes mb-3">
-              {signupMutation.data}
+            <div className="text-success mb-3 text-center">
+              User created: {signupMutation.data?.username}
+            </div>
+          </Activity>
+          <Activity mode={signupMutation.isError ? 'visible' : 'hidden'}>
+            <div className="text-danger mb-3 text-center">
+              {signupMutation.error?.message}
             </div>
           </Activity>
 
