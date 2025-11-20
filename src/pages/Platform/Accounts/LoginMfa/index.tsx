@@ -2,16 +2,51 @@ import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { Button, Container, Form, Image } from "react-bootstrap";
 import logo from "../../../../assets/logo.svg";
 import { useNavigate, useSearchParams } from "react-router";
+import { useMutation } from "@tanstack/react-query";
 
-interface MFAForm {
+interface MfaForm {
+  token: string;
   code: string;
 }
 
+type APIError = {
+  code: string;
+  message: string;
+}
+
+type MfaResponse = {
+  jwtToken: string;
+};
+
 export default function PlatformAccountsLoginMFA() {
+  const navigate = useNavigate();
+
+  const mfaMutation = useMutation<MfaResponse, APIError, MfaForm>({
+    mutationFn: async (body: MfaForm) => {
+      const res = await fetch("/api/auth/login/mfa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const err = (await res.json()) as APIError;
+        throw err;
+      }
+
+      return (await res.json()) as MfaResponse;
+    },
+
+    onSuccess: (response) => {
+      localStorage.setItem("token", response.jwtToken)
+
+      navigate("/problems")
+    },
+  });
+
+
   const [params] = useSearchParams();
   const token = params.get("token") || "";
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!token) {
@@ -19,7 +54,8 @@ export default function PlatformAccountsLoginMFA() {
     }
   }, [token, navigate]);
 
-  const [form, setForm] = useState<MFAForm>({
+  const [form, setForm] = useState<MfaForm>({
+    token: token,
     code: "",
   });
 
@@ -28,7 +64,8 @@ export default function PlatformAccountsLoginMFA() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO
+
+    mfaMutation.mutate(form);
   };
 
   return (
@@ -47,7 +84,7 @@ export default function PlatformAccountsLoginMFA() {
             onChange={handleChange}
             placeholder="123456"
             className="mb-3 text-center"
-            maxLength={6}
+            maxLength={7}
             autoComplete="one-time-code"
           />
 
