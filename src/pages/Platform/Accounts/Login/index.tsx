@@ -1,23 +1,10 @@
 import { Button, Container, Form, Image } from "react-bootstrap";
-import logo from "../../../../assets/logo.svg";
+import logo from "~/assets/logo.svg";
 import { Activity, useState, type ChangeEvent, type FormEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
-
-interface LoginForm {
-  username: string;
-  password: string;
-}
-
-type APIError = {
-  code: string;
-  message: string;
-}
-
-type LoginResponse = {
-  username: string; // TODO do we actually need the username?
-  mfaToken: string;
-};
+import type { LoginForm, LoginResponse } from "~/types/auth/login";
+import type { APIError } from "~/types/api-error";
 
 export default function PlatformAccountsLogin() {
   const navigate = useNavigate();

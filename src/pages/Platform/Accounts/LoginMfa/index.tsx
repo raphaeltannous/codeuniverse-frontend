@@ -3,20 +3,8 @@ import { Button, Container, Form, Image } from "react-bootstrap";
 import logo from "../../../../assets/logo.svg";
 import { useNavigate, useSearchParams } from "react-router";
 import { useMutation } from "@tanstack/react-query";
-
-interface MfaForm {
-  token: string;
-  code: string;
-}
-
-type APIError = {
-  code: string;
-  message: string;
-}
-
-type MfaResponse = {
-  jwtToken: string;
-};
+import type { MfaForm, MfaResponse } from "~/types/auth/mfa";
+import type { APIError } from "~/types/api-error";
 
 export default function PlatformAccountsLoginMFA() {
   const navigate = useNavigate();

@@ -3,22 +3,8 @@ import logo from "../../../../assets/logo.svg";
 import { Activity, useState, type ChangeEvent, type FormEvent } from "react";
 import { NavLink } from "react-router";
 import { useMutation } from "@tanstack/react-query";
-
-interface SignupForm {
-  username: string;
-  password: string;
-  confirm: string;
-  email: string;
-}
-
-type APIError = {
-  code: string;
-  message: string;
-}
-
-type SignupResponse = {
-  username: string;
-};
+import type { APIError } from "~/types/api_error";
+import type { SignupForm, SignupResponse } from "~/types/auth/signup";
 
 export default function PlatformAccountsSignup() {
   const signupMutation = useMutation<SignupResponse, APIError, SignupForm>({

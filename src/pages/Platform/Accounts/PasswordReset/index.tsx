@@ -2,11 +2,7 @@ import { Button, Container, Form, Image } from "react-bootstrap";
 import logo from "../../../../assets/logo.svg";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-
-interface PasswordResetForm {
-  password: string;
-  confirm: string;
-}
+import type { PasswordResetForm } from "~/types/auth/password-reset";
 
 export default function PlatformAccountsPasswordReset() {
   const [params] = useSearchParams();

@@ -1,11 +1,8 @@
-import { useState, ChangeEvent, FormEvent } from "react";
 import { Button, Container, Form, Image } from "react-bootstrap";
 import logo from "../../../../assets/logo.svg";
 import { NavLink } from "react-router";
-
-interface PasswordRequestForm {
-  email: string;
-}
+import { useState, type ChangeEvent, type FormEvent } from "react";
+import type { PasswordRequestForm } from "~/types/auth/password-request";
 
 export default function PlatformAccountsPasswordResetRequest() {
   const [form, setForm] = useState<PasswordRequestForm>({
