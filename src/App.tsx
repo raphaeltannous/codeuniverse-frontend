@@ -15,7 +15,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={AppRoutes} />
     </QueryClientProvider>
- )
+  )
 }
 
 export default App

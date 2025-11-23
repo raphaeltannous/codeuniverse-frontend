@@ -28,17 +28,17 @@ const AppRoutes = createBrowserRouter(
       element: <PlatformLayout />,
       children: [
         {
-           path: "accounts",
-           element: <PlatformAccounts />,
-           children: [
-             { index: true, element: <PlatformAccountsLogin /> },
-             { path: "login", element: <PlatformAccountsLogin /> },
-             { path: "login/mfa", element: <PlatformAccountsLoginMFA /> },
-             { path: "signup", element: <PlatformAccountsSignup /> },
-             { path: "signup/email-verification" , element: <PlatformAccountsEmailVerification /> },
-             { path: "password/request", element: <PlatformAccountsPasswordResetRequest /> },
-             { path: "password/reset", element: <PlatformAccountsPasswordReset /> },
-           ]
+          path: "accounts",
+          element: <PlatformAccounts />,
+          children: [
+            { index: true, element: <PlatformAccountsLogin /> },
+            { path: "login", element: <PlatformAccountsLogin /> },
+            { path: "login/mfa", element: <PlatformAccountsLoginMFA /> },
+            { path: "signup", element: <PlatformAccountsSignup /> },
+            { path: "signup/email-verification", element: <PlatformAccountsEmailVerification /> },
+            { path: "password/request", element: <PlatformAccountsPasswordResetRequest /> },
+            { path: "password/reset", element: <PlatformAccountsPasswordReset /> },
+          ]
         },
       ]
     },
