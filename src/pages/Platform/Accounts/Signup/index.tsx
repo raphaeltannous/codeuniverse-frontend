@@ -1,12 +1,14 @@
 import { Button, Container, Form, Image } from "react-bootstrap";
 import logo from "../../../../assets/logo.svg";
 import { Activity, useState, type ChangeEvent, type FormEvent } from "react";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
-import type { APIError } from "~/types/api_error";
 import type { SignupForm, SignupResponse } from "~/types/auth/signup";
+import type { APIError } from "~/types/api-error";
 
 export default function PlatformAccountsSignup() {
+  const navigate = useNavigate();
+
   const signupMutation = useMutation<SignupResponse, APIError, SignupForm>({
     mutationFn: async (body: SignupForm) => {
       const res = await fetch("/api/auth/signup", {
@@ -21,6 +23,12 @@ export default function PlatformAccountsSignup() {
       };
 
       return (await res.json()) as SignupResponse;
+    },
+
+    onSuccess: (response) => {
+      localStorage.setItem("token", response.jwtToken)
+
+      navigate("/problems")
     },
   });
 
@@ -82,11 +90,6 @@ export default function PlatformAccountsSignup() {
             className="mb-3"
           />
 
-          <Activity mode={signupMutation.isSuccess ? 'visible' : 'hidden'}>
-            <div className="text-success mb-3 text-center">
-              User created: {signupMutation.data?.username}
-            </div>
-          </Activity>
           <Activity mode={signupMutation.isError ? 'visible' : 'hidden'}>
             <div className="text-danger mb-3 text-center">
               {signupMutation.error?.message}

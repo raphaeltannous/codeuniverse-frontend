@@ -12,6 +12,9 @@ import PlatformAccountsPasswordResetRequest from "./pages/Platform/Accounts/Pass
 import PlatformAccountsPasswordReset from "./pages/Platform/Accounts/PasswordReset";
 import PlatformAccountsLoginMFA from "./pages/Platform/Accounts/LoginMfa";
 import PlatformAccountsEmailVerification from "./pages/Platform/Accounts/EmailVerification";
+import PlatformProblems from "./pages/Platform/Problems";
+import PlatformProblemsProblemset from "./pages/Platform/Problems/Problemset";
+import PlatformProblemsProblem from "./pages/Platform/Problems/Problem";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -38,6 +41,14 @@ const AppRoutes = createBrowserRouter(
             { path: "signup/email-verification", element: <PlatformAccountsEmailVerification /> },
             { path: "password/request", element: <PlatformAccountsPasswordResetRequest /> },
             { path: "password/reset", element: <PlatformAccountsPasswordReset /> },
+          ]
+        },
+        {
+          path: "/problems",
+          element: <PlatformProblems />,
+          children: [
+            { index: true, element: <PlatformProblemsProblemset /> },
+            { path: ":problemSlug", element: <PlatformProblemsProblem /> }
           ]
         },
       ]

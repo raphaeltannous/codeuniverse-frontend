@@ -1,10 +1,30 @@
 import { Button, Container, Form, Image } from "react-bootstrap";
-import logo from "../../../../assets/logo.svg";
+import logo from "~/assets/logo.svg";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import type { PasswordResetForm } from "~/types/auth/password-reset";
+import { Activity, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import type { PasswordResetForm, PasswordResetResponse } from "~/types/auth/password-reset";
+import type { APIError } from "~/types/api-error";
+import { useMutation } from "@tanstack/react-query";
 
 export default function PlatformAccountsPasswordReset() {
+  const passwordResetMutation = useMutation<PasswordResetResponse, APIError, PasswordResetForm>({
+    mutationFn: async (body: PasswordResetForm) => {
+      const res = await fetch("/api/auth/password/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const err = (await res.json()) as APIError;
+        throw err;
+      };
+
+      return (await res.json()) as PasswordResetResponse;
+    },
+  });
+
+
   const [params] = useSearchParams();
   const token = params.get("token") || "";
 
@@ -17,6 +37,7 @@ export default function PlatformAccountsPasswordReset() {
   }, [token, navigate]);
 
   const [form, setForm] = useState<PasswordResetForm>({
+    token: token,
     password: "",
     confirm: "",
   });
@@ -26,7 +47,8 @@ export default function PlatformAccountsPasswordReset() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO
+
+    passwordResetMutation.mutate(form);
   };
 
   return (
@@ -56,12 +78,23 @@ export default function PlatformAccountsPasswordReset() {
             className="mb-3"
           />
 
+          <Activity mode={passwordResetMutation.isError ? 'visible' : 'hidden'}>
+            <div className="text-danger mb-3 text-center">
+              {passwordResetMutation.error?.message}
+            </div>
+          </Activity>
+          <Activity mode={passwordResetMutation.isSuccess ? 'visible' : 'hidden'}>
+            <div className="text-success mb-3 text-center">
+              {passwordResetMutation.data?.message}
+            </div>
+          </Activity>
+
           <Button type="submit" variant="secondary" className="w-100 mb-3">
             Reset Password
           </Button>
 
           <div className="text-center text-muted">
-            Remember Password? <NavLink to="accounts/login">Sign In</NavLink>
+            Remember Password? <NavLink to="/accounts/login">Sign In</NavLink>
           </div>
         </Form>
       </div>

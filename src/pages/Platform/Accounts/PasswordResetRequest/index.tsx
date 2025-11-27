@@ -1,10 +1,29 @@
 import { Button, Container, Form, Image } from "react-bootstrap";
 import logo from "../../../../assets/logo.svg";
 import { NavLink } from "react-router";
-import { useState, type ChangeEvent, type FormEvent } from "react";
-import type { PasswordRequestForm } from "~/types/auth/password-request";
+import { Activity, useState, type ChangeEvent, type FormEvent } from "react";
+import type { PasswordRequestForm, PasswordRequestResponse } from "~/types/auth/password-request";
+import type { APIError } from "~/types/api-error";
+import { useMutation } from "@tanstack/react-query";
 
 export default function PlatformAccountsPasswordResetRequest() {
+  const passwordRequestMutation = useMutation<PasswordRequestResponse, APIError, PasswordRequestForm>({
+    mutationFn: async (body: PasswordRequestForm) => {
+      const res = await fetch("/api/auth/password/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const err = (await res.json()) as APIError;
+        throw err;
+      };
+
+      return (await res.json()) as PasswordRequestResponse;
+    },
+  });
+
   const [form, setForm] = useState<PasswordRequestForm>({
     email: "",
   });
@@ -14,8 +33,9 @@ export default function PlatformAccountsPasswordResetRequest() {
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    // TODO
     e.preventDefault();
+
+    passwordRequestMutation.mutate(form);
   };
 
   return (
@@ -35,6 +55,17 @@ export default function PlatformAccountsPasswordResetRequest() {
             placeholder="Your account email"
             className="mb-3"
           />
+
+          <Activity mode={passwordRequestMutation.isError ? 'visible' : 'hidden'}>
+            <div className="text-danger mb-3 text-center">
+              {passwordRequestMutation.error?.message}
+            </div>
+          </Activity>
+          <Activity mode={passwordRequestMutation.isSuccess ? 'visible' : 'hidden'}>
+            <div className="text-success mb-3 text-center">
+              {passwordRequestMutation.data?.message}
+            </div>
+          </Activity>
 
           <Button type="submit" variant="secondary" className="w-100 mb-3">
             Send reset email

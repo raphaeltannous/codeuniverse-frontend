@@ -6,5 +6,5 @@ export interface SignupForm {
 }
 
 export type SignupResponse = {
-  username: string;
+  jwtToken: string;
 };
