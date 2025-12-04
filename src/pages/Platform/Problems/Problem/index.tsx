@@ -7,6 +7,7 @@ import DifficultyBadge from "~/components/shared/difficulty-badge";
 import type { APIError } from "~/types/api-error";
 import type { Problem } from "~/types/problem";
 import type { RunRequest, RunResponse } from "~/types/problem/run";
+import type { SubmitRequest, SubmitResponse } from "~/types/problem/submission";
 
 export default function PlatformProblemsProblem() {
   const { problemSlug } = useParams();
@@ -50,6 +51,26 @@ export default function PlatformProblemsProblem() {
     },
   });
 
+  const submitMutation = useMutation<SubmitResponse, APIError, SubmitRequest>({
+    mutationFn: async (body: RunRequest) => {
+      const res = await fetch(`/api/problems/${problemSlug}/submit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const err = (await res.json()) as APIError;
+        throw err;
+      };
+
+      return (await res.json()) as SubmitResponse;
+    },
+  });
+
   const [language, setLanguage] = useState("golang");
   const [code, setCode] = useState("");
 
@@ -82,6 +103,12 @@ export default function PlatformProblemsProblem() {
 
   const handleSubmit = () => {
     setOutput(`Submitting code in ${language}:\n\n${code}`);
+
+    submitMutation.mutate({
+      problemSlug,
+      languageSlug: language,
+      code,
+    })
   };
 
   if (isLoading) {
