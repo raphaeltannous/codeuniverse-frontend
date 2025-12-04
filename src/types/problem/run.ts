@@ -5,5 +5,5 @@ export interface RunRequest {
 }
 
 export type RunResponse = {
-  message: string;
+  runId: string;
 };
