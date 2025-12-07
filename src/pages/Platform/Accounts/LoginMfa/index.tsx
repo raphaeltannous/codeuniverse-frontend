@@ -89,8 +89,8 @@ export default function PlatformAccountsLoginMFA() {
       <div className="p-4 m-2 shadow platform-signup rounded-4 bg-body-secondary">
         <div className="text-center mb-4">
           <Image src={logo} width={60} height={60} alt="Logo" />
-          <h5 className="mt-2">CodeUniverse</h5>
-          <p className="text-muted small mt-2">Enter your 6-digit MFA code</p>
+          <h5 className="mt-2">MFA Verification</h5>
+          <p className="text-muted small mt-2">Enter your 7-digit MFA code</p>
         </div>
 
         <Form onSubmit={handleSubmit}>
@@ -98,7 +98,7 @@ export default function PlatformAccountsLoginMFA() {
             name="code"
             value={form.code}
             onChange={handleChange}
-            placeholder="123456"
+            placeholder="1234567"
             className="mb-3 text-center"
             maxLength={7}
             autoComplete="one-time-code"

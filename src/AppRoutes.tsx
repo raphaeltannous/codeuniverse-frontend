@@ -15,6 +15,8 @@ import PlatformAccountsEmailVerification from "./pages/Platform/Accounts/EmailVe
 import PlatformProblems from "./pages/Platform/Problems";
 import PlatformProblemsProblemset from "./pages/Platform/Problems/Problemset";
 import PlatformProblemsProblem from "./pages/Platform/Problems/Problem";
+import { authMiddleware } from "./middlewares/authentication";
+import { guestOnly } from "./middlewares/loggedin";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -32,6 +34,7 @@ const AppRoutes = createBrowserRouter(
       children: [
         {
           path: "accounts",
+          middleware: [guestOnly],
           element: <PlatformAccounts />,
           children: [
             { index: true, element: <PlatformAccountsLogin /> },
@@ -48,7 +51,7 @@ const AppRoutes = createBrowserRouter(
           element: <PlatformProblems />,
           children: [
             { index: true, element: <PlatformProblemsProblemset /> },
-            { path: ":problemSlug", element: <PlatformProblemsProblem /> }
+            { path: ":problemSlug",  middleware:[authMiddleware], element: <PlatformProblemsProblem /> }
           ]
         },
       ]
