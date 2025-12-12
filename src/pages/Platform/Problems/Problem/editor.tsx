@@ -60,16 +60,13 @@ export default function ProblemEditor({problem}: ProblemEditorProps) {
     },
   });
 
-  const [language, setLanguage] = useState("golang");
-  const [code, setCode] = useState("");
+  const [language, setLanguage] = useState(() => {
+  return problem.codeSnippets?.[0]?.languageSlug || "golang";
+});
 
-  useEffect(() => {
-    if (problem?.codeSnippets?.length) {
-      const initialLang = problem.codeSnippets[0].languageSlug;
-      setLanguage(initialLang);
-      setCode(problem.codeSnippets[0].code);
-    }
-  }, [problem]);
+const [code, setCode] = useState(() => {
+  return problem.codeSnippets?.[0]?.code || "";
+});
 
   const [output, setOutput] = useState<string | null>(null);
 
@@ -134,7 +131,7 @@ export default function ProblemEditor({problem}: ProblemEditorProps) {
         </Card.Header>
 
         <Card.Body className="p-0 code-editor-height">
-          <CodeEditor code={code} language={language} onCodeChange={setCode} />
+          <CodeEditor code={code} language={language} onCodeChange={setCode} readonly={false} />
         </Card.Body>
 
         <Card.Footer className="d-flex justify-content-end gap-2">

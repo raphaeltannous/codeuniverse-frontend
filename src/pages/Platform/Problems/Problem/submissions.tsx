@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import SubmissionCard from "~/components/Platform/Problem/submission";
 import type { APIError } from "~/types/api-error";
 import type { Problem } from "~/types/problem";
 import type { Submission } from "~/types/problem/submission";
@@ -46,9 +47,19 @@ export default function ProblemSubmissions({ problem }: ProblemEditorProps) {
     )
   }
 
+  if (!problemSubmissions || problemSubmissions.length === 0) {
+    return <div>No submissions...</div>;
+  }
+
+  const sortedSubmissions = [...problemSubmissions].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
   return (
     <div>
-      subm
+      {sortedSubmissions.map((sub) => (
+        <SubmissionCard key={sub.id} submission={sub} />
+      ))}
     </div>
   )
 }

@@ -3,7 +3,8 @@ import Editor, { type OnChange } from "@monaco-editor/react";
 interface CodeEditorProps {
   code: string;
   language?: string;
-    onCodeChange: (newCode: string) => void;
+  onCodeChange: (newCode: string) => void;
+  readonly: boolean;
 }
 
 const languageMap: Record<string, string> = {
@@ -18,6 +19,7 @@ export default function CodeEditor({
   code,
   language = "plaintext",
   onCodeChange,
+  readonly,
 }: CodeEditorProps) {
   const handleChange: OnChange = (value) => {
     onCodeChange(value || "");
@@ -33,6 +35,7 @@ export default function CodeEditor({
       options={{
         minimap: { enabled: false },
         wordWrap: "on",
+        readOnly: readonly,
         automaticLayout: true,
         scrollBeyondLastLine: false,
       }}
