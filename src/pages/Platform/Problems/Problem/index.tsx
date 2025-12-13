@@ -1,11 +1,13 @@
 import { Activity, useState } from "react";
-import { Container, Tab, Tabs } from "react-bootstrap";
+import { Col, Container, Row, Tab, Tabs } from "react-bootstrap";
 import { useParams } from "react-router";
 import type { APIError } from "~/types/api-error";
 import type { Problem } from "~/types/problem";
 import ProblemEditor from "./editor";
 import { useQuery } from "@tanstack/react-query";
 import ProblemSubmissions from "./submissions";
+import ProblemNotes from "./notes";
+import DifficultyBadge from "~/components/shared/difficulty-badge";
 
 export default function PlatformProblemsProblem() {
   const { problemSlug } = useParams();
@@ -54,7 +56,17 @@ export default function PlatformProblemsProblem() {
 
   return (
     <Container className="problem-page-width mt-4">
-      <h2>{problem.title}</h2>
+      <Row className="align-items-center">
+        <Col>
+          <h2>{problem.title}</h2>
+        </Col>
+        <Col xs="auto">
+          <div className="mb-2">
+            <DifficultyBadge difficulty={problem.difficulty} />
+          </div>
+        </Col>
+      </Row>
+
 
       <Tabs
         defaultActiveKey={activeTab}
@@ -74,7 +86,7 @@ export default function PlatformProblemsProblem() {
         </Tab>
         <Tab eventKey="notes" title="Notes">
           <Activity mode={activeTab === "notes" ? "visible" : "hidden"}>
-            Notes motherfucka!
+            <ProblemNotes problem={problem}/>
           </Activity>
         </Tab>
       </Tabs>

@@ -1,8 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button, Card, Form } from "react-bootstrap";
 import CodeEditor from "~/components/shared/code-editor";
-import DifficultyBadge from "~/components/shared/difficulty-badge";
 import type { APIError } from "~/types/api-error";
 import type { Problem } from "~/types/problem";
 import type { RunRequest, RunResponse } from "~/types/problem/run";
@@ -12,7 +11,7 @@ interface ProblemEditorProps {
   problem: Problem;
 }
 
-export default function ProblemEditor({problem}: ProblemEditorProps) {
+export default function ProblemEditor({ problem }: ProblemEditorProps) {
   const problemSlug = problem.slug;
   const token = localStorage.getItem("token");
 
@@ -61,12 +60,12 @@ export default function ProblemEditor({problem}: ProblemEditorProps) {
   });
 
   const [language, setLanguage] = useState(() => {
-  return problem.codeSnippets?.[0]?.languageSlug || "golang";
-});
+    return problem.codeSnippets?.[0]?.languageSlug || "golang";
+  });
 
-const [code, setCode] = useState(() => {
-  return problem.codeSnippets?.[0]?.code || "";
-});
+  const [code, setCode] = useState(() => {
+    return problem.codeSnippets?.[0]?.code || "";
+  });
 
   const [output, setOutput] = useState<string | null>(null);
 
@@ -107,11 +106,7 @@ const [code, setCode] = useState(() => {
 
   return (
     <div>
-      <div className="mb-2">
-        <DifficultyBadge difficulty={problem.difficulty} />
-      </div>
-
-      <div dangerouslySetInnerHTML={{ __html: problem.description }}>
+      <div className="mb-3" dangerouslySetInnerHTML={{ __html: problem.description }}>
       </div>
 
       <Card className="mb-4">

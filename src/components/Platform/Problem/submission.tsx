@@ -6,10 +6,6 @@ interface SubmissionProps {
   submission: Submission;
 }
 
-// STATUS -> Language
-// Execution Time -> Memory Usage
-// Horizontal Seperator
-
 export default function SubmissionCard({ submission }: SubmissionProps) {
   return (
     <Card className="mb-3 shadow-sm">

@@ -16,7 +16,7 @@ const DifficultyBadge: React.FC<DifficultyBadgeProps> = ({
 
   return (
     <span
-      className={`px-2 py-1 rounded text-sm ${colors[difficulty]}`}
+      className={`px-2 py-1 rounded text-sm ${colors[difficulty]} fw-bold`}
     >
       {difficulty}
     </span>
