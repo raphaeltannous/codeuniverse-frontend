@@ -1,11 +1,12 @@
-import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
-import { Button, Card, Form } from "react-bootstrap";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Activity, useState } from "react";
+import { Button, Card, Col, Form, Row, Spinner } from "react-bootstrap";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import CodeEditor from "~/components/shared/code-editor";
 import type { APIError } from "~/types/api-error";
 import type { Problem } from "~/types/problem";
 import type { RunRequest, RunResponse } from "~/types/problem/run";
-import type { SubmitRequest, SubmitResponse } from "~/types/problem/submission";
+import type { Submission, SubmitRequest, SubmitResponse } from "~/types/problem/submission";
 
 interface ProblemEditorProps {
   problem: Problem;
@@ -18,6 +19,9 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
   if (!problemSlug) {
     return <div>Problem not found</div>;
   }
+
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [runId, setRunId] = useState<string | null>(null);
 
   const runMutation = useMutation<RunResponse, APIError, RunRequest>({
     mutationFn: async (body: RunRequest) => {
@@ -37,10 +41,47 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
 
       return (await res.json()) as RunResponse;
     },
+    onSuccess: (data) => {
+      setRunId(data.runId);
+      setSubmissionId(null);
+    },
   });
 
+  const runStatusQuery = useQuery<Submission, APIError>({
+    queryKey: ["run-status", runId],
+    queryFn: async () => {
+      const res = await fetch(`/api/problems/${problemSlug}/run/${runId}/check`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw await res.json();
+      return res.json();
+    },
+    enabled: !!runId,
+    refetchInterval: (query) => {
+      if (!query.state.data) return 1000;
+
+      const status = query.state.data.status;
+      const completedStatus = ['ACCEPTED', 'FAILED', 'ERROR', 'TIME LIMIT EXCEEDED'];
+
+      return completedStatus.includes(status) ? false : 1000;
+    },
+    refetchIntervalInBackground: false,
+  });
+
+  const showRunChecking = !!runId &&
+    (!runStatusQuery.data ||
+      !['ACCEPTED', 'FAILED', 'ERROR', 'TIME LIMIT EXCEEDED'].includes(runStatusQuery.data.status));
+
+  const showRunResult = !!runId &&
+    (runStatusQuery.data &&
+      ['ACCEPTED', 'FAILED', 'ERROR', 'TIME LIMIT EXCEEDED'].includes(runStatusQuery.data.status));
+
   const submitMutation = useMutation<SubmitResponse, APIError, SubmitRequest>({
-    mutationFn: async (body: RunRequest) => {
+    mutationFn: async (body: SubmitRequest) => {
       const res = await fetch(`/api/problems/${problem.slug}/submit`, {
         method: "POST",
         headers: {
@@ -57,7 +98,44 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
 
       return (await res.json()) as SubmitResponse;
     },
+    onSuccess: (data) => {
+      setSubmissionId(data.submissionId);
+      setRunId(null);
+    },
   });
+
+  const submissionStatusQuery = useQuery<Submission, APIError>({
+    queryKey: ["submission-status", submissionId],
+    queryFn: async () => {
+      const res = await fetch(`/api/problems/${problemSlug}/submit/${submissionId}/check`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw await res.json();
+      return res.json();
+    },
+    enabled: !!submissionId,
+    refetchInterval: (query) => {
+      if (!query.state.data) return 1000;
+
+      const status = query.state.data.status;
+      const completedStatus = ['ACCEPTED', 'FAILED', 'ERROR', 'TIME LIMIT EXCEEDED'];
+
+      return completedStatus.includes(status) ? false : 1000;
+    },
+    refetchIntervalInBackground: false,
+  });
+
+  const showSubmitChecking = !!submissionId &&
+    (!submissionStatusQuery.data ||
+      !['ACCEPTED', 'FAILED', 'ERROR', 'TIME LIMIT EXCEEDED'].includes(submissionStatusQuery.data.status));
+
+  const showSubmitResult = !!submissionId &&
+    (submissionStatusQuery.data &&
+      ['ACCEPTED', 'FAILED', 'ERROR', 'TIME LIMIT EXCEEDED'].includes(submissionStatusQuery.data.status));
 
   const [language, setLanguage] = useState(() => {
     return problem.codeSnippets?.[0]?.languageSlug || "golang";
@@ -67,8 +145,6 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
     return problem.codeSnippets?.[0]?.code || "";
   });
 
-  const [output, setOutput] = useState<string | null>(null);
-
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLang = e.target.value;
     setLanguage(newLang);
@@ -77,8 +153,6 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
   };
 
   const handleRun = () => {
-    setOutput(`Running code in ${language}:\n\n${code}`);
-
     runMutation.mutate({
       problemSlug,
       languageSlug: language,
@@ -87,8 +161,6 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
   };
 
   const handleSubmit = () => {
-    setOutput(`Submitting code in ${language}:\n\n${code}`);
-
     submitMutation.mutate({
       problemSlug,
       languageSlug: language,
@@ -130,14 +202,78 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
         </Card.Body>
 
         <Card.Footer className="d-flex justify-content-end gap-2">
-          <Button variant="primary" onClick={handleRun}>
+          <Button variant="primary" onClick={handleRun} disabled={submitMutation.isPending || runMutation.isPending || showSubmitChecking || showRunChecking}>
             Run
           </Button>
-          <Button variant="success" onClick={handleSubmit}>
+          <Button variant="success" onClick={handleSubmit} disabled={submitMutation.isPending || runMutation.isPending || showSubmitChecking || showRunChecking}>
             Submit
           </Button>
         </Card.Footer>
       </Card>
+
+      <Activity mode={showRunChecking ? "visible" : "hidden"}>
+        <Row className="align-items-center mb-3">
+          <Col>
+            <h5>
+              Running...
+            </h5>
+          </Col>
+          <Col xs="auto">
+            <Spinner animation="border" variant="warning" />
+          </Col>
+        </Row>
+      </Activity>
+
+      <Activity mode={showRunResult ? "visible" : "hidden"}>
+        <Row className="align-items-center mb-3">
+          <Col>
+            <h5>
+              {runStatusQuery.data?.status}
+            </h5>
+          </Col>
+          <Col xs="auto">
+            {runStatusQuery.data?.status === 'ACCEPTED' && (
+              <FaCheckCircle className="text-success" size="1.5em" />
+            )}
+
+            {(runStatusQuery.data?.status === 'FAILED' || runStatusQuery.data?.status === 'ERROR' || runStatusQuery.data?.status == "TIME LIMIT EXCEEDED") && (
+              <FaTimesCircle className="text-danger" size="1.5em" />
+            )}
+          </Col>
+        </Row>
+      </Activity>
+
+      <Activity mode={showSubmitChecking ? "visible" : "hidden"}>
+        <Row className="align-items-center mb-3">
+          <Col>
+            <h5>
+              Submitting...
+            </h5>
+          </Col>
+          <Col xs="auto">
+            <Spinner animation="border" variant="warning" />
+          </Col>
+        </Row>
+      </Activity>
+
+      <Activity mode={showSubmitResult ? "visible" : "hidden"}>
+        <Row className="align-items-center mb-3">
+          <Col>
+            <h5>
+              {submissionStatusQuery.data?.status}
+            </h5>
+          </Col>
+          <Col xs="auto">
+            {submissionStatusQuery.data?.status === 'ACCEPTED' && (
+              <FaCheckCircle className="text-success" size="1.5em" />
+            )}
+
+            {(submissionStatusQuery.data?.status === 'FAILED' || submissionStatusQuery.data?.status === 'ERROR' || submissionStatusQuery.data?.status == "TIME LIMIT EXCEEDED") && (
+              <FaTimesCircle className="text-danger" size="1.5em" />
+            )}
+          </Col>
+        </Row>
+      </Activity>
 
       <div className="mb-4">
         <h5>Testcases</h5>
@@ -149,13 +285,6 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
           ))}
         </ul>
       </div>
-
-      {output && (
-        <div className="mb-4">
-          <h5>Result</h5>
-          <pre className="bg-dark text-white p-3">{output}</pre>
-        </div>
-      )}
     </div>
   )
 }
