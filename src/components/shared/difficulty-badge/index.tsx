@@ -1,4 +1,5 @@
 import React from "react";
+import { Badge } from "react-bootstrap";
 import type { Difficulty } from "~/types/problem";
 
 interface DifficultyBadgeProps {
@@ -15,11 +16,11 @@ const DifficultyBadge: React.FC<DifficultyBadgeProps> = ({
   };
 
   return (
-    <span
-      className={`px-2 py-1 rounded text-sm ${colors[difficulty]} fw-bold`}
+    <Badge
+      className={`${colors[difficulty]}`}
     >
       {difficulty}
-    </span>
+    </Badge>
   );
 };
 
