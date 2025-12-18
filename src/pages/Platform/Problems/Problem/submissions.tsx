@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import SubmissionCard from "~/components/Platform/Problem/submission";
+import { useAuth } from "~/context/AuthContext";
 import type { APIError } from "~/types/api-error";
 import type { Problem } from "~/types/problem";
 import type { Submission } from "~/types/problem/submission";
@@ -9,8 +10,9 @@ interface ProblemEditorProps {
 }
 
 export default function ProblemSubmissions({ problem }: ProblemEditorProps) {
+  const { auth } = useAuth();
+
   const problemSlug = problem.slug;
-  const token = localStorage.getItem("token");
 
   if (!problemSlug) {
     return <div>Problem not found</div>;
@@ -20,7 +22,7 @@ export default function ProblemSubmissions({ problem }: ProblemEditorProps) {
     queryKey: [`problem-${problemSlug}-submissions-data`],
     queryFn: async () => {
       const res = await fetch(`/api/problems/${problemSlug}/submissions`, {
-        headers: { "Authorization": `Bearer ${token}` },
+        headers: { "Authorization": `Bearer ${auth.jwt}` },
       });
       const data = await res.json();
 

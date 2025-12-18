@@ -5,9 +5,11 @@ import { NavLink, useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import type { LoginForm, LoginResponse } from "~/types/auth/login";
 import type { APIError } from "~/types/api-error";
+import { useAuth } from "~/context/AuthContext";
 
 export default function PlatformAccountsLogin() {
   const navigate = useNavigate();
+  const { loginStarted } = useAuth();
 
   const loginMutation = useMutation<LoginResponse, APIError, LoginForm>({
     mutationFn: async (body: LoginForm) => {
@@ -26,6 +28,7 @@ export default function PlatformAccountsLogin() {
     },
 
     onSuccess: (responseData) => {
+      loginStarted()
       navigate(`/accounts/login/mfa?token=${responseData.mfaToken}`)
     },
   });

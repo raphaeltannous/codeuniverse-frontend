@@ -3,6 +3,7 @@ import { Activity, useState } from "react";
 import { Button, Card, Col, Form, Row, Spinner } from "react-bootstrap";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import CodeEditor from "~/components/shared/code-editor";
+import { useAuth } from "~/context/AuthContext";
 import type { APIError } from "~/types/api-error";
 import type { Problem } from "~/types/problem";
 import type { RunRequest, RunResponse } from "~/types/problem/run";
@@ -13,8 +14,9 @@ interface ProblemEditorProps {
 }
 
 export default function ProblemEditor({ problem }: ProblemEditorProps) {
+  const { auth } = useAuth();
+
   const problemSlug = problem.slug;
-  const token = localStorage.getItem("token");
 
   if (!problemSlug) {
     return <div>Problem not found</div>;
@@ -29,7 +31,7 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          "Authorization": `Bearer ${auth.jwt}`,
         },
         body: JSON.stringify(body),
       });
@@ -54,7 +56,7 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          "Authorization": `Bearer ${auth.jwt}`,
         },
       });
       if (!res.ok) throw await res.json();
@@ -86,7 +88,7 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          "Authorization": `Bearer ${auth.jwt}`,
         },
         body: JSON.stringify(body),
       });
@@ -111,7 +113,7 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          "Authorization": `Bearer ${auth.jwt}`,
         },
       });
       if (!res.ok) throw await res.json();

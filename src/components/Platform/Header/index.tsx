@@ -1,9 +1,12 @@
 import { Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import { Link } from "react-router";
-import { useState } from "react";
+import { Activity, useState } from "react";
 import logo from "../../../assets/logo.svg";
+import { useAuth } from "~/context/AuthContext";
 
 export default function PlatformHeaderComponent() {
+  const { auth } = useAuth();
+
   const [show, setShow] = useState(false);
 
   const close = () => setShow(false);
@@ -46,18 +49,22 @@ export default function PlatformHeaderComponent() {
             <div className="mobile-separator d-md-none"></div>
 
             <Nav className="ms-auto align-items-md-center">
-              <Nav.Link as={Link} to="/accounts/login" onClick={close}>
-                Login
-              </Nav.Link>
+              <Activity mode={auth.isAuthenticated ? "hidden" : "visible"}>
+                <Nav.Link as={Link} to="/accounts/login" onClick={close}>
+                  Login
+                </Nav.Link>
 
-              <Nav.Link
-                as={Link}
-                to="/accounts/signup"
-                className="fw-semibold text-primary"
-                onClick={close}
-              >
-                Signup
-              </Nav.Link>
+                <span className="nav-link fw-light">or</span>
+
+                <Nav.Link
+                  as={Link}
+                  to="/accounts/signup"
+                  className="fw-semibold text-primary"
+                  onClick={close}
+                >
+                  Signup
+                </Nav.Link>
+              </Activity>
             </Nav>
           </Offcanvas.Body>
         </Navbar.Offcanvas>

@@ -6,9 +6,11 @@ import { useMutation } from "@tanstack/react-query";
 import type { MfaForm, MfaResponse } from "~/types/auth/mfa";
 import type { APIError } from "~/types/api-error";
 import type { MfaResendRequestResponse, MfaResendRequest } from "~/types/auth/mfa-resend-request";
+import { useAuth } from "~/context/AuthContext";
 
 export default function PlatformAccountsLoginMFA() {
   const navigate = useNavigate();
+  const { completeMfa } = useAuth();
 
   const mfaMutation = useMutation<MfaResponse, APIError, MfaForm>({
     mutationFn: async (body: MfaForm) => {
@@ -27,7 +29,7 @@ export default function PlatformAccountsLoginMFA() {
     },
 
     onSuccess: (response) => {
-      localStorage.setItem("token", response.jwtToken)
+      completeMfa(response.jwtToken)
 
       navigate("/problems")
     },

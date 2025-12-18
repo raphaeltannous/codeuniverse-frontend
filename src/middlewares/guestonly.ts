@@ -1,11 +1,11 @@
 import { redirect, type MiddlewareFunction } from "react-router";
 
-export const authMiddleware: MiddlewareFunction = async ({ request }) => {
+export const guestOnly: MiddlewareFunction = async ({ request }) => {
   const auth = JSON.parse(localStorage.getItem("auth") ?? "{}");
   const path = new URL(request.url).pathname;
 
-  if (!auth.isAuthenticated && !auth.mfaPending) {
-    throw redirect("/accounts/login");
+  if (auth.isAuthenticated) {
+    throw redirect("/problems");
   }
 
   if (auth.mfaPending && path !== "/accounts/login/mfa") {

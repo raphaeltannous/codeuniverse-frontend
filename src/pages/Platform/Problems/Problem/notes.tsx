@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import MDEditor from '@uiw/react-md-editor';
 import { useEffect, useState } from 'react';
 import { Card, Col, Row, Button } from 'react-bootstrap';
+import { useAuth } from '~/context/AuthContext';
 import type { APIError } from '~/types/api-error';
 import type { Problem } from '~/types/problem';
 import type { ProblemNote, ProblemNoteSaveRequest, ProblemNoteSaveResponse } from '~/types/problem/note';
@@ -11,8 +12,9 @@ interface ProblemNotesProps {
 }
 
 export default function ProblemNotes({ problem }: ProblemNotesProps) {
+  const { auth } = useAuth();
+
   const problemSlug = problem.slug;
-  const token = localStorage.getItem("token");
   const queryClient = useQueryClient();
   const problemNoteKey = ["problem-note", problemSlug];
 
@@ -20,7 +22,7 @@ export default function ProblemNotes({ problem }: ProblemNotesProps) {
     queryKey: problemNoteKey,
     queryFn: async () => {
       const res = await fetch(`/api/problems/${problemSlug}/notes`, {
-        headers: { "Authorization": `Bearer ${token}` },
+        headers: { "Authorization": `Bearer ${auth.jwt}` },
       });
       const data = await res.json();
 
@@ -42,7 +44,7 @@ export default function ProblemNotes({ problem }: ProblemNotesProps) {
         method: method,
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          "Authorization": `Bearer ${auth.jwt}`,
         },
         body: JSON.stringify(requestBody),
       });

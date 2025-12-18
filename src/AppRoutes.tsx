@@ -16,7 +16,7 @@ import PlatformProblems from "./pages/Platform/Problems";
 import PlatformProblemsProblemset from "./pages/Platform/Problems/Problemset";
 import PlatformProblemsProblem from "./pages/Platform/Problems/Problem";
 import { authMiddleware } from "./middlewares/authentication";
-import { guestOnly } from "./middlewares/loggedin";
+import { guestOnly } from "./middlewares/guestonly";
 
 const AppRoutes = createBrowserRouter(
   [

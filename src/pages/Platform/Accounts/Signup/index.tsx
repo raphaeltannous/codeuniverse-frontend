@@ -5,8 +5,10 @@ import { NavLink, useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import type { SignupForm, SignupResponse } from "~/types/auth/signup";
 import type { APIError } from "~/types/api-error";
+import { useAuth } from "~/context/AuthContext";
 
 export default function PlatformAccountsSignup() {
+  const { completeMfa } = useAuth();
   const navigate = useNavigate();
 
   const signupMutation = useMutation<SignupResponse, APIError, SignupForm>({
@@ -26,7 +28,7 @@ export default function PlatformAccountsSignup() {
     },
 
     onSuccess: (response) => {
-      localStorage.setItem("token", response.jwtToken)
+      completeMfa(response.jwtToken)
 
       navigate("/problems")
     },
