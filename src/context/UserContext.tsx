@@ -4,9 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type User = {
   username: string;
-  name: string;
-  email: string;
-  avatar?: string;
+  avatarUrl?: string;
   isVerified: boolean;
   isActive: boolean;
   role: string;

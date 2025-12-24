@@ -1,6 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { createContext, useContext, useEffect, useState } from "react"
-import { redirect } from "react-router"
 
 type AuthState = {
   isAuthenticated: boolean
