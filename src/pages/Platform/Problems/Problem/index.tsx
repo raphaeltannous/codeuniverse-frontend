@@ -79,14 +79,16 @@ export default function PlatformProblemsProblem() {
             <ProblemEditor problem={problem} />
           </Activity>
         </Tab>
-        <Tab eventKey="submissions" title="Submissions">
-          <Activity mode={activeTab === "submissions" ? "visible" : "hidden"}>
-            <ProblemSubmissions problem={problem} />
-          </Activity>
-        </Tab>
+        {problem.codeSnippets.length !== 0 && (
+          <Tab eventKey="submissions" title="Submissions">
+            <Activity mode={activeTab === "submissions" ? "visible" : "hidden"}>
+              <ProblemSubmissions problem={problem} />
+            </Activity>
+          </Tab>
+        )}
         <Tab eventKey="notes" title="Notes">
           <Activity mode={activeTab === "notes" ? "visible" : "hidden"}>
-            <ProblemNotes problem={problem}/>
+            <ProblemNotes problem={problem} />
           </Activity>
         </Tab>
       </Tabs>
