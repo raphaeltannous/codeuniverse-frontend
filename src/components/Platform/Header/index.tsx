@@ -1,11 +1,13 @@
-import { Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
+import { Container, Dropdown, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import { Link } from "react-router";
 import { Activity, useState } from "react";
 import logo from "../../../assets/logo.svg";
 import { useAuth } from "~/context/AuthContext";
+import { useUser } from "~/context/UserContext";
 
 export default function PlatformHeaderComponent() {
   const { auth } = useAuth();
+  const { user, isLoading } = useUser();
 
   const [show, setShow] = useState(false);
 
@@ -41,9 +43,17 @@ export default function PlatformHeaderComponent() {
 
           <Offcanvas.Body className="text-center">
             <Nav className="me-auto">
+              <Nav.Link as={Link} to="/courses" onClick={close}>
+                Courses
+              </Nav.Link>
               <Nav.Link as={Link} to="/problems" onClick={close}>
                 Problems
               </Nav.Link>
+              <Activity mode={user?.role == "admin" ? "visible" : "hidden"}>
+                <Nav.Link as={Link} to="/dashboard" onClick={close}>
+                  Dashboard
+                </Nav.Link>
+              </Activity>
             </Nav>
 
             <div className="mobile-separator d-md-none"></div>
@@ -64,6 +74,30 @@ export default function PlatformHeaderComponent() {
                 >
                   Signup
                 </Nav.Link>
+              </Activity>
+              <Activity mode={auth.isAuthenticated ? "visible" : "hidden"}>
+                <Activity mode={isLoading ? "visible" : "hidden"}>
+                  <span>Loading...</span>
+                </Activity>
+                <Activity mode={isLoading ? "hidden" : "visible"}>
+                  <Dropdown className="m-0 p-0 d-none d-md-block" drop="down-centered">
+                    <Dropdown.Toggle className="bg-body-tertiary border-0" id="profile-dropdown">
+                      <img className="rounded" width="30px" height="30px" src={`/api/static/avatars/${user?.avatarUrl}`} />
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu>
+                      <Dropdown.Item>Profile</Dropdown.Item>
+                      <Dropdown.Divider />
+                      <Dropdown.Item as={Link} to="/accounts/logout">Logout</Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                  <Nav.Link className="d-md-none d-block" as={Link} to="/profile" onClick={close}>
+                    Profile
+                  </Nav.Link>
+                  <Nav.Link className="d-md-none d-block" as={Link} to="/accounts/logout" onClick={close}>
+                    Logout
+                  </Nav.Link>
+                </Activity>
               </Activity>
             </Nav>
           </Offcanvas.Body>
