@@ -17,6 +17,7 @@ import PlatformProblemsProblemset from "./pages/Platform/Problems/Problemset";
 import PlatformProblemsProblem from "./pages/Platform/Problems/Problem";
 import { authMiddleware } from "./middlewares/authentication";
 import { guestOnly } from "./middlewares/guestonly";
+import PlatformAccountsLogout from "./pages/Platform/Accounts/Logout";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -47,11 +48,18 @@ const AppRoutes = createBrowserRouter(
           ]
         },
         {
+          path: "accounts",
+          element: <PlatformAccounts />,
+          children: [
+            { path: "logout", element: <PlatformAccountsLogout /> },
+          ],
+        },
+        {
           path: "/problems",
           element: <PlatformProblems />,
           children: [
             { index: true, element: <PlatformProblemsProblemset /> },
-            { path: ":problemSlug",  middleware:[authMiddleware], element: <PlatformProblemsProblem /> }
+            { path: ":problemSlug", middleware: [authMiddleware], element: <PlatformProblemsProblem /> }
           ]
         },
       ]
