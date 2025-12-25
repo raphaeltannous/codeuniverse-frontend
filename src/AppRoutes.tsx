@@ -34,7 +34,7 @@ const AppRoutes = createBrowserRouter(
       element: <PlatformLayout />,
       children: [
         {
-          path: "accounts",
+          path: "/accounts",
           middleware: [guestOnly],
           element: <PlatformAccounts />,
           children: [
@@ -48,7 +48,7 @@ const AppRoutes = createBrowserRouter(
           ]
         },
         {
-          path: "accounts",
+          path: "/accounts",
           element: <PlatformAccounts />,
           children: [
             { path: "logout", element: <PlatformAccountsLogout /> },
@@ -62,6 +62,9 @@ const AppRoutes = createBrowserRouter(
             { path: ":problemSlug", middleware: [authMiddleware], element: <PlatformProblemsProblem /> }
           ]
         },
+        {
+          path: "/courses",
+        }
       ]
     },
 
