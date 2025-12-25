@@ -18,6 +18,8 @@ import PlatformProblemsProblem from "./pages/Platform/Problems/Problem";
 import { authMiddleware } from "./middlewares/authentication";
 import { guestOnly } from "./middlewares/guestonly";
 import PlatformAccountsLogout from "./pages/Platform/Accounts/Logout";
+import CoursesList from "./pages/Platform/Courses/CoursesList";
+import PlatformCourses from "./pages/Platform/Courses";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -64,7 +66,12 @@ const AppRoutes = createBrowserRouter(
         },
         {
           path: "/courses",
-        }
+          element: <PlatformCourses />,
+          children: [
+            { index: true, element: <CoursesList /> },
+            { path: ":courseId", }
+          ],
+        },
       ]
     },
 
