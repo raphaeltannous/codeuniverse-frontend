@@ -18,4 +18,4 @@ export interface CodeSnippet {
 
 export type TestCases = string[] | null;
 
-export type Difficulty = "Easy" | "Medium" | "Hard";
+export type Difficulty = "Easy" | "Medium" | "Hard" | "Beginner" | "Intermediate" | "Advanced" | "Expert";

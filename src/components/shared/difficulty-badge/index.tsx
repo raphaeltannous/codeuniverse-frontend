@@ -1,4 +1,3 @@
-import React from "react";
 import { Badge } from "react-bootstrap";
 import type { Difficulty } from "~/types/problem";
 
@@ -6,13 +5,17 @@ interface DifficultyBadgeProps {
   difficulty: Difficulty;
 }
 
-const DifficultyBadge: React.FC<DifficultyBadgeProps> = ({
+export default function DifficultyBadge({
   difficulty,
-}) => {
-   const colors: Record<Difficulty, string> = {
+}: DifficultyBadgeProps) {
+  const colors: Record<Difficulty, string> = {
     Easy: "bg-success text-white",
     Medium: "bg-warning text-dark",
     Hard: "bg-danger text-white",
+    Beginner: "bg-success text-white",
+    Intermediate: "bg-warning text-dark",
+    Advanced: "bg-danger text-white",
+    Expert: "bg-dark text-white"
   };
 
   return (
@@ -23,5 +26,3 @@ const DifficultyBadge: React.FC<DifficultyBadgeProps> = ({
     </Badge>
   );
 };
-
-export default DifficultyBadge;
