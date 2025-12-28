@@ -20,6 +20,7 @@ import { guestOnly } from "./middlewares/guestonly";
 import PlatformAccountsLogout from "./pages/Platform/Accounts/Logout";
 import CoursesList from "./pages/Platform/Courses/CoursesList";
 import PlatformCourses from "./pages/Platform/Courses";
+import UserProfilePage from "./pages/Platform/Profile";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -71,6 +72,12 @@ const AppRoutes = createBrowserRouter(
             { index: true, element: <CoursesList /> },
             { path: ":courseId", }
           ],
+        },
+        {
+          path: "/profile", middleware: [authMiddleware], element: <UserProfilePage />
+        },
+        {
+          path: "/users/:username", element: <UserProfilePage />
         },
       ]
     },

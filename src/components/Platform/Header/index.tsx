@@ -82,11 +82,19 @@ export default function PlatformHeaderComponent() {
                 <Activity mode={isLoading ? "hidden" : "visible"}>
                   <Dropdown className="m-0 p-0 d-none d-md-block" drop="down-centered">
                     <Dropdown.Toggle className="bg-body-tertiary border-0" id="profile-dropdown">
-                      <img className="rounded" width="30px" height="30px" src={`/api/static/avatars/${user?.avatarUrl}`} />
+                      <img
+                        className="rounded"
+                        src={`/api/static/avatars/${user?.avatarUrl}`}
+                        style={{
+                          width: '30px',
+                          height: '30px',
+                          objectFit: 'cover',
+                        }}
+                      />
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu>
-                      <Dropdown.Item>Profile</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/profile">Profile</Dropdown.Item>
                       <Dropdown.Divider />
                       <Dropdown.Item as={Link} to="/accounts/logout">Logout</Dropdown.Item>
                     </Dropdown.Menu>
