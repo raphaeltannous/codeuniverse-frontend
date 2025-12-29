@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import DashboardLayout from "./layouts/AdminDashboard";
 import DashboardHome from "./pages/AdminDashboard/Home";
-import DashboardSettings from "./pages/AdminDashboard/Settings";
 import LandingLayout from "./layouts/Landing";
 import LandingHome from "./pages/Landing/Home";
 import PlatformLayout from "./layouts/Platform";
@@ -21,6 +20,9 @@ import PlatformAccountsLogout from "./pages/Platform/Accounts/Logout";
 import CoursesList from "./pages/Platform/Courses/CoursesList";
 import PlatformCourses from "./pages/Platform/Courses";
 import UserProfilePage from "./pages/Platform/Profile";
+import DashboardCourses from "./pages/AdminDashboard/Courses";
+import DashboardUsers from "./pages/AdminDashboard/Users";
+import DashboardProblems from "./pages/AdminDashboard/Problems";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -84,10 +86,13 @@ const AppRoutes = createBrowserRouter(
 
     {
       path: "/dashboard",
+      middleware: [authMiddleware],
       element: <DashboardLayout />,
       children: [
         { index: true, element: <DashboardHome /> },
-        { path: "settings", element: <DashboardSettings /> },
+        { path: "users", element: <DashboardUsers /> },
+        { path: "courses", element: <DashboardCourses /> },
+        { path: "problems", element: <DashboardProblems /> },
       ],
     },
 
