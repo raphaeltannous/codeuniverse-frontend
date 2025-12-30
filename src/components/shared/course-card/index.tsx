@@ -7,6 +7,8 @@ import type { Difficulty } from '~/types/problem';
 
 interface CourseCardProps extends Course {
   completionPercentage?: number;
+  buttonLink: string;
+  buttonText: string;
 }
 
 export default function CourseCard({
@@ -20,6 +22,8 @@ export default function CourseCard({
   createdAt,
   updatedAt,
   completionPercentage = 0,
+  buttonLink,
+  buttonText,
 }: CourseCardProps) {
   const getProgressVariant = () => {
     if (completionPercentage === 0) return 'secondary';
@@ -112,10 +116,10 @@ export default function CourseCard({
 
           <div className="d-grid gap-2">
             <Link
-              to={slug ? `/courses/${slug}` : `/courses/${id}`}
+              to={buttonLink}
               className="btn btn-sm btn-primary"
             >
-              {completionPercentage > 0 ? 'Continue Learning' : 'Start Course'}
+              {buttonText}
             </Link>
           </div>
         </div>

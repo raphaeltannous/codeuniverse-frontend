@@ -74,7 +74,7 @@ export default function CoursesList() {
       <Row xs={1} md={2} lg={3} xl={4} className="g-4">
         {courses.map((course) => (
           <Col key={course.id}>
-            <CourseCard {...course} />
+            <CourseCard {...course} buttonLink={`/courses/${course.slug}`} buttonText={(course.completionPercentage ?? 0) > 0 ? "Continue Course" : "Start Course"}/>
           </Col>
         ))}
       </Row>
