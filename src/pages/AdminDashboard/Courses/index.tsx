@@ -521,7 +521,7 @@ export default function DashboardCourses() {
                     <CourseCard
                       {...course}
                       completionPercentage={0}
-                      buttonLink={`/admin/dashboard/courses/${course.slug}`}
+                      buttonLink={`/dashboard/courses/${course.slug}`}
                       buttonText="Edit Course"
                     />
                     <div className="position-absolute top-0 start-0 m-2">

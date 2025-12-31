@@ -23,6 +23,7 @@ import UserProfilePage from "./pages/Platform/Profile";
 import DashboardCourses from "./pages/AdminDashboard/Courses";
 import DashboardUsers from "./pages/AdminDashboard/Users";
 import DashboardProblems from "./pages/AdminDashboard/Problems";
+import LessonsDashboard from "./pages/AdminDashboard/Lessons";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -91,7 +92,14 @@ const AppRoutes = createBrowserRouter(
       children: [
         { index: true, element: <DashboardHome /> },
         { path: "users", element: <DashboardUsers /> },
-        { path: "courses", element: <DashboardCourses /> },
+        {
+          path: "courses",
+          element: <PlatformCourses />,
+          children: [
+            { index: true, element: <DashboardCourses /> },
+            { path: ":courseSlug", element: <LessonsDashboard /> },
+          ]
+        },
         { path: "problems", element: <DashboardProblems /> },
       ],
     },
