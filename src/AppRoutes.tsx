@@ -24,6 +24,7 @@ import DashboardCourses from "./pages/AdminDashboard/Courses";
 import DashboardUsers from "./pages/AdminDashboard/Users";
 import DashboardProblems from "./pages/AdminDashboard/Problems";
 import LessonsDashboard from "./pages/AdminDashboard/Lessons";
+import CourseLessonsPagee from "./pages/Platform/Courses/Lessons";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -73,7 +74,7 @@ const AppRoutes = createBrowserRouter(
           element: <PlatformCourses />,
           children: [
             { index: true, element: <CoursesList /> },
-            { path: ":courseId", }
+            { path: ":courseSlug", middleware: [authMiddleware], element: <CourseLessonsPagee /> }
           ],
         },
         {

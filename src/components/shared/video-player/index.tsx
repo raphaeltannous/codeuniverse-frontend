@@ -29,6 +29,21 @@ export default function VideoPlayer({ videoUrl }: VideoPlayerProps) {
           }]
         }, () => {
           console.log('Video.js player is ready');
+
+          const videoElement = playerRef.current.el();
+
+          const preventContextMenu = (e: Event) => {
+            e.preventDefault();
+            return false;
+          };
+
+          videoElement.addEventListener('contextmenu', preventContextMenu);
+          videoElement.addEventListener('mouseup', (e: MouseEvent) => {
+            if (e.button === 2 || e.button === 1) {
+              e.preventDefault();
+              return false;
+            }
+          });
         });
       }
     };
