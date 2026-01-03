@@ -21,10 +21,10 @@ import CoursesList from "./pages/Platform/Courses/CoursesList";
 import PlatformCourses from "./pages/Platform/Courses";
 import UserProfilePage from "./pages/Platform/Profile";
 import DashboardCourses from "./pages/AdminDashboard/Courses";
-import DashboardUsers from "./pages/AdminDashboard/Users";
 import DashboardProblems from "./pages/AdminDashboard/Problems";
 import LessonsDashboard from "./pages/AdminDashboard/Lessons";
 import CourseLessonsPagee from "./pages/Platform/Courses/Lessons";
+import UsersDashboard from "./pages/AdminDashboard/Users";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -49,7 +49,6 @@ const AppRoutes = createBrowserRouter(
             { path: "login", element: <PlatformAccountsLogin /> },
             { path: "login/mfa", element: <PlatformAccountsLoginMFA /> },
             { path: "signup", element: <PlatformAccountsSignup /> },
-            { path: "signup/email-verification", element: <PlatformAccountsEmailVerification /> },
             { path: "password/request", element: <PlatformAccountsPasswordResetRequest /> },
             { path: "password/reset", element: <PlatformAccountsPasswordReset /> },
           ]
@@ -59,6 +58,7 @@ const AppRoutes = createBrowserRouter(
           element: <PlatformAccounts />,
           children: [
             { path: "logout", element: <PlatformAccountsLogout /> },
+            { path: "signup/email-verification", element: <PlatformAccountsEmailVerification /> },
           ],
         },
         {
@@ -92,7 +92,7 @@ const AppRoutes = createBrowserRouter(
       element: <DashboardLayout />,
       children: [
         { index: true, element: <DashboardHome /> },
-        { path: "users", element: <DashboardUsers /> },
+        { path: "users", element: <UsersDashboard /> },
         {
           path: "courses",
           element: <PlatformCourses />,
