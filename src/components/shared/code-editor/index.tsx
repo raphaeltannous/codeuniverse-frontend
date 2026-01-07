@@ -1,4 +1,5 @@
 import Editor, { type OnChange } from "@monaco-editor/react";
+import { useTheme } from "~/context/ThemeContext";
 
 interface CodeEditorProps {
   code: string;
@@ -25,6 +26,7 @@ export default function CodeEditor({
   const handleChange: OnChange = (value) => {
     onCodeChange(value || "");
   };
+  const { theme } = useTheme();
 
   return (
     <Editor
@@ -32,7 +34,7 @@ export default function CodeEditor({
       language={languageMap[language] || "plaintext"}
       value={code}
       onChange={handleChange}
-      theme="vs-light"
+      theme={theme === "light" ? "vs-light" : "vs-dark"}
       options={{
         minimap: { enabled: false },
         wordWrap: "on",

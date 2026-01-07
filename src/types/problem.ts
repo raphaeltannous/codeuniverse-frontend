@@ -19,7 +19,7 @@ export interface CodeSnippet {
 export type TestCase = {
   id: number;
   input: any;
-  output: any;
+  expected: any;
   isPublic: boolean;
 };
 

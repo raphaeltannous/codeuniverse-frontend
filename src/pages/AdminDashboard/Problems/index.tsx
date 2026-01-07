@@ -50,7 +50,7 @@ interface ProblemBasic {
   updatedAt: string;
 }
 
-export type Difficulty = "Easy" | "Medium" | "Hard" | "Beginner" | "Intermediate" | "Advanced" | "Expert";
+export type Difficulty = "Easy" | "Medium" | "Hard";
 
 interface Hint {
   id: string;
@@ -687,7 +687,7 @@ export default function ProblemsDashboard() {
   };
 
   // Difficulty options
-  const difficultyOptions: Difficulty[] = ["Beginner", "Easy", "Medium", "Intermediate", "Hard", "Advanced", "Expert"];
+  const difficultyOptions: Difficulty[] = ["Easy", "Medium", "Hard"];
 
   return (
     <Container fluid className="py-4">
@@ -904,9 +904,6 @@ export default function ProblemsDashboard() {
                   <th>Problem</th>
                   <th>Difficulty</th>
                   <th>Access</th>
-                  <th>Languages</th>
-                  <th>Hints</th>
-                  <th>Test Cases</th>
                   <th>Created</th>
                   <th>Actions</th>
                 </tr>
@@ -950,32 +947,6 @@ export default function ProblemsDashboard() {
                           {getVisibilityBadge(problem.isPublic)}
                           {getPremiumBadge(problem.isPremium)}
                         </div>
-                      </td>
-                      <td>
-                        <Badge bg="info" className="px-2 py-1">
-                          <Code size={12} className="me-1" />
-                          {problem.codeSnippets.length} languages
-                        </Badge>
-                        <div className="mt-1 small">
-                          {problem.codeSnippets.slice(0, 3).map((cs, idx) => (
-                            <Badge key={idx} bg="light" text="dark" className="me-1" size="sm">
-                              {cs.languageName}
-                            </Badge>
-                          ))}
-                          {problem.codeSnippets.length > 3 && (
-                            <span className="text-muted">+{problem.codeSnippets.length - 3} more</span>
-                          )}
-                        </div>
-                      </td>
-                      <td>
-                        <Badge bg="secondary" className="px-2 py-1">
-                          {problem.hints.length} hints
-                        </Badge>
-                      </td>
-                      <td>
-                        <Badge bg={problem.testcases && problem.testcases.testcases.length > 0 ? "success" : "warning"} className="px-2 py-1">
-                          {problem.testcases ? problem.testcases.testcases.length : 0} test cases
-                        </Badge>
                       </td>
                       <td>
                         <div className="small text-muted">

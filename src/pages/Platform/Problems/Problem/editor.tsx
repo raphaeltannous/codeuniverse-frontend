@@ -282,11 +282,13 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
         </Activity>
 
         <div className="mb-4">
-          <h5>Testcases</h5>
+          <h5>Run Testcases</h5>
           <ul className="list-group">
             {problem.testcases?.map((tc, i) => (
               <li key={i} className="list-group-item">
-                {tc.input}
+                Input: {JSON.stringify(tc.input)}
+                <br />
+                Expected Output: {JSON.stringify(tc.expected)}
               </li>
             ))}
           </ul>
