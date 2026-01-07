@@ -9,7 +9,7 @@ const queryClient = new QueryClient();
 
 function App() {
   useEffect(() => {
-    document.body.setAttribute("data-bs-theme", "dark");
+    document.body.setAttribute("data-bs-theme", "light");
   }, []);
 
 

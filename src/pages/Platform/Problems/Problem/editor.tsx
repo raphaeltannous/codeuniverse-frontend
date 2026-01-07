@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import MDEditor from "@uiw/react-md-editor";
 import { Activity, useState } from "react";
 import { Alert, Button, Card, Col, Form, Row, Spinner } from "react-bootstrap";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
@@ -24,7 +25,7 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
 
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
-  const [showEditor, setShowEditor] = useState<boolean>(problem.codeSnippets.length != 0);
+  const [showEditor, setShowEditor] = useState<boolean>(problem.codeSnippets?.length != 0);
 
   const runMutation = useMutation<RunResponse, APIError, RunRequest>({
     mutationFn: async (body: RunRequest) => {
@@ -181,7 +182,8 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
 
   return (
     <div>
-      <div className="mb-3" dangerouslySetInnerHTML={{ __html: problem.description }}>
+      <div className="mb-3">
+        <MDEditor.Markdown source={problem.description} />
       </div>
 
       <Activity mode={showEditor ? "visible" : "hidden"}>
@@ -193,7 +195,7 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
               onChange={handleLanguageChange}
               style={{ width: "150px" }}
             >
-              {problem.codeSnippets.map((snippet) => (
+              {problem.codeSnippets?.map((snippet) => (
                 <option key={snippet.languageSlug} value={snippet.languageSlug}>
                   {snippet.languageName}
                 </option>
@@ -284,7 +286,7 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
           <ul className="list-group">
             {problem.testcases?.map((tc, i) => (
               <li key={i} className="list-group-item">
-                {tc}
+                {tc.input}
               </li>
             ))}
           </ul>

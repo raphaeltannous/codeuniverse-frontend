@@ -21,10 +21,11 @@ import CoursesList from "./pages/Platform/Courses/CoursesList";
 import PlatformCourses from "./pages/Platform/Courses";
 import UserProfilePage from "./pages/Platform/Profile";
 import DashboardCourses from "./pages/AdminDashboard/Courses";
-import DashboardProblems from "./pages/AdminDashboard/Problems";
 import LessonsDashboard from "./pages/AdminDashboard/Lessons";
 import CourseLessonsPagee from "./pages/Platform/Courses/Lessons";
 import UsersDashboard from "./pages/AdminDashboard/Users";
+import ProblemsDashboard from "./pages/AdminDashboard/Problems";
+import EditProblemPage from "./pages/AdminDashboard/Problem";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -101,7 +102,13 @@ const AppRoutes = createBrowserRouter(
             { path: ":courseSlug", element: <LessonsDashboard /> },
           ]
         },
-        { path: "problems", element: <DashboardProblems /> },
+        { path: "problems",
+          element: <PlatformProblems />,
+          children: [
+            { index: true, element: <ProblemsDashboard /> },
+            { path: ":slug/edit", element: <EditProblemPage /> }
+          ],
+        },
       ],
     },
 

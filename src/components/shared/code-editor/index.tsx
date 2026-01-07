@@ -8,11 +8,12 @@ interface CodeEditorProps {
 }
 
 const languageMap: Record<string, string> = {
-  golang: "go",
-  python3: "python",
+  go: "go",
+  python: "python",
   javascript: "javascript",
   typescript: "typescript",
   cpp: "cpp",
+  json: "json",
 };
 
 export default function CodeEditor({
@@ -31,7 +32,7 @@ export default function CodeEditor({
       language={languageMap[language] || "plaintext"}
       value={code}
       onChange={handleChange}
-      theme="vs-dark"
+      theme="vs-light"
       options={{
         minimap: { enabled: false },
         wordWrap: "on",

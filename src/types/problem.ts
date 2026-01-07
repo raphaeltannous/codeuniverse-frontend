@@ -5,7 +5,7 @@ export interface Problem {
   difficulty: Difficulty;
   hints: string[];
   codeSnippets: CodeSnippet[];
-  testcases: TestCases;
+  testcases: TestCase[];
   isPaid: boolean;
   isPublic: boolean;
 }
@@ -16,6 +16,11 @@ export interface CodeSnippet {
   languageSlug: string;
 }
 
-export type TestCases = string[] | null;
+export type TestCase = {
+  id: number;
+  input: any;
+  output: any;
+  isPublic: boolean;
+};
 
 export type Difficulty = "Easy" | "Medium" | "Hard" | "Beginner" | "Intermediate" | "Advanced" | "Expert";
