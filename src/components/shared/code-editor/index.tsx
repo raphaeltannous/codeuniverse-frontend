@@ -15,6 +15,8 @@ const languageMap: Record<string, string> = {
   typescript: "typescript",
   cpp: "cpp",
   json: "json",
+  ruby: "ruby",
+  java: "java",
 };
 
 export default function CodeEditor({

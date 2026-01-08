@@ -27,9 +27,13 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
   const [runId, setRunId] = useState<string | null>(null);
   const [showEditor, setShowEditor] = useState<boolean>(problem.codeSnippets?.length != 0);
 
+  const [language, setLanguage] = useState(() => {
+    return problem.codeSnippets?.[0]?.languageSlug || "go";
+  });
+
   const runMutation = useMutation<RunResponse, APIError, RunRequest>({
     mutationFn: async (body: RunRequest) => {
-      const res = await fetch(`/api/problems/${problem.slug}/run`, {
+      const res = await fetch(`/api/problems/${problem.slug}/run/${language}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -141,10 +145,6 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
     (submissionStatusQuery.data &&
       ['ACCEPTED', 'FAILED', 'ERROR', 'TIME LIMIT EXCEEDED'].includes(submissionStatusQuery.data.status));
 
-  const [language, setLanguage] = useState(() => {
-    return problem.codeSnippets?.[0]?.languageSlug || "golang";
-  });
-
   const [code, setCode] = useState(() => {
     return problem.codeSnippets?.[0]?.code || "";
   });
@@ -158,8 +158,6 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
 
   const handleRun = () => {
     runMutation.mutate({
-      problemSlug,
-      languageSlug: language,
       code,
     })
   };

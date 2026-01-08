@@ -609,7 +609,7 @@ export default function EditProblemPage() {
   // Update limits config mutation
   const updateLimitsConfigMutation = useMutation({
     mutationFn: async (data: ProblemCodeConfig) => {
-      const response = await fetch(`/api/admin/problems/${slug}/limits`, {
+      const response = await fetch(`/api/admin/problems/${slug}/config`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
