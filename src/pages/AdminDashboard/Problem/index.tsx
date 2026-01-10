@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router";
 import {
   Container,
   Row,
@@ -15,8 +15,8 @@ import {
   Tab,
   Modal,
   Dropdown,
-} from 'react-bootstrap';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+} from "react-bootstrap";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Save,
@@ -34,10 +34,10 @@ import {
   Check,
   Copy,
   Clock,
-} from 'react-bootstrap-icons';
-import { useAuth } from '~/context/AuthContext';
-import MDEditor from '@uiw/react-md-editor';
-import CodeEditor from '~/components/shared/code-editor';
+} from "react-bootstrap-icons";
+import { useAuth } from "~/context/AuthContext";
+import MDEditor from "@uiw/react-md-editor";
+import CodeEditor from "~/components/shared/code-editor";
 
 // Interfaces
 interface ProblemBasic {
@@ -52,7 +52,14 @@ interface ProblemBasic {
   updatedAt: string;
 }
 
-export type Difficulty = "Easy" | "Medium" | "Hard" | "Beginner" | "Intermediate" | "Advanced" | "Expert";
+export type Difficulty =
+  | "Easy"
+  | "Medium"
+  | "Hard"
+  | "Beginner"
+  | "Intermediate"
+  | "Advanced"
+  | "Expert";
 
 interface Hint {
   id: string;
@@ -110,30 +117,31 @@ export default function EditProblemPage() {
   const { auth } = useAuth();
   const queryClient = useQueryClient();
 
-  const [actionSuccess, setActionSuccess] = useState('');
-  const [actionError, setActionError] = useState('');
-  const [activeTab, setActiveTab] = useState('basic');
+  const [actionSuccess, setActionSuccess] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [activeTab, setActiveTab] = useState("basic");
 
   // Modal states
   const [showHintModal, setShowHintModal] = useState(false);
   const [showTestcaseModal, setShowTestcaseModal] = useState(false);
   const [editingHint, setEditingHint] = useState<Hint | null>(null);
-  const [editingTestcase, setEditingTestcase] = useState<ProblemTestcase | null>(null);
+  const [editingTestcase, setEditingTestcase] =
+    useState<ProblemTestcase | null>(null);
 
   // Form states
-  const [hintForm, setHintForm] = useState({ hint: '' });
+  const [hintForm, setHintForm] = useState({ hint: "" });
   const [testcaseForm, setTestcaseForm] = useState({
-    input: '',
-    expected: '',
+    input: "",
+    expected: "",
     isPublic: false,
   });
 
   // Basic problem form
   const [formData, setFormData] = useState<ProblemFormData>({
-    title: '',
-    slug: '',
-    description: '',
-    difficulty: 'Easy',
+    title: "",
+    slug: "",
+    description: "",
+    difficulty: "Easy",
     isPremium: false,
     isPublic: true,
   });
@@ -148,9 +156,10 @@ export default function EditProblemPage() {
   const [testcases, setTestcases] = useState<ProblemTestcase[]>([]);
 
   // Selected language for code snippets tab
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   // Editing state for code snippet
-  const [editingCodeSnippet, setEditingCodeSnippet] = useState<ProblemCode | null>(null);
+  const [editingCodeSnippet, setEditingCodeSnippet] =
+    useState<ProblemCode | null>(null);
   // Form for editing code snippet directly
   const [codeSnippetEditForm, setCodeSnippetEditForm] = useState<{
     codeSnippet: string;
@@ -158,9 +167,9 @@ export default function EditProblemPage() {
     checker: string;
     isPublic: boolean;
   }>({
-    codeSnippet: '',
-    driver: '',
-    checker: '',
+    codeSnippet: "",
+    driver: "",
+    checker: "",
     isPublic: false,
   });
 
@@ -169,18 +178,18 @@ export default function EditProblemPage() {
     data: problem,
     isLoading: isLoadingProblem,
     isError: isProblemError,
-    error: problemError
+    error: problemError,
   } = useQuery<Problem>({
-    queryKey: ['admin-problem', slug],
+    queryKey: ["admin-problem", slug],
     queryFn: async () => {
       const response = await fetch(`/api/admin/problems/${slug}`, {
         headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        }
+          Authorization: `Bearer ${auth.jwt}`,
+        },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch problem');
+        throw new Error("Failed to fetch problem");
       }
       return response.json();
     },
@@ -191,18 +200,18 @@ export default function EditProblemPage() {
   const {
     data: hints = [],
     isLoading: isLoadingHints,
-    refetch: refetchHints
+    refetch: refetchHints,
   } = useQuery<Hint[]>({
-    queryKey: ['admin-problem-hints', slug],
+    queryKey: ["admin-problem-hints", slug],
     queryFn: async () => {
       const response = await fetch(`/api/admin/problems/${slug}/hints`, {
         headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        }
+          Authorization: `Bearer ${auth.jwt}`,
+        },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch hints');
+        throw new Error("Failed to fetch hints");
       }
       return response.json();
     },
@@ -213,18 +222,21 @@ export default function EditProblemPage() {
   const {
     data: codeSnippets = [],
     isLoading: isLoadingCodeSnippets,
-    refetch: refetchCodeSnippets
+    refetch: refetchCodeSnippets,
   } = useQuery<ProblemCode[]>({
-    queryKey: ['admin-problem-code-snippets', slug],
+    queryKey: ["admin-problem-code-snippets", slug],
     queryFn: async () => {
-      const response = await fetch(`/api/admin/problems/${slug}/code-snippets`, {
-        headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        }
-      });
+      const response = await fetch(
+        `/api/admin/problems/${slug}/code-snippets`,
+        {
+          headers: {
+            Authorization: `Bearer ${auth.jwt}`,
+          },
+        },
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch code snippets');
+        throw new Error("Failed to fetch code snippets");
       }
       return response.json();
     },
@@ -235,18 +247,18 @@ export default function EditProblemPage() {
   const {
     data: fetchedTestcases = [],
     isLoading: isLoadingTestcases,
-    refetch: refetchTestcases
+    refetch: refetchTestcases,
   } = useQuery<ProblemTestcase[]>({
-    queryKey: ['admin-problem-testcases', slug],
+    queryKey: ["admin-problem-testcases", slug],
     queryFn: async () => {
       const response = await fetch(`/api/admin/problems/${slug}/testcases`, {
         headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        }
+          Authorization: `Bearer ${auth.jwt}`,
+        },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch test cases');
+        throw new Error("Failed to fetch test cases");
       }
       return response.json();
     },
@@ -257,18 +269,18 @@ export default function EditProblemPage() {
   const {
     data: fetchedLimitsConfig,
     isLoading: isLoadingLimits,
-    refetch: refetchLimits
+    refetch: refetchLimits,
   } = useQuery<ProblemCodeConfig>({
-    queryKey: ['admin-problem-limits', slug],
+    queryKey: ["admin-problem-limits", slug],
     queryFn: async () => {
       const response = await fetch(`/api/admin/problems/${slug}/config`, {
         headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        }
+          Authorization: `Bearer ${auth.jwt}`,
+        },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch limits config');
+        throw new Error("Failed to fetch limits config");
       }
       return response.json();
     },
@@ -276,22 +288,23 @@ export default function EditProblemPage() {
   });
 
   // Fetch supported languages (not used for creating snippets anymore)
-  const { data: supportedLanguages = [], isLoading: isLoadingLanguages } = useQuery<Language[]>({
-    queryKey: ['supported-languages'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/supported-languages', {
-        headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        }
-      });
+  const { data: supportedLanguages = [], isLoading: isLoadingLanguages } =
+    useQuery<Language[]>({
+      queryKey: ["supported-languages"],
+      queryFn: async () => {
+        const response = await fetch("/api/admin/supported-languages", {
+          headers: {
+            Authorization: `Bearer ${auth.jwt}`,
+          },
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch supported languages');
-      }
-      return (await response.json()) as Language[];
-    },
-    enabled: !!auth.jwt,
-  });
+        if (!response.ok) {
+          throw new Error("Failed to fetch supported languages");
+        }
+        return (await response.json()) as Language[];
+      },
+      enabled: !!auth.jwt,
+    });
 
   // Use effect to set form data when problem loads
   useEffect(() => {
@@ -332,7 +345,9 @@ export default function EditProblemPage() {
   useEffect(() => {
     if (selectedLanguage) {
       setEditingCodeSnippet(null);
-      const snippet = codeSnippets.find(s => s.languageSlug === selectedLanguage);
+      const snippet = codeSnippets.find(
+        (s) => s.languageSlug === selectedLanguage,
+      );
       if (snippet) {
         setCodeSnippetEditForm({
           codeSnippet: snippet.codeSnippet,
@@ -345,7 +360,9 @@ export default function EditProblemPage() {
   }, [selectedLanguage, codeSnippets]);
 
   // Get current selected code snippet
-  const currentCodeSnippet = codeSnippets.find(snippet => snippet.languageSlug === selectedLanguage);
+  const currentCodeSnippet = codeSnippets.find(
+    (snippet) => snippet.languageSlug === selectedLanguage,
+  );
 
   // Get recent 3 testcases for templates (assuming higher IDs are more recent)
   const recentTestcases = [...testcases]
@@ -356,29 +373,29 @@ export default function EditProblemPage() {
   const updateProblemMutation = useMutation({
     mutationFn: async (data: ProblemFormData) => {
       const response = await fetch(`/api/admin/problems/${slug}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.jwt}`,
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to update problem');
+        throw new Error(errorData.message || "Failed to update problem");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-problem', slug] });
-      queryClient.invalidateQueries({ queryKey: ['admin-problems'] });
-      setActionSuccess('Problem updated successfully');
-      setTimeout(() => setActionSuccess(''), 3000);
+      queryClient.invalidateQueries({ queryKey: ["admin-problem", slug] });
+      queryClient.invalidateQueries({ queryKey: ["admin-problems"] });
+      setActionSuccess("Problem updated successfully");
+      setTimeout(() => setActionSuccess(""), 3000);
     },
     onError: (error) => {
-      setActionError(error.message || 'Failed to update problem');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError(error.message || "Failed to update problem");
+      setTimeout(() => setActionError(""), 5000);
     },
   });
 
@@ -386,223 +403,258 @@ export default function EditProblemPage() {
   const createHintMutation = useMutation({
     mutationFn: async (hint: string) => {
       const response = await fetch(`/api/admin/problems/${slug}/hints`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.jwt}`,
         },
         body: JSON.stringify({ hint }),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to create hint');
+        throw new Error(errorData.message || "Failed to create hint");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-problem-hints', slug] });
+      queryClient.invalidateQueries({
+        queryKey: ["admin-problem-hints", slug],
+      });
       setShowHintModal(false);
-      setHintForm({ hint: '' });
+      setHintForm({ hint: "" });
       setEditingHint(null);
-      setActionSuccess('Hint added successfully');
-      setTimeout(() => setActionSuccess(''), 3000);
+      setActionSuccess("Hint added successfully");
+      setTimeout(() => setActionSuccess(""), 3000);
     },
     onError: (error) => {
-      setActionError(error.message || 'Failed to create hint');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError(error.message || "Failed to create hint");
+      setTimeout(() => setActionError(""), 5000);
     },
   });
 
   // Update hint mutation
   const updateHintMutation = useMutation({
     mutationFn: async ({ hintId, hint }: { hintId: string; hint: string }) => {
-      const response = await fetch(`/api/admin/problems/${slug}/hints/${hintId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
+      const response = await fetch(
+        `/api/admin/problems/${slug}/hints/${hintId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth.jwt}`,
+          },
+          body: JSON.stringify({ hint }),
         },
-        body: JSON.stringify({ hint }),
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to update hint');
+        throw new Error(errorData.message || "Failed to update hint");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-problem-hints', slug] });
+      queryClient.invalidateQueries({
+        queryKey: ["admin-problem-hints", slug],
+      });
       setShowHintModal(false);
-      setHintForm({ hint: '' });
+      setHintForm({ hint: "" });
       setEditingHint(null);
-      setActionSuccess('Hint updated successfully');
-      setTimeout(() => setActionSuccess(''), 3000);
+      setActionSuccess("Hint updated successfully");
+      setTimeout(() => setActionSuccess(""), 3000);
     },
     onError: (error) => {
-      setActionError(error.message || 'Failed to update hint');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError(error.message || "Failed to update hint");
+      setTimeout(() => setActionError(""), 5000);
     },
   });
 
   // Delete hint mutation
   const deleteHintMutation = useMutation({
     mutationFn: async (hintId: string) => {
-      const response = await fetch(`/api/admin/problems/${slug}/hints/${hintId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${auth.jwt}`,
+      const response = await fetch(
+        `/api/admin/problems/${slug}/hints/${hintId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${auth.jwt}`,
+          },
         },
-      });
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to delete hint');
+        throw new Error("Failed to delete hint");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-problem-hints', slug] });
-      setActionSuccess('Hint deleted successfully');
-      setTimeout(() => setActionSuccess(''), 3000);
+      queryClient.invalidateQueries({
+        queryKey: ["admin-problem-hints", slug],
+      });
+      setActionSuccess("Hint deleted successfully");
+      setTimeout(() => setActionSuccess(""), 3000);
     },
     onError: (error) => {
-      setActionError(error.message || 'Failed to delete hint');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError(error.message || "Failed to delete hint");
+      setTimeout(() => setActionError(""), 5000);
     },
   });
 
   // Update code snippet mutation
   const updateCodeSnippetMutation = useMutation({
-    mutationFn: async ({ languageSlug, data }: {
+    mutationFn: async ({
+      languageSlug,
+      data,
+    }: {
       languageSlug: string;
-      data: ProblemCode
+      data: ProblemCode;
     }) => {
-      const response = await fetch(`/api/admin/problems/${slug}/code-snippets/${languageSlug}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
+      const response = await fetch(
+        `/api/admin/problems/${slug}/code-snippets/${languageSlug}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth.jwt}`,
+          },
+          body: JSON.stringify(data),
         },
-        body: JSON.stringify(data),
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to update code snippet');
+        throw new Error(errorData.message || "Failed to update code snippet");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-problem-code-snippets', slug] });
+      queryClient.invalidateQueries({
+        queryKey: ["admin-problem-code-snippets", slug],
+      });
       setEditingCodeSnippet(null);
-      setActionSuccess('Code snippet updated successfully');
-      setTimeout(() => setActionSuccess(''), 3000);
+      setActionSuccess("Code snippet updated successfully");
+      setTimeout(() => setActionSuccess(""), 3000);
     },
     onError: (error) => {
-      setActionError(error.message || 'Failed to update code snippet');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError(error.message || "Failed to update code snippet");
+      setTimeout(() => setActionError(""), 5000);
     },
   });
 
   // Create testcase mutation (sends individual testcase)
   const createTestcaseMutation = useMutation({
-    mutationFn: async (data: Omit<ProblemTestcase, 'id'>) => {
+    mutationFn: async (data: Omit<ProblemTestcase, "id">) => {
       const response = await fetch(`/api/admin/problems/${slug}/testcases`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.jwt}`,
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to create test case');
+        throw new Error(errorData.message || "Failed to create test case");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-problem-testcases', slug] });
+      queryClient.invalidateQueries({
+        queryKey: ["admin-problem-testcases", slug],
+      });
       setShowTestcaseModal(false);
       setTestcaseForm({
-        input: '',
-        expected: '',
+        input: "",
+        expected: "",
         isPublic: false,
       });
       setEditingTestcase(null);
-      setActionSuccess('Test case added successfully');
-      setTimeout(() => setActionSuccess(''), 3000);
+      setActionSuccess("Test case added successfully");
+      setTimeout(() => setActionSuccess(""), 3000);
     },
     onError: (error) => {
-      setActionError(error.message || 'Failed to create test case');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError(error.message || "Failed to create test case");
+      setTimeout(() => setActionError(""), 5000);
     },
   });
 
   // Update testcase mutation (updates individual testcase)
   const updateTestcaseMutation = useMutation({
-    mutationFn: async ({ testcaseId, data }: {
+    mutationFn: async ({
+      testcaseId,
+      data,
+    }: {
       testcaseId: number;
-      data: Omit<ProblemTestcase, 'id'>
+      data: Omit<ProblemTestcase, "id">;
     }) => {
-      const response = await fetch(`/api/admin/problems/${slug}/testcases/${testcaseId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
+      const response = await fetch(
+        `/api/admin/problems/${slug}/testcases/${testcaseId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth.jwt}`,
+          },
+          body: JSON.stringify(data),
         },
-        body: JSON.stringify(data),
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to update test case');
+        throw new Error(errorData.message || "Failed to update test case");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-problem-testcases', slug] });
+      queryClient.invalidateQueries({
+        queryKey: ["admin-problem-testcases", slug],
+      });
       setShowTestcaseModal(false);
       setTestcaseForm({
-        input: '',
-        expected: '',
+        input: "",
+        expected: "",
         isPublic: false,
       });
       setEditingTestcase(null);
-      setActionSuccess('Test case updated successfully');
-      setTimeout(() => setActionSuccess(''), 3000);
+      setActionSuccess("Test case updated successfully");
+      setTimeout(() => setActionSuccess(""), 3000);
     },
     onError: (error) => {
-      setActionError(error.message || 'Failed to update test case');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError(error.message || "Failed to update test case");
+      setTimeout(() => setActionError(""), 5000);
     },
   });
 
   // Delete testcase mutation
   const deleteTestcaseMutation = useMutation({
     mutationFn: async (testcaseId: number) => {
-      const response = await fetch(`/api/admin/problems/${slug}/testcases/${testcaseId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${auth.jwt}`,
+      const response = await fetch(
+        `/api/admin/problems/${slug}/testcases/${testcaseId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${auth.jwt}`,
+          },
         },
-      });
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to delete test case');
+        throw new Error("Failed to delete test case");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-problem-testcases', slug] });
-      setActionSuccess('Test case deleted successfully');
-      setTimeout(() => setActionSuccess(''), 3000);
+      queryClient.invalidateQueries({
+        queryKey: ["admin-problem-testcases", slug],
+      });
+      setActionSuccess("Test case deleted successfully");
+      setTimeout(() => setActionSuccess(""), 3000);
     },
     onError: (error) => {
-      setActionError(error.message || 'Failed to delete test case');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError(error.message || "Failed to delete test case");
+      setTimeout(() => setActionError(""), 5000);
     },
   });
 
@@ -610,55 +662,62 @@ export default function EditProblemPage() {
   const updateLimitsConfigMutation = useMutation({
     mutationFn: async (data: ProblemCodeConfig) => {
       const response = await fetch(`/api/admin/problems/${slug}/config`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.jwt}`,
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to update limits');
+        throw new Error(errorData.message || "Failed to update limits");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-problem-limits', slug] });
-      setActionSuccess('Limits updated successfully');
-      setTimeout(() => setActionSuccess(''), 3000);
+      queryClient.invalidateQueries({
+        queryKey: ["admin-problem-limits", slug],
+      });
+      setActionSuccess("Limits updated successfully");
+      setTimeout(() => setActionSuccess(""), 3000);
     },
     onError: (error) => {
-      setActionError(error.message || 'Failed to update limits');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError(error.message || "Failed to update limits");
+      setTimeout(() => setActionError(""), 5000);
     },
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
   const handleSlugGenerate = () => {
     const newSlug = formData.title
       .toLowerCase()
-      .replace(/[^\w\s]/gi, '')
-      .replace(/\s+/g, '-');
-    setFormData(prev => ({ ...prev, slug: newSlug }));
+      .replace(/[^\w\s]/gi, "")
+      .replace(/\s+/g, "-");
+    setFormData((prev) => ({ ...prev, slug: newSlug }));
   };
 
   const handleDescriptionChange = (value: string | undefined) => {
-    setFormData(prev => ({ ...prev, description: value || '' }));
+    setFormData((prev) => ({ ...prev, description: value || "" }));
   };
 
   // Hint handlers
   const handleAddHint = () => {
     setEditingHint(null);
-    setHintForm({ hint: '' });
+    setHintForm({ hint: "" });
     setShowHintModal(true);
   };
 
@@ -669,23 +728,26 @@ export default function EditProblemPage() {
   };
 
   const handleDeleteHint = (hintId: string) => {
-    if (window.confirm('Are you sure you want to delete this hint?')) {
+    if (window.confirm("Are you sure you want to delete this hint?")) {
       deleteHintMutation.mutate(hintId);
     }
   };
 
   const handleHintFormChange = (value: string | undefined) => {
-    setHintForm({ hint: value || '' });
+    setHintForm({ hint: value || "" });
   };
 
   const handleSubmitHint = () => {
     if (!hintForm.hint.trim()) {
-      setActionError('Hint text is required');
+      setActionError("Hint text is required");
       return;
     }
 
     if (editingHint) {
-      updateHintMutation.mutate({ hintId: editingHint.id, hint: hintForm.hint });
+      updateHintMutation.mutate({
+        hintId: editingHint.id,
+        hint: hintForm.hint,
+      });
     } else {
       createHintMutation.mutate(hintForm.hint);
     }
@@ -710,16 +772,21 @@ export default function EditProblemPage() {
     }
   };
 
-  const handleCodeSnippetEditFormChange = (field: keyof typeof codeSnippetEditForm, value: any) => {
-    setCodeSnippetEditForm(prev => ({ ...prev, [field]: value }));
+  const handleCodeSnippetEditFormChange = (
+    field: keyof typeof codeSnippetEditForm,
+    value: any,
+  ) => {
+    setCodeSnippetEditForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSaveCodeSnippet = () => {
     if (!currentCodeSnippet) return;
 
-    const selectedLang = supportedLanguages.find(lang => lang.languageSlug === currentCodeSnippet.languageSlug);
+    const selectedLang = supportedLanguages.find(
+      (lang) => lang.languageSlug === currentCodeSnippet.languageSlug,
+    );
     if (!selectedLang) {
-      setActionError('Invalid language selected');
+      setActionError("Invalid language selected");
       return;
     }
 
@@ -732,15 +799,18 @@ export default function EditProblemPage() {
       languageSlug: currentCodeSnippet.languageSlug,
     };
 
-    updateCodeSnippetMutation.mutate({ languageSlug: currentCodeSnippet.languageSlug, data });
+    updateCodeSnippetMutation.mutate({
+      languageSlug: currentCodeSnippet.languageSlug,
+      data,
+    });
   };
 
   // Testcase handlers
   const handleAddTestcase = () => {
     setEditingTestcase(null);
     setTestcaseForm({
-      input: '',
-      expected: '',
+      input: "",
+      expected: "",
       isPublic: false,
     });
     setShowTestcaseModal(true);
@@ -749,8 +819,14 @@ export default function EditProblemPage() {
   const handleAddTestcaseWithTemplate = (templateTestcase: ProblemTestcase) => {
     setEditingTestcase(null);
     setTestcaseForm({
-      input: typeof templateTestcase.input === 'string' ? templateTestcase.input : JSON.stringify(templateTestcase.input, null, 2),
-      expected: typeof templateTestcase.expected === 'string' ? templateTestcase.expected : JSON.stringify(templateTestcase.expected, null, 2),
+      input:
+        typeof templateTestcase.input === "string"
+          ? templateTestcase.input
+          : JSON.stringify(templateTestcase.input, null, 2),
+      expected:
+        typeof templateTestcase.expected === "string"
+          ? templateTestcase.expected
+          : JSON.stringify(templateTestcase.expected, null, 2),
       isPublic: templateTestcase.isPublic,
     });
     setShowTestcaseModal(true);
@@ -759,31 +835,40 @@ export default function EditProblemPage() {
   const handleEditTestcase = (testcase: ProblemTestcase) => {
     setEditingTestcase(testcase);
     setTestcaseForm({
-      input: typeof testcase.input === 'string' ? testcase.input : JSON.stringify(testcase.input, null, 2),
-      expected: typeof testcase.expected === 'string' ? testcase.expected : JSON.stringify(testcase.expected, null, 2),
+      input:
+        typeof testcase.input === "string"
+          ? testcase.input
+          : JSON.stringify(testcase.input, null, 2),
+      expected:
+        typeof testcase.expected === "string"
+          ? testcase.expected
+          : JSON.stringify(testcase.expected, null, 2),
       isPublic: testcase.isPublic,
     });
     setShowTestcaseModal(true);
   };
 
   const handleDeleteTestcase = (testcaseId: number) => {
-    if (window.confirm('Are you sure you want to delete this test case?')) {
+    if (window.confirm("Are you sure you want to delete this test case?")) {
       deleteTestcaseMutation.mutate(testcaseId);
     }
   };
 
-  const handleTestcaseFormChange = (field: keyof typeof testcaseForm, value: any) => {
-    setTestcaseForm(prev => ({ ...prev, [field]: value }));
+  const handleTestcaseFormChange = (
+    field: keyof typeof testcaseForm,
+    value: any,
+  ) => {
+    setTestcaseForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmitTestcase = () => {
     if (!testcaseForm.input.trim()) {
-      setActionError('Input is required');
+      setActionError("Input is required");
       return;
     }
 
     if (!testcaseForm.expected.trim()) {
-      setActionError('Expected output is required');
+      setActionError("Expected output is required");
       return;
     }
 
@@ -816,8 +901,11 @@ export default function EditProblemPage() {
   };
 
   // Limits handlers
-  const handleLimitsChange = (field: keyof typeof limitsConfig, value: number) => {
-    setLimitsConfig(prev => ({ ...prev, [field]: value }));
+  const handleLimitsChange = (
+    field: keyof typeof limitsConfig,
+    value: number,
+  ) => {
+    setLimitsConfig((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSaveLimits = () => {
@@ -826,34 +914,48 @@ export default function EditProblemPage() {
 
   // Handle save button click
   const handleSaveClick = () => {
-    setActionError('');
+    setActionError("");
 
     if (!formData.title.trim()) {
-      setActionError('Problem title is required');
+      setActionError("Problem title is required");
       return;
     }
 
     if (!formData.slug.trim()) {
-      setActionError('Problem slug is required');
+      setActionError("Problem slug is required");
       return;
     }
 
     if (!formData.description.trim()) {
-      setActionError('Problem description is required');
+      setActionError("Problem description is required");
       return;
     }
 
     if (!formData.difficulty.trim()) {
-      setActionError('Problem difficulty is required');
+      setActionError("Problem difficulty is required");
       return;
     }
 
     updateProblemMutation.mutate(formData);
   };
 
-  const difficultyOptions: Difficulty[] = ["Beginner", "Easy", "Medium", "Intermediate", "Hard", "Advanced", "Expert"];
+  const difficultyOptions: Difficulty[] = [
+    "Beginner",
+    "Easy",
+    "Medium",
+    "Intermediate",
+    "Hard",
+    "Advanced",
+    "Expert",
+  ];
 
-  const isLoading = isLoadingProblem || isLoadingHints || isLoadingCodeSnippets || isLoadingTestcases || isLoadingLimits || isLoadingLanguages;
+  const isLoading =
+    isLoadingProblem ||
+    isLoadingHints ||
+    isLoadingCodeSnippets ||
+    isLoadingTestcases ||
+    isLoadingLimits ||
+    isLoadingLanguages;
 
   if (isLoading) {
     return (
@@ -872,12 +974,13 @@ export default function EditProblemPage() {
         <Alert variant="danger" className="mb-4">
           <div className="d-flex justify-content-between align-items-center">
             <div>
-              <strong>Error loading problem:</strong> {problemError?.message || 'Unknown error'}
+              <strong>Error loading problem:</strong>{" "}
+              {problemError?.message || "Unknown error"}
             </div>
             <Button
               variant="outline-danger"
               size="sm"
-              onClick={() => navigate('/dashboard/problems')}
+              onClick={() => navigate("/dashboard/problems")}
             >
               <ArrowLeft size={14} className="me-1" />
               Back to Problems
@@ -892,14 +995,24 @@ export default function EditProblemPage() {
     <Container fluid className="py-4">
       {/* Success/Error Alerts */}
       {actionSuccess && (
-        <Alert variant="success" dismissible onClose={() => setActionSuccess('')} className="mb-4">
+        <Alert
+          variant="success"
+          dismissible
+          onClose={() => setActionSuccess("")}
+          className="mb-4"
+        >
           <CheckCircle size={18} className="me-2" />
           {actionSuccess}
         </Alert>
       )}
 
       {actionError && (
-        <Alert variant="danger" dismissible onClose={() => setActionError('')} className="mb-4">
+        <Alert
+          variant="danger"
+          dismissible
+          onClose={() => setActionError("")}
+          className="mb-4"
+        >
           <XCircle size={18} className="me-2" />
           {actionError}
         </Alert>
@@ -915,7 +1028,7 @@ export default function EditProblemPage() {
           <Button
             variant="outline-info"
             size="sm"
-            onClick={() => window.open(`/problems/${slug}`, '_blank')}
+            onClick={() => window.open(`/problems/${slug}`, "_blank")}
           >
             View Problem
           </Button>
@@ -927,7 +1040,7 @@ export default function EditProblemPage() {
         <Card.Body className="p-0">
           <Tabs
             activeKey={activeTab}
-            onSelect={(k) => setActiveTab(k || 'basic')}
+            onSelect={(k) => setActiveTab(k || "basic")}
             className="border-bottom px-3 pt-2"
             fill
           >
@@ -989,8 +1102,10 @@ export default function EditProblemPage() {
                           onChange={handleInputChange}
                           required
                         >
-                          {difficultyOptions.map(diff => (
-                            <option key={diff} value={diff}>{diff}</option>
+                          {difficultyOptions.map((diff) => (
+                            <option key={diff} value={diff}>
+                              {diff}
+                            </option>
                           ))}
                         </Form.Select>
                       </Form.Group>
@@ -998,21 +1113,33 @@ export default function EditProblemPage() {
 
                     <Col md={6}>
                       <Form.Group>
-                        <Form.Label className="fw-semibold">Access Settings</Form.Label>
+                        <Form.Label className="fw-semibold">
+                          Access Settings
+                        </Form.Label>
                         <div className="d-flex gap-4">
                           <Form.Check
                             type="switch"
                             id="isPublic"
                             label="Public"
                             checked={formData.isPublic}
-                            onChange={(e) => setFormData(prev => ({ ...prev, isPublic: e.target.checked }))}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                isPublic: e.target.checked,
+                              }))
+                            }
                           />
                           <Form.Check
                             type="switch"
                             id="isPremium"
                             label="Premium"
                             checked={formData.isPremium}
-                            onChange={(e) => setFormData(prev => ({ ...prev, isPremium: e.target.checked }))}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                isPremium: e.target.checked,
+                              }))
+                            }
                           />
                         </div>
                       </Form.Group>
@@ -1023,7 +1150,7 @@ export default function EditProblemPage() {
                         <Form.Label className="fw-semibold">
                           Description <span className="text-danger">*</span>
                         </Form.Label>
-                        <div data-color-mode="light">
+                        <div>
                           <MDEditor
                             value={formData.description}
                             onChange={handleDescriptionChange}
@@ -1040,7 +1167,7 @@ export default function EditProblemPage() {
                     <Button
                       variant="outline-secondary"
                       className="px-4"
-                      onClick={() => navigate('/dashboard/problems')}
+                      onClick={() => navigate("/dashboard/problems")}
                     >
                       Cancel
                     </Button>
@@ -1053,7 +1180,11 @@ export default function EditProblemPage() {
                     >
                       {updateProblemMutation.isPending ? (
                         <>
-                          <Spinner animation="border" size="sm" className="me-2" />
+                          <Spinner
+                            animation="border"
+                            size="sm"
+                            className="me-2"
+                          />
                           Saving Changes...
                         </>
                       ) : (
@@ -1073,7 +1204,9 @@ export default function EditProblemPage() {
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <div>
                     <h6 className="fw-semibold mb-0">Problem Hints</h6>
-                    <p className="text-muted small mb-0">Add helpful hints for users (Markdown supported)</p>
+                    <p className="text-muted small mb-0">
+                      Add helpful hints for users (Markdown supported)
+                    </p>
                   </div>
                   <Button
                     variant="outline-primary"
@@ -1088,7 +1221,8 @@ export default function EditProblemPage() {
 
                 {hints.length === 0 ? (
                   <Alert variant="info">
-                    No hints added. Hints are optional but can help users solve the problem.
+                    No hints added. Hints are optional but can help users solve
+                    the problem.
                   </Alert>
                 ) : (
                   <Row>
@@ -1097,7 +1231,9 @@ export default function EditProblemPage() {
                         <Card>
                           <Card.Body>
                             <div className="d-flex justify-content-between align-items-start mb-2">
-                              <div className="fw-semibold">Hint #{hints.indexOf(hint) + 1}</div>
+                              <div className="fw-semibold">
+                                Hint #{hints.indexOf(hint) + 1}
+                              </div>
                               <div className="d-flex gap-1">
                                 <Button
                                   variant="outline-info"
@@ -1121,7 +1257,8 @@ export default function EditProblemPage() {
                               <MDEditor.Markdown source={hint.hint} />
                             </div>
                             <small className="text-muted">
-                              Created: {new Date(hint.createdAt).toLocaleDateString()}
+                              Created:{" "}
+                              {new Date(hint.createdAt).toLocaleDateString()}
                             </small>
                           </Card.Body>
                         </Card>
@@ -1132,18 +1269,23 @@ export default function EditProblemPage() {
               </div>
             </Tab>
 
-            <Tab eventKey="code" title={`Code Snippets (${codeSnippets.length})`}>
+            <Tab
+              eventKey="code"
+              title={`Code Snippets (${codeSnippets.length})`}
+            >
               <div className="p-3">
                 <div className="mb-3">
                   <h6 className="fw-semibold mb-0">Code Snippets</h6>
                   <p className="text-muted small mb-0">
-                    Languages are automatically created by the backend. Edit to make them public or update code.
+                    Languages are automatically created by the backend. Edit to
+                    make them public or update code.
                   </p>
                 </div>
 
                 {codeSnippets.length === 0 ? (
                   <Alert variant="info">
-                    No code snippets available. The backend will automatically create language entries.
+                    No code snippets available. The backend will automatically
+                    create language entries.
                   </Alert>
                 ) : (
                   <div>
@@ -1158,8 +1300,14 @@ export default function EditProblemPage() {
                             {codeSnippets.map((snippet) => (
                               <Button
                                 key={snippet.languageSlug}
-                                variant={selectedLanguage === snippet.languageSlug ? "primary" : "outline-secondary"}
-                                onClick={() => setSelectedLanguage(snippet.languageSlug)}
+                                variant={
+                                  selectedLanguage === snippet.languageSlug
+                                    ? "primary"
+                                    : "outline-secondary"
+                                }
+                                onClick={() =>
+                                  setSelectedLanguage(snippet.languageSlug)
+                                }
                                 className="d-flex align-items-center gap-2 position-relative"
                               >
                                 <span>{snippet.languageName}</span>
@@ -1188,12 +1336,18 @@ export default function EditProblemPage() {
                                 {currentCodeSnippet.languageName} Code Snippet
                               </div>
                               {currentCodeSnippet.isPublic ? (
-                                <Badge bg="success" className="d-flex align-items-center gap-1">
+                                <Badge
+                                  bg="success"
+                                  className="d-flex align-items-center gap-1"
+                                >
                                   <Eye size={12} />
                                   Public
                                 </Badge>
                               ) : (
-                                <Badge bg="secondary" className="d-flex align-items-center gap-1">
+                                <Badge
+                                  bg="secondary"
+                                  className="d-flex align-items-center gap-1"
+                                >
                                   <EyeSlash size={12} />
                                   Private
                                 </Badge>
@@ -1206,7 +1360,9 @@ export default function EditProblemPage() {
                                     variant="outline-secondary"
                                     size="sm"
                                     onClick={handleCancelEditCodeSnippet}
-                                    disabled={updateCodeSnippetMutation.isPending}
+                                    disabled={
+                                      updateCodeSnippetMutation.isPending
+                                    }
                                     className="d-flex align-items-center gap-2"
                                   >
                                     Cancel
@@ -1215,7 +1371,9 @@ export default function EditProblemPage() {
                                     variant="success"
                                     size="sm"
                                     onClick={handleSaveCodeSnippet}
-                                    disabled={updateCodeSnippetMutation.isPending}
+                                    disabled={
+                                      updateCodeSnippetMutation.isPending
+                                    }
                                     className="d-flex align-items-center gap-2"
                                   >
                                     {updateCodeSnippetMutation.isPending ? (
@@ -1249,42 +1407,86 @@ export default function EditProblemPage() {
                                 type="switch"
                                 label="Make this language public (visible to users)"
                                 checked={codeSnippetEditForm.isPublic}
-                                onChange={(e) => handleCodeSnippetEditFormChange('isPublic', e.target.checked)}
+                                onChange={(e) =>
+                                  handleCodeSnippetEditFormChange(
+                                    "isPublic",
+                                    e.target.checked,
+                                  )
+                                }
                                 disabled={!editingCodeSnippet}
                               />
                             </Col>
 
                             <Col md={12}>
-                              <Form.Label className="fw-semibold">Code Snippet (shown to user)</Form.Label>
-                              <div style={{ height: '200px', border: '1px solid #dee2e6', borderRadius: '0.375rem' }}>
+                              <Form.Label className="fw-semibold">
+                                Code Snippet (shown to user)
+                              </Form.Label>
+                              <div
+                                style={{
+                                  height: "400px",
+                                  border: "1px solid #dee2e6",
+                                  borderRadius: "0.375rem",
+                                }}
+                              >
                                 <CodeEditor
                                   code={codeSnippetEditForm.codeSnippet}
                                   language={currentCodeSnippet.languageSlug}
-                                  onCodeChange={(value) => handleCodeSnippetEditFormChange('codeSnippet', value)}
+                                  onCodeChange={(value) =>
+                                    handleCodeSnippetEditFormChange(
+                                      "codeSnippet",
+                                      value,
+                                    )
+                                  }
                                   readonly={!editingCodeSnippet}
                                 />
                               </div>
                             </Col>
 
                             <Col md={12}>
-                              <Form.Label className="fw-semibold">Driver Code</Form.Label>
-                              <div style={{ height: '200px', border: '1px solid #dee2e6', borderRadius: '0.375rem' }}>
+                              <Form.Label className="fw-semibold">
+                                Driver Code
+                              </Form.Label>
+                              <div
+                                style={{
+                                  height: "400px",
+                                  border: "1px solid #dee2e6",
+                                  borderRadius: "0.375rem",
+                                }}
+                              >
                                 <CodeEditor
                                   code={codeSnippetEditForm.driver}
                                   language={currentCodeSnippet.languageSlug}
-                                  onCodeChange={(value) => handleCodeSnippetEditFormChange('driver', value)}
+                                  onCodeChange={(value) =>
+                                    handleCodeSnippetEditFormChange(
+                                      "driver",
+                                      value,
+                                    )
+                                  }
                                   readonly={!editingCodeSnippet}
                                 />
                               </div>
                             </Col>
 
                             <Col md={12}>
-                              <Form.Label className="fw-semibold">Checker Code</Form.Label>
-                              <div style={{ height: '200px', border: '1px solid #dee2e6', borderRadius: '0.375rem' }}>
+                              <Form.Label className="fw-semibold">
+                                Checker Code
+                              </Form.Label>
+                              <div
+                                style={{
+                                  height: "400px",
+                                  border: "1px solid #dee2e6",
+                                  borderRadius: "0.375rem",
+                                }}
+                              >
                                 <CodeEditor
                                   code={codeSnippetEditForm.checker}
                                   language={currentCodeSnippet.languageSlug}
-                                  onCodeChange={(value) => handleCodeSnippetEditFormChange('checker', value)}
+                                  onCodeChange={(value) =>
+                                    handleCodeSnippetEditFormChange(
+                                      "checker",
+                                      value,
+                                    )
+                                  }
                                   readonly={!editingCodeSnippet}
                                 />
                               </div>
@@ -1298,15 +1500,24 @@ export default function EditProblemPage() {
               </div>
             </Tab>
 
-            <Tab eventKey="testcases" title={`Test Cases (${testcases.length})`}>
+            <Tab
+              eventKey="testcases"
+              title={`Test Cases (${testcases.length})`}
+            >
               <div className="p-3">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <div>
                     <h6 className="fw-semibold mb-0">Test Cases</h6>
-                    <p className="text-muted small mb-0">Configure test cases and limits</p>
+                    <p className="text-muted small mb-0">
+                      Configure test cases and limits
+                    </p>
                   </div>
                   <Dropdown>
-                    <Dropdown.Toggle variant="outline-primary" size="sm" id="add-testcase-dropdown">
+                    <Dropdown.Toggle
+                      variant="outline-primary"
+                      size="sm"
+                      id="add-testcase-dropdown"
+                    >
                       <Plus size={14} /> Add Test Case
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
@@ -1314,8 +1525,12 @@ export default function EditProblemPage() {
                         <div className="d-flex align-items-center gap-2">
                           <Plus size={14} />
                           <div>
-                            <div className="fw-semibold">New Empty Test Case</div>
-                            <small className="text-muted">Start from scratch</small>
+                            <div className="fw-semibold">
+                              New Empty Test Case
+                            </div>
+                            <small className="text-muted">
+                              Start from scratch
+                            </small>
                           </div>
                         </div>
                       </Dropdown.Item>
@@ -1329,16 +1544,22 @@ export default function EditProblemPage() {
                           {recentTestcases.map((testcase) => (
                             <Dropdown.Item
                               key={testcase.id}
-                              onClick={() => handleAddTestcaseWithTemplate(testcase)}
+                              onClick={() =>
+                                handleAddTestcaseWithTemplate(testcase)
+                              }
                             >
                               <div className="d-flex align-items-center gap-2">
                                 <Copy size={14} />
                                 <div>
-                                  <div className="fw-semibold">Test Case #{testcases.indexOf(testcase) + 1}</div>
+                                  <div className="fw-semibold">
+                                    Test Case #{testcases.indexOf(testcase) + 1}
+                                  </div>
                                   <small className="text-muted">
                                     Copy input and expected output
                                     {testcase.isPublic && (
-                                      <Badge bg="info" className="ms-2">Public</Badge>
+                                      <Badge bg="info" className="ms-2">
+                                        Public
+                                      </Badge>
                                     )}
                                   </small>
                                 </div>
@@ -1357,12 +1578,19 @@ export default function EditProblemPage() {
                     <Card>
                       <Card.Body>
                         <Form.Group>
-                          <Form.Label className="fw-semibold">Time Limit (ms)</Form.Label>
+                          <Form.Label className="fw-semibold">
+                            Time Limit (ms)
+                          </Form.Label>
                           <div className="d-flex gap-2">
                             <Form.Control
                               type="number"
                               value={limitsConfig.timeLimit}
-                              onChange={(e) => handleLimitsChange('timeLimit', parseInt(e.target.value))}
+                              onChange={(e) =>
+                                handleLimitsChange(
+                                  "timeLimit",
+                                  parseInt(e.target.value),
+                                )
+                              }
                               min="100"
                               max="10000"
                             />
@@ -1374,7 +1602,9 @@ export default function EditProblemPage() {
                               Save
                             </Button>
                           </div>
-                          <small className="text-muted">Maximum execution time in milliseconds</small>
+                          <small className="text-muted">
+                            Maximum execution time in milliseconds
+                          </small>
                         </Form.Group>
                       </Card.Body>
                     </Card>
@@ -1383,12 +1613,19 @@ export default function EditProblemPage() {
                     <Card>
                       <Card.Body>
                         <Form.Group>
-                          <Form.Label className="fw-semibold">Memory Limit (MB)</Form.Label>
+                          <Form.Label className="fw-semibold">
+                            Memory Limit (MB)
+                          </Form.Label>
                           <div className="d-flex gap-2">
                             <Form.Control
                               type="number"
                               value={limitsConfig.memoryLimit}
-                              onChange={(e) => handleLimitsChange('memoryLimit', parseInt(e.target.value))}
+                              onChange={(e) =>
+                                handleLimitsChange(
+                                  "memoryLimit",
+                                  parseInt(e.target.value),
+                                )
+                              }
                               min="1"
                               max="2048"
                             />
@@ -1400,7 +1637,9 @@ export default function EditProblemPage() {
                               Save
                             </Button>
                           </div>
-                          <small className="text-muted">Maximum memory usage in megabytes</small>
+                          <small className="text-muted">
+                            Maximum memory usage in megabytes
+                          </small>
                         </Form.Group>
                       </Card.Body>
                     </Card>
@@ -1410,8 +1649,9 @@ export default function EditProblemPage() {
                 {/* Test Cases List */}
                 {testcases.length === 0 ? (
                   <Alert variant="info">
-                    No test cases added. Test cases are required for problem validation.
-                    Click "Add Test Case" to create your first test case.
+                    No test cases added. Test cases are required for problem
+                    validation. Click "Add Test Case" to create your first test
+                    case.
                   </Alert>
                 ) : (
                   <div>
@@ -1429,17 +1669,27 @@ export default function EditProblemPage() {
                             </div>
                             <div className="d-flex gap-2">
                               <Dropdown>
-                                <Dropdown.Toggle variant="outline-info" size="sm" id={`testcase-actions-${testcase.id}`}>
+                                <Dropdown.Toggle
+                                  variant="outline-info"
+                                  size="sm"
+                                  id={`testcase-actions-${testcase.id}`}
+                                >
                                   Actions
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu>
-                                  <Dropdown.Item onClick={() => handleEditTestcase(testcase)}>
+                                  <Dropdown.Item
+                                    onClick={() => handleEditTestcase(testcase)}
+                                  >
                                     <div className="d-flex align-items-center gap-2">
                                       <Pencil size={14} />
                                       Edit
                                     </div>
                                   </Dropdown.Item>
-                                  <Dropdown.Item onClick={() => handleAddTestcaseWithTemplate(testcase)}>
+                                  <Dropdown.Item
+                                    onClick={() =>
+                                      handleAddTestcaseWithTemplate(testcase)
+                                    }
+                                  >
                                     <div className="d-flex align-items-center gap-2">
                                       <Copy size={14} />
                                       Use as Template
@@ -1447,7 +1697,9 @@ export default function EditProblemPage() {
                                   </Dropdown.Item>
                                   <Dropdown.Divider />
                                   <Dropdown.Item
-                                    onClick={() => handleDeleteTestcase(testcase.id)}
+                                    onClick={() =>
+                                      handleDeleteTestcase(testcase.id)
+                                    }
                                     className="text-danger"
                                   >
                                     <div className="d-flex align-items-center gap-2">
@@ -1464,9 +1716,19 @@ export default function EditProblemPage() {
                           <Row className="g-3">
                             <Col md={6}>
                               <Form.Label>Input</Form.Label>
-                              <div style={{ height: '100px', border: '1px solid #dee2e6', borderRadius: '0.375rem' }}>
+                              <div
+                                style={{
+                                  height: "100px",
+                                  border: "1px solid #dee2e6",
+                                  borderRadius: "0.375rem",
+                                }}
+                              >
                                 <CodeEditor
-                                  code={typeof testcase.input === 'string' ? testcase.input : JSON.stringify(testcase.input, null, 2)}
+                                  code={
+                                    typeof testcase.input === "string"
+                                      ? testcase.input
+                                      : JSON.stringify(testcase.input, null, 2)
+                                  }
                                   language="json"
                                   onCodeChange={() => {}}
                                   readonly={true}
@@ -1475,9 +1737,23 @@ export default function EditProblemPage() {
                             </Col>
                             <Col md={6}>
                               <Form.Label>Expected Output</Form.Label>
-                              <div style={{ height: '100px', border: '1px solid #dee2e6', borderRadius: '0.375rem' }}>
+                              <div
+                                style={{
+                                  height: "100px",
+                                  border: "1px solid #dee2e6",
+                                  borderRadius: "0.375rem",
+                                }}
+                              >
                                 <CodeEditor
-                                  code={typeof testcase.expected === 'string' ? testcase.expected : JSON.stringify(testcase.expected, null, 2)}
+                                  code={
+                                    typeof testcase.expected === "string"
+                                      ? testcase.expected
+                                      : JSON.stringify(
+                                          testcase.expected,
+                                          null,
+                                          2,
+                                        )
+                                  }
                                   language="json"
                                   onCodeChange={() => {}}
                                   readonly={true}
@@ -1497,9 +1773,14 @@ export default function EditProblemPage() {
       </Card>
 
       {/* Hint Modal with Markdown Editor */}
-      <Modal show={showHintModal} onHide={() => setShowHintModal(false)} size="lg" centered>
+      <Modal
+        show={showHintModal}
+        onHide={() => setShowHintModal(false)}
+        size="lg"
+        centered
+      >
         <Modal.Header closeButton>
-          <Modal.Title>{editingHint ? 'Edit Hint' : 'Add Hint'}</Modal.Title>
+          <Modal.Title>{editingHint ? "Edit Hint" : "Add Hint"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group>
@@ -1525,23 +1806,32 @@ export default function EditProblemPage() {
           <Button
             variant="primary"
             onClick={handleSubmitHint}
-            disabled={createHintMutation.isPending || updateHintMutation.isPending}
+            disabled={
+              createHintMutation.isPending || updateHintMutation.isPending
+            }
           >
             {createHintMutation.isPending || updateHintMutation.isPending ? (
               <Spinner animation="border" size="sm" />
             ) : editingHint ? (
-              'Update Hint'
+              "Update Hint"
             ) : (
-              'Add Hint'
+              "Add Hint"
             )}
           </Button>
         </Modal.Footer>
       </Modal>
 
       {/* Testcase Modal */}
-      <Modal show={showTestcaseModal} onHide={() => setShowTestcaseModal(false)} size="lg" centered>
+      <Modal
+        show={showTestcaseModal}
+        onHide={() => setShowTestcaseModal(false)}
+        size="lg"
+        centered
+      >
         <Modal.Header closeButton>
-          <Modal.Title>{editingTestcase ? 'Edit Test Case' : 'Add Test Case'}</Modal.Title>
+          <Modal.Title>
+            {editingTestcase ? "Edit Test Case" : "Add Test Case"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Row className="g-3">
@@ -1550,18 +1840,28 @@ export default function EditProblemPage() {
                 type="switch"
                 label="Public (visible to users)"
                 checked={testcaseForm.isPublic}
-                onChange={(e) => handleTestcaseFormChange('isPublic', e.target.checked)}
+                onChange={(e) =>
+                  handleTestcaseFormChange("isPublic", e.target.checked)
+                }
               />
             </Col>
 
             <Col md={6}>
               <Form.Group>
                 <Form.Label>Input (JSON)</Form.Label>
-                <div style={{ height: '200px', border: '1px solid #dee2e6', borderRadius: '0.375rem' }}>
+                <div
+                  style={{
+                    height: "200px",
+                    border: "1px solid #dee2e6",
+                    borderRadius: "0.375rem",
+                  }}
+                >
                   <CodeEditor
                     code={testcaseForm.input}
                     language="json"
-                    onCodeChange={(value) => handleTestcaseFormChange('input', value)}
+                    onCodeChange={(value) =>
+                      handleTestcaseFormChange("input", value)
+                    }
                     readonly={false}
                   />
                 </div>
@@ -1571,11 +1871,19 @@ export default function EditProblemPage() {
             <Col md={6}>
               <Form.Group>
                 <Form.Label>Expected Output (JSON)</Form.Label>
-                <div style={{ height: '200px', border: '1px solid #dee2e6', borderRadius: '0.375rem' }}>
+                <div
+                  style={{
+                    height: "200px",
+                    border: "1px solid #dee2e6",
+                    borderRadius: "0.375rem",
+                  }}
+                >
                   <CodeEditor
                     code={testcaseForm.expected}
                     language="json"
-                    onCodeChange={(value) => handleTestcaseFormChange('expected', value)}
+                    onCodeChange={(value) =>
+                      handleTestcaseFormChange("expected", value)
+                    }
                     readonly={false}
                   />
                 </div>
@@ -1584,20 +1892,27 @@ export default function EditProblemPage() {
           </Row>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowTestcaseModal(false)}>
+          <Button
+            variant="secondary"
+            onClick={() => setShowTestcaseModal(false)}
+          >
             Cancel
           </Button>
           <Button
             variant="primary"
             onClick={handleSubmitTestcase}
-            disabled={createTestcaseMutation.isPending || updateTestcaseMutation.isPending}
+            disabled={
+              createTestcaseMutation.isPending ||
+              updateTestcaseMutation.isPending
+            }
           >
-            {createTestcaseMutation.isPending || updateTestcaseMutation.isPending ? (
+            {createTestcaseMutation.isPending ||
+            updateTestcaseMutation.isPending ? (
               <Spinner animation="border" size="sm" />
             ) : editingTestcase ? (
-              'Update Test Case'
+              "Update Test Case"
             ) : (
-              'Add Test Case'
+              "Add Test Case"
             )}
           </Button>
         </Modal.Footer>

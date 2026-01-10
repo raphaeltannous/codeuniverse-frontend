@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Container,
   Row,
@@ -14,9 +14,9 @@ import {
   Dropdown,
   Modal,
   Pagination,
-  Image
-} from 'react-bootstrap';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+  Image,
+} from "react-bootstrap";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Person,
   Search,
@@ -33,9 +33,9 @@ import {
   Shield,
   Clock,
   Save,
-  ExclamationTriangle
-} from 'react-bootstrap-icons';
-import { useAuth } from '~/context/AuthContext';
+  ExclamationTriangle,
+} from "react-bootstrap-icons";
+import { useAuth } from "~/context/AuthContext";
 
 interface User {
   id: string;
@@ -43,7 +43,7 @@ interface User {
   email: string;
   isVerified: boolean;
   isActive: boolean;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   createdAt: string;
   updatedAt: string;
   avatarUrl: string | null;
@@ -60,7 +60,7 @@ interface CreateUserData {
   username: string;
   email: string;
   password: string;
-  role: User['role'];
+  role: User["role"];
   isActive: boolean;
   isVerified: boolean;
   avatarUrl?: string;
@@ -69,7 +69,7 @@ interface CreateUserData {
 interface UpdateUserData {
   username?: string;
   email?: string;
-  role?: User['role'];
+  role?: User["role"];
   isActive?: boolean;
   isVerified?: boolean;
   avatarUrl?: string | null;
@@ -88,12 +88,14 @@ export default function UsersDashboard() {
   const { auth } = useAuth();
   const queryClient = useQueryClient();
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [verificationFilter, setVerificationFilter] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'username' | 'createdAt' | 'email'>('createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [verificationFilter, setVerificationFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"username" | "createdAt" | "email">(
+    "createdAt",
+  );
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [offset, setOffset] = useState(0);
   const limit = 10;
 
@@ -102,30 +104,38 @@ export default function UsersDashboard() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [actionSuccess, setActionSuccess] = useState('');
-  const [actionError, setActionError] = useState('');
+  const [actionSuccess, setActionSuccess] = useState("");
+  const [actionError, setActionError] = useState("");
 
   const [editFormData, setEditFormData] = useState<UpdateUserData>({});
   const [editFormErrors, setEditFormErrors] = useState<EditFormErrors>({});
   const [createFormData, setCreateFormData] = useState<CreateUserData>({
-    username: '',
-    email: '',
-    password: '',
-    role: 'user',
+    username: "",
+    email: "",
+    password: "",
+    role: "user",
     isActive: true,
     isVerified: false,
-    avatarUrl: ''
+    avatarUrl: "",
   });
-
 
   const {
     data: usersData,
     isLoading,
     isError,
     error,
-    refetch
+    refetch,
   } = useQuery<UsersResponse>({
-    queryKey: ['admin-users', offset, searchTerm, roleFilter, statusFilter, verificationFilter, sortBy, sortOrder],
+    queryKey: [
+      "admin-users",
+      offset,
+      searchTerm,
+      roleFilter,
+      statusFilter,
+      verificationFilter,
+      sortBy,
+      sortOrder,
+    ],
     queryFn: async () => {
       const params = new URLSearchParams({
         offset: offset.toString(),
@@ -135,18 +145,19 @@ export default function UsersDashboard() {
         sortOrder,
       });
 
-      if (roleFilter !== 'all') params.append('role', roleFilter);
-      if (statusFilter !== 'all') params.append('status', statusFilter);
-      if (verificationFilter !== 'all') params.append('verified', verificationFilter);
+      if (roleFilter !== "all") params.append("role", roleFilter);
+      if (statusFilter !== "all") params.append("status", statusFilter);
+      if (verificationFilter !== "all")
+        params.append("verified", verificationFilter);
 
       const response = await fetch(`/api/admin/users?${params}`, {
         headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        }
+          Authorization: `Bearer ${auth.jwt}`,
+        },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch users');
+        throw new Error("Failed to fetch users");
       }
       return response.json();
     },
@@ -155,7 +166,7 @@ export default function UsersDashboard() {
   });
 
   const currentPage = Math.floor(offset / limit) + 1;
-  const totalPages = (usersData?.total ? Math.ceil(usersData.total / limit) : 1);
+  const totalPages = usersData?.total ? Math.ceil(usersData.total / limit) : 1;
 
   useEffect(() => {
     if (selectedUser) {
@@ -165,7 +176,7 @@ export default function UsersDashboard() {
         role: selectedUser.role,
         isActive: selectedUser.isActive,
         isVerified: selectedUser.isVerified,
-        avatarUrl: selectedUser.avatarUrl
+        avatarUrl: selectedUser.avatarUrl,
       });
       setEditFormErrors({});
     }
@@ -174,114 +185,131 @@ export default function UsersDashboard() {
   const validateEditForm = (): boolean => {
     const errors: EditFormErrors = {};
 
-    if (editFormData.username !== undefined && editFormData.username.trim() === '') {
-      errors.username = 'Username is required';
+    if (
+      editFormData.username !== undefined &&
+      editFormData.username.trim() === ""
+    ) {
+      errors.username = "Username is required";
     }
 
-    if (editFormData.email !== undefined && editFormData.email.trim() === '') {
-      errors.email = 'Email is required';
-    } else if (editFormData.email !== undefined && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editFormData.email)) {
-      errors.email = 'Invalid email format';
+    if (editFormData.email !== undefined && editFormData.email.trim() === "") {
+      errors.email = "Email is required";
+    } else if (
+      editFormData.email !== undefined &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editFormData.email)
+    ) {
+      errors.email = "Invalid email format";
     }
-
 
     setEditFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const updateUserMutation = useMutation({
-    mutationFn: async ({ username, data }: { username: string; data: UpdateUserData }) => {
+    mutationFn: async ({
+      username,
+      data,
+    }: {
+      username: string;
+      data: UpdateUserData;
+    }) => {
       const response = await fetch(`/api/admin/users/${username}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.jwt}`,
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Failed to update user: ${response.statusText}`);
+        throw new Error(
+          errorData.message || `Failed to update user: ${response.statusText}`,
+        );
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      setActionSuccess('User updated successfully');
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      setActionSuccess("User updated successfully");
       setShowEditModal(false);
       setEditFormErrors({});
-      setTimeout(() => setActionSuccess(''), 3000);
+      setTimeout(() => setActionSuccess(""), 3000);
     },
     onError: (error: Error) => {
-      setActionError(error.message || 'Failed to update user');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError(error.message || "Failed to update user");
+      setTimeout(() => setActionError(""), 5000);
     },
   });
 
   const createUserMutation = useMutation({
     mutationFn: async (data: CreateUserData) => {
       const response = await fetch(`/api/admin/users`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.jwt}`,
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Failed to create user: ${response.statusText}`);
+        throw new Error(
+          errorData.message || `Failed to create user: ${response.statusText}`,
+        );
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      setActionSuccess('User created successfully');
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      setActionSuccess("User created successfully");
       setShowCreateModal(false);
       setCreateFormData({
-        username: '',
-        email: '',
-        password: '',
-        role: 'user',
+        username: "",
+        email: "",
+        password: "",
+        role: "user",
         isActive: true,
         isVerified: false,
-        avatarUrl: ''
+        avatarUrl: "",
       });
-      setTimeout(() => setActionSuccess(''), 3000);
+      setTimeout(() => setActionSuccess(""), 3000);
     },
     onError: (error: Error) => {
-      setActionError(error.message || 'Failed to create user');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError(error.message || "Failed to create user");
+      setTimeout(() => setActionError(""), 5000);
     },
   });
 
   const deleteUserMutation = useMutation({
     mutationFn: async (username: string) => {
       const response = await fetch(`/api/admin/users/${username}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${auth.jwt}`,
+          Authorization: `Bearer ${auth.jwt}`,
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Failed to delete user: ${response.statusText}`);
+        throw new Error(
+          errorData.message || `Failed to delete user: ${response.statusText}`,
+        );
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       setShowDeleteModal(false);
       setSelectedUser(null);
-      setActionSuccess('User deleted successfully');
-      setTimeout(() => setActionSuccess(''), 3000);
+      setActionSuccess("User deleted successfully");
+      setTimeout(() => setActionSuccess(""), 3000);
     },
     onError: (error: Error) => {
-      setActionError(error.message || 'Failed to delete user');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError(error.message || "Failed to delete user");
+      setTimeout(() => setActionError(""), 5000);
     },
   });
 
@@ -299,11 +327,17 @@ export default function UsersDashboard() {
 
       const dataToSend: UpdateUserData = {};
 
-      if (editFormData.username !== undefined && editFormData.username.trim() !== '') {
+      if (
+        editFormData.username !== undefined &&
+        editFormData.username.trim() !== ""
+      ) {
         dataToSend.username = editFormData.username.trim();
       }
 
-      if (editFormData.email !== undefined && editFormData.email.trim() !== '') {
+      if (
+        editFormData.email !== undefined &&
+        editFormData.email.trim() !== ""
+      ) {
         dataToSend.email = editFormData.email.trim();
       }
 
@@ -326,42 +360,46 @@ export default function UsersDashboard() {
       if (Object.keys(dataToSend).length > 0) {
         updateUserMutation.mutate({
           username: selectedUser.username,
-          data: dataToSend
+          data: dataToSend,
         });
       } else {
-        setActionError('No changes detected');
-        setTimeout(() => setActionError(''), 3000);
+        setActionError("No changes detected");
+        setTimeout(() => setActionError(""), 3000);
       }
     }
   };
 
   const handleCreateUser = () => {
-    if (createFormData.username && createFormData.email && createFormData.password) {
+    if (
+      createFormData.username &&
+      createFormData.email &&
+      createFormData.password
+    ) {
       createUserMutation.mutate(createFormData);
     } else {
-      setActionError('Username, email, and password are required');
-      setTimeout(() => setActionError(''), 5000);
+      setActionError("Username, email, and password are required");
+      setTimeout(() => setActionError(""), 5000);
     }
   };
 
   const handleEditFormChange = (field: keyof UpdateUserData, value: any) => {
-    setEditFormData(prev => ({
+    setEditFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
 
     if (editFormErrors[field as keyof EditFormErrors]) {
-      setEditFormErrors(prev => ({
+      setEditFormErrors((prev) => ({
         ...prev,
-        [field]: undefined
+        [field]: undefined,
       }));
     }
   };
 
   const handleCreateFormChange = (field: keyof CreateUserData, value: any) => {
-    setCreateFormData(prev => ({
+    setCreateFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -371,12 +409,12 @@ export default function UsersDashboard() {
   };
 
   const handleResetFilters = () => {
-    setSearchTerm('');
-    setRoleFilter('all');
-    setStatusFilter('all');
-    setVerificationFilter('all');
-    setSortBy('createdAt');
-    setSortOrder('desc');
+    setSearchTerm("");
+    setRoleFilter("all");
+    setStatusFilter("all");
+    setVerificationFilter("all");
+    setSortBy("createdAt");
+    setSortOrder("desc");
     setOffset(0);
   };
 
@@ -398,26 +436,26 @@ export default function UsersDashboard() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
-  const getRoleBadge = (role: User['role']) => {
+  const getRoleBadge = (role: User["role"]) => {
     const colors = {
-      admin: 'danger',
-      user: 'primary'
+      admin: "danger",
+      user: "primary",
     };
 
     return (
@@ -470,8 +508,10 @@ export default function UsersDashboard() {
     }
 
     return (
-      <div className="bg-primary bg-opacity-10 rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
-        style={{ width: '40px', height: '40px' }}>
+      <div
+        className="bg-primary bg-opacity-10 rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
+        style={{ width: "40px", height: "40px" }}
+      >
         <Person size={20} className="text-primary" />
       </div>
     );
@@ -483,7 +523,8 @@ export default function UsersDashboard() {
         <Alert variant="danger" className="mb-4">
           <div className="d-flex justify-content-between align-items-center">
             <div>
-              <strong>Error loading users:</strong> {error?.message || 'Unknown error'}
+              <strong>Error loading users:</strong>{" "}
+              {error?.message || "Unknown error"}
             </div>
             <Button
               variant="outline-danger"
@@ -500,21 +541,31 @@ export default function UsersDashboard() {
 
   const { users = [], total = 0 } = usersData || {};
 
-  const activeUsers = users.filter(u => u.isActive).length;
-  const verifiedUsers = users.filter(u => u.isVerified).length;
-  const adminUsers = users.filter(u => u.role === 'admin').length;
+  const activeUsers = users.filter((u) => u.isActive).length;
+  const verifiedUsers = users.filter((u) => u.isVerified).length;
+  const adminUsers = users.filter((u) => u.role === "admin").length;
 
   return (
     <Container fluid className="py-4">
       {actionSuccess && (
-        <Alert variant="success" dismissible onClose={() => setActionSuccess('')} className="mb-4">
+        <Alert
+          variant="success"
+          dismissible
+          onClose={() => setActionSuccess("")}
+          className="mb-4"
+        >
           <CheckCircle size={18} className="me-2" />
           {actionSuccess}
         </Alert>
       )}
 
       {actionError && (
-        <Alert variant="danger" dismissible onClose={() => setActionError('')} className="mb-4">
+        <Alert
+          variant="danger"
+          dismissible
+          onClose={() => setActionError("")}
+          className="mb-4"
+        >
           <XCircle size={18} className="me-2" />
           {actionError}
         </Alert>
@@ -524,7 +575,8 @@ export default function UsersDashboard() {
         <div>
           <h2 className="mb-1 fw-bold">User Management</h2>
           <p className="text-muted mb-0">
-            {total} total users • Page {currentPage} of {totalPages} • Showing {offset + 1} to {Math.min(offset + limit, total)} of {total}
+            {total} total users • Page {currentPage} of {totalPages} • Showing{" "}
+            {offset + 1} to {Math.min(offset + limit, total)} of {total}
           </p>
         </div>
         <Button
@@ -648,24 +700,49 @@ export default function UsersDashboard() {
 
               <Col md={2}>
                 <Dropdown>
-                  <Dropdown.Toggle variant="outline-secondary" className="w-100">
+                  <Dropdown.Toggle
+                    variant="outline-secondary"
+                    className="w-100"
+                  >
                     <Filter size={18} className="me-2" />
                     Sort
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
                     <Dropdown.Header>Sort By</Dropdown.Header>
-                    <Dropdown.Item onClick={() => setSortBy('username')}>
-                      Username {sortBy === 'username' && (sortOrder === 'desc' ? <SortAlphaUp className="ms-2" /> : <SortAlphaDown className="ms-2" />)}
+                    <Dropdown.Item onClick={() => setSortBy("username")}>
+                      Username{" "}
+                      {sortBy === "username" &&
+                        (sortOrder === "desc" ? (
+                          <SortAlphaUp className="ms-2" />
+                        ) : (
+                          <SortAlphaDown className="ms-2" />
+                        ))}
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSortBy('email')}>
-                      Email {sortBy === 'email' && (sortOrder === 'desc' ? <SortAlphaUp className="ms-2" /> : <SortAlphaDown className="ms-2" />)}
+                    <Dropdown.Item onClick={() => setSortBy("email")}>
+                      Email{" "}
+                      {sortBy === "email" &&
+                        (sortOrder === "desc" ? (
+                          <SortAlphaUp className="ms-2" />
+                        ) : (
+                          <SortAlphaDown className="ms-2" />
+                        ))}
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSortBy('createdAt')}>
-                      Join Date {sortBy === 'createdAt' && (sortOrder === 'desc' ? <SortAlphaUp className="ms-2" /> : <SortAlphaDown className="ms-2" />)}
+                    <Dropdown.Item onClick={() => setSortBy("createdAt")}>
+                      Join Date{" "}
+                      {sortBy === "createdAt" &&
+                        (sortOrder === "desc" ? (
+                          <SortAlphaUp className="ms-2" />
+                        ) : (
+                          <SortAlphaDown className="ms-2" />
+                        ))}
                     </Dropdown.Item>
                     <Dropdown.Divider />
-                    <Dropdown.Item onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
-                      {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+                    <Dropdown.Item
+                      onClick={() =>
+                        setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                      }
+                    >
+                      {sortOrder === "asc" ? "Ascending" : "Descending"}
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
@@ -677,7 +754,10 @@ export default function UsersDashboard() {
                     <Badge bg="light" text="dark" className="px-3 py-2">
                       Showing {users.length} of {total} users
                     </Badge>
-                    {(searchTerm || roleFilter !== 'all' || statusFilter !== 'all' || verificationFilter !== 'all') && (
+                    {(searchTerm ||
+                      roleFilter !== "all" ||
+                      statusFilter !== "all" ||
+                      verificationFilter !== "all") && (
                       <Button
                         variant="outline-secondary"
                         size="sm"
@@ -696,8 +776,7 @@ export default function UsersDashboard() {
 
       <Card className="border-0">
         <Card.Body className="p-0">
-
-          <div className={`table-responsive ${isLoading ? 'opacity-50' : ''}`}>
+          <div className={`table-responsive ${isLoading ? "opacity-50" : ""}`}>
             <Table hover className="mb-0">
               <thead>
                 <tr>
@@ -717,7 +796,9 @@ export default function UsersDashboard() {
                       <Person size={48} className="text-muted mb-3" />
                       <h5 className="mb-2">No users found</h5>
                       <p className="text-muted mb-0">
-                        {searchTerm ? 'Try a different search term' : 'No users match your filters'}
+                        {searchTerm
+                          ? "Try a different search term"
+                          : "No users match your filters"}
                       </p>
                     </td>
                   </tr>
@@ -731,7 +812,9 @@ export default function UsersDashboard() {
                             <div className="fw-semibold">{user.username}</div>
                             <small className="text-muted">{user.email}</small>
                             <div className="mt-1">
-                              <small className="text-muted">ID: {user.id.substring(0, 8)}...</small>
+                              <small className="text-muted">
+                                ID: {user.id.substring(0, 8)}...
+                              </small>
                             </div>
                           </div>
                         </div>
@@ -746,9 +829,7 @@ export default function UsersDashboard() {
                           {getStatusBadge(user.isActive)}
                         </div>
                       </td>
-                      <td>
-                        {getVerificationBadge(user.isVerified)}
-                      </td>
+                      <td>{getVerificationBadge(user.isVerified)}</td>
                       <td>
                         <div className="d-flex flex-column">
                           <span>{formatDate(user.createdAt)}</span>
@@ -801,7 +882,8 @@ export default function UsersDashboard() {
                             title="Delete User"
                             disabled={deleteUserMutation.isPending}
                           >
-                            {deleteUserMutation.isPending && deleteUserMutation.variables === user.username ? (
+                            {deleteUserMutation.isPending &&
+                            deleteUserMutation.variables === user.username ? (
                               <Spinner animation="border" size="sm" />
                             ) : (
                               <Trash size={14} />
@@ -829,7 +911,8 @@ export default function UsersDashboard() {
           <Card.Footer className="border-0">
             <div className="d-flex justify-content-between align-items-center">
               <div className="text-muted small">
-                Showing {offset + 1} to {Math.min(offset + limit, total)} of {total} users
+                Showing {offset + 1} to {Math.min(offset + limit, total)} of{" "}
+                {total} users
               </div>
               <Pagination className="mb-0">
                 <Pagination.First
@@ -847,8 +930,14 @@ export default function UsersDashboard() {
                   const maxVisiblePages = 5;
                   const currentPageNum = currentPage;
 
-                  let startPage = Math.max(1, currentPageNum - Math.floor(maxVisiblePages / 2));
-                  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                  let startPage = Math.max(
+                    1,
+                    currentPageNum - Math.floor(maxVisiblePages / 2),
+                  );
+                  let endPage = Math.min(
+                    totalPages,
+                    startPage + maxVisiblePages - 1,
+                  );
 
                   // Adjust start page if we're near the end
                   if (endPage - startPage + 1 < maxVisiblePages) {
@@ -863,7 +952,7 @@ export default function UsersDashboard() {
                         onClick={() => handlePageChange((i - 1) * limit)}
                       >
                         {i}
-                      </Pagination.Item>
+                      </Pagination.Item>,
                     );
                   }
 
@@ -889,7 +978,7 @@ export default function UsersDashboard() {
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
         centered
-        backdrop={deleteUserMutation.isPending ? 'static' : true}
+        backdrop={deleteUserMutation.isPending ? "static" : true}
       >
         <Modal.Header closeButton className="border-0">
           <Modal.Title className="h5 fw-bold text-danger">
@@ -925,7 +1014,7 @@ export default function UsersDashboard() {
                 Deleting...
               </>
             ) : (
-              'Delete User'
+              "Delete User"
             )}
           </Button>
         </Modal.Footer>
@@ -939,9 +1028,7 @@ export default function UsersDashboard() {
         centered
       >
         <Modal.Header closeButton className="border-0">
-          <Modal.Title className="h5 fw-bold">
-            User Details
-          </Modal.Title>
+          <Modal.Title className="h5 fw-bold">User Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedUser && (
@@ -957,8 +1044,10 @@ export default function UsersDashboard() {
                     className="mb-3"
                   />
                 ) : (
-                  <div className="bg-primary bg-opacity-10 rounded-circle p-4 d-inline-flex align-items-center justify-content-center mb-3"
-                    style={{ width: '120px', height: '120px' }}>
+                  <div
+                    className="bg-primary bg-opacity-10 rounded-circle p-4 d-inline-flex align-items-center justify-content-center mb-3"
+                    style={{ width: "120px", height: "120px" }}
+                  >
                     <Person size={48} className="text-primary" />
                   </div>
                 )}
@@ -977,7 +1066,9 @@ export default function UsersDashboard() {
                     <dl className="row">
                       <dt className="col-sm-4">User ID</dt>
                       <dd className="col-sm-8">
-                        <code className="user-select-all">{selectedUser.id}</code>
+                        <code className="user-select-all">
+                          {selectedUser.id}
+                        </code>
                       </dd>
 
                       <dt className="col-sm-4">Username</dt>
@@ -1016,7 +1107,9 @@ export default function UsersDashboard() {
 
                       <dt className="col-sm-4">User Role</dt>
                       <dd className="col-sm-8">
-                        <span className="text-capitalize">{selectedUser.role}</span>
+                        <span className="text-capitalize">
+                          {selectedUser.role}
+                        </span>
                       </dd>
                     </dl>
                   </Card.Body>
@@ -1032,12 +1125,10 @@ export default function UsersDashboard() {
         show={showEditModal}
         onHide={() => setShowEditModal(false)}
         centered
-        backdrop={updateUserMutation.isPending ? 'static' : true}
+        backdrop={updateUserMutation.isPending ? "static" : true}
       >
         <Modal.Header closeButton className="border-0">
-          <Modal.Title className="h5 fw-bold">
-            Edit User
-          </Modal.Title>
+          <Modal.Title className="h5 fw-bold">Edit User</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedUser && (
@@ -1046,14 +1137,19 @@ export default function UsersDashboard() {
                 <Form.Label className="fw-semibold">Username</Form.Label>
                 <Form.Control
                   type="text"
-                  value={editFormData.username || ''}
-                  onChange={(e) => handleEditFormChange('username', e.target.value)}
+                  value={editFormData.username || ""}
+                  onChange={(e) =>
+                    handleEditFormChange("username", e.target.value)
+                  }
                   placeholder="Enter username"
                   isInvalid={!!editFormErrors.username}
                   disabled={updateUserMutation.isPending}
                 />
                 {editFormErrors.username && (
-                  <Form.Control.Feedback type="invalid" className="d-flex align-items-center gap-1">
+                  <Form.Control.Feedback
+                    type="invalid"
+                    className="d-flex align-items-center gap-1"
+                  >
                     <ExclamationTriangle size={14} />
                     {editFormErrors.username}
                   </Form.Control.Feedback>
@@ -1067,14 +1163,19 @@ export default function UsersDashboard() {
                 <Form.Label className="fw-semibold">Email</Form.Label>
                 <Form.Control
                   type="email"
-                  value={editFormData.email || ''}
-                  onChange={(e) => handleEditFormChange('email', e.target.value)}
+                  value={editFormData.email || ""}
+                  onChange={(e) =>
+                    handleEditFormChange("email", e.target.value)
+                  }
                   placeholder="Enter email"
                   isInvalid={!!editFormErrors.email}
                   disabled={updateUserMutation.isPending}
                 />
                 {editFormErrors.email && (
-                  <Form.Control.Feedback type="invalid" className="d-flex align-items-center gap-1">
+                  <Form.Control.Feedback
+                    type="invalid"
+                    className="d-flex align-items-center gap-1"
+                  >
                     <ExclamationTriangle size={14} />
                     {editFormErrors.email}
                   </Form.Control.Feedback>
@@ -1086,8 +1187,10 @@ export default function UsersDashboard() {
                   <Form.Group className="mb-3">
                     <Form.Label className="fw-semibold">Role</Form.Label>
                     <Form.Select
-                      value={editFormData.role || 'user'}
-                      onChange={(e) => handleEditFormChange('role', e.target.value)}
+                      value={editFormData.role || "user"}
+                      onChange={(e) =>
+                        handleEditFormChange("role", e.target.value)
+                      }
                       disabled={updateUserMutation.isPending}
                     >
                       <option value="user">User</option>
@@ -1099,8 +1202,13 @@ export default function UsersDashboard() {
                   <Form.Group className="mb-3">
                     <Form.Label className="fw-semibold">Status</Form.Label>
                     <Form.Select
-                      value={editFormData.isActive?.toString() || 'true'}
-                      onChange={(e) => handleEditFormChange('isActive', e.target.value === 'true')}
+                      value={editFormData.isActive?.toString() || "true"}
+                      onChange={(e) =>
+                        handleEditFormChange(
+                          "isActive",
+                          e.target.value === "true",
+                        )
+                      }
                       disabled={updateUserMutation.isPending}
                     >
                       <option value="true">Active</option>
@@ -1111,10 +1219,17 @@ export default function UsersDashboard() {
               </Row>
 
               <Form.Group className="mb-3">
-                <Form.Label className="fw-semibold">Email Verification</Form.Label>
+                <Form.Label className="fw-semibold">
+                  Email Verification
+                </Form.Label>
                 <Form.Select
-                  value={editFormData.isVerified?.toString() || 'false'}
-                  onChange={(e) => handleEditFormChange('isVerified', e.target.value === 'true')}
+                  value={editFormData.isVerified?.toString() || "false"}
+                  onChange={(e) =>
+                    handleEditFormChange(
+                      "isVerified",
+                      e.target.value === "true",
+                    )
+                  }
                   disabled={updateUserMutation.isPending}
                 >
                   <option value="true">Verified</option>
@@ -1126,14 +1241,19 @@ export default function UsersDashboard() {
                 <Form.Label className="fw-semibold">Avatar URL</Form.Label>
                 <Form.Control
                   type="text"
-                  value={editFormData.avatarUrl || ''}
-                  onChange={(e) => handleEditFormChange('avatarUrl', e.target.value)}
+                  value={editFormData.avatarUrl || ""}
+                  onChange={(e) =>
+                    handleEditFormChange("avatarUrl", e.target.value)
+                  }
                   placeholder="https://example.com/avatar.jpg"
                   isInvalid={!!editFormErrors.avatarUrl}
                   disabled={updateUserMutation.isPending}
                 />
                 {editFormErrors.avatarUrl && (
-                  <Form.Control.Feedback type="invalid" className="d-flex align-items-center gap-1">
+                  <Form.Control.Feedback
+                    type="invalid"
+                    className="d-flex align-items-center gap-1"
+                  >
                     <ExclamationTriangle size={14} />
                     {editFormErrors.avatarUrl}
                   </Form.Control.Feedback>
@@ -1156,7 +1276,10 @@ export default function UsersDashboard() {
           <Button
             variant="primary"
             onClick={handleEditUser}
-            disabled={updateUserMutation.isPending || Object.keys(editFormErrors).length > 0}
+            disabled={
+              updateUserMutation.isPending ||
+              Object.keys(editFormErrors).length > 0
+            }
           >
             {updateUserMutation.isPending ? (
               <>
@@ -1178,12 +1301,10 @@ export default function UsersDashboard() {
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}
         centered
-        backdrop={createUserMutation.isPending ? 'static' : true}
+        backdrop={createUserMutation.isPending ? "static" : true}
       >
         <Modal.Header closeButton className="border-0">
-          <Modal.Title className="h5 fw-bold">
-            Create New User
-          </Modal.Title>
+          <Modal.Title className="h5 fw-bold">Create New User</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -1192,7 +1313,9 @@ export default function UsersDashboard() {
               <Form.Control
                 type="text"
                 value={createFormData.username}
-                onChange={(e) => handleCreateFormChange('username', e.target.value)}
+                onChange={(e) =>
+                  handleCreateFormChange("username", e.target.value)
+                }
                 placeholder="Enter username"
                 required
                 disabled={createUserMutation.isPending}
@@ -1204,7 +1327,9 @@ export default function UsersDashboard() {
               <Form.Control
                 type="email"
                 value={createFormData.email}
-                onChange={(e) => handleCreateFormChange('email', e.target.value)}
+                onChange={(e) =>
+                  handleCreateFormChange("email", e.target.value)
+                }
                 placeholder="Enter email"
                 required
                 disabled={createUserMutation.isPending}
@@ -1216,7 +1341,9 @@ export default function UsersDashboard() {
               <Form.Control
                 type="password"
                 value={createFormData.password}
-                onChange={(e) => handleCreateFormChange('password', e.target.value)}
+                onChange={(e) =>
+                  handleCreateFormChange("password", e.target.value)
+                }
                 placeholder="Enter password"
                 required
                 disabled={createUserMutation.isPending}
@@ -1229,7 +1356,9 @@ export default function UsersDashboard() {
                   <Form.Label>Role</Form.Label>
                   <Form.Select
                     value={createFormData.role}
-                    onChange={(e) => handleCreateFormChange('role', e.target.value)}
+                    onChange={(e) =>
+                      handleCreateFormChange("role", e.target.value)
+                    }
                     disabled={createUserMutation.isPending}
                   >
                     <option value="user">User</option>
@@ -1242,7 +1371,12 @@ export default function UsersDashboard() {
                   <Form.Label>Status</Form.Label>
                   <Form.Select
                     value={createFormData.isActive.toString()}
-                    onChange={(e) => handleCreateFormChange('isActive', e.target.value === 'true')}
+                    onChange={(e) =>
+                      handleCreateFormChange(
+                        "isActive",
+                        e.target.value === "true",
+                      )
+                    }
                     disabled={createUserMutation.isPending}
                   >
                     <option value="true">Active</option>
@@ -1256,7 +1390,12 @@ export default function UsersDashboard() {
               <Form.Label>Email Verification</Form.Label>
               <Form.Select
                 value={createFormData.isVerified.toString()}
-                onChange={(e) => handleCreateFormChange('isVerified', e.target.value === 'true')}
+                onChange={(e) =>
+                  handleCreateFormChange(
+                    "isVerified",
+                    e.target.value === "true",
+                  )
+                }
                 disabled={createUserMutation.isPending}
               >
                 <option value="true">Verified</option>

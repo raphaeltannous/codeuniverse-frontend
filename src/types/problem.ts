@@ -15,12 +15,3 @@ export interface CodeSnippet {
   languageName: string;
   languageSlug: string;
 }
-
-export type TestCase = {
-  id: number;
-  input: any;
-  expected: any;
-  isPublic: boolean;
-};
-
-export type Difficulty = "Easy" | "Medium" | "Hard" | "Beginner" | "Intermediate" | "Advanced" | "Expert";

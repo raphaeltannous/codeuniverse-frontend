@@ -1,3 +1,5 @@
+import type { ResultStatus } from "./status";
+
 export interface SubmitRequest {
   problemSlug: string;
   languageSlug: string;
@@ -13,7 +15,7 @@ export interface Submission {
 
   language: string;
   code: string;
-  status: string;
+  status: ResultStatus;
 
   executionTime: number;
   memoryUsage: number;
