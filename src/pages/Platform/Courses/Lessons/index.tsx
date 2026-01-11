@@ -51,16 +51,14 @@ export default function CourseLessonsPage() {
     queryKey: ['course-lessons', courseSlug],
     queryFn: async () => {
       const response = await fetch(`/api/courses/${courseSlug}`, {
-        headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        }
+        credentials: "include",
       });
       if (!response.ok) {
         throw new Error('Failed to fetch lessons');
       }
       return response.json();
     },
-    enabled: !!courseSlug && !!auth.jwt,
+    enabled: !!courseSlug && !!auth.isAuthenticated,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -73,16 +71,14 @@ export default function CourseLessonsPage() {
     queryKey: ['user-lesson-progress', courseSlug],
     queryFn: async () => {
       const response = await fetch(`/api/courses/${courseSlug}/progress`, {
-        headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        }
+        credentials: "include",
       });
       if (!response.ok) {
         return {};
       }
       return response.json();
     },
-    enabled: !!courseSlug && !!auth.jwt,
+    enabled: !!courseSlug && !!auth.isAuthenticated,
     staleTime: 1000 * 60 * 2,
   });
 
@@ -100,8 +96,8 @@ export default function CourseLessonsPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify({}),
       });
 

@@ -67,9 +67,7 @@ export default function DashboardCourses() {
 
       const response = await fetch(`${API_BASE}/courses/${slug}/thumbnail`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
         body: formData,
       });
 
@@ -108,9 +106,7 @@ export default function DashboardCourses() {
     queryKey: ['courses'],
     queryFn: async () => {
       const response = await fetch(`${API_BASE}/courses`, {
-        headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
       });
       if (!response.ok) {
         throw new Error('Failed to fetch courses');
@@ -127,8 +123,8 @@ export default function DashboardCourses() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          "Authorization": `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
       if (!response.ok) {
@@ -152,8 +148,8 @@ export default function DashboardCourses() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          "Authorization": `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
       if (!response.ok) {
@@ -175,9 +171,7 @@ export default function DashboardCourses() {
     mutationFn: async (slug: string) => {
       const response = await fetch(`${API_BASE}/courses/${slug}`, {
         method: 'DELETE',
-        headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
       });
       if (!response.ok) {
         throw new Error('Failed to delete course');
@@ -201,8 +195,8 @@ export default function DashboardCourses() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          "Authorization": `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify({ isPublished: publish }),
       });
       if (!response.ok) {

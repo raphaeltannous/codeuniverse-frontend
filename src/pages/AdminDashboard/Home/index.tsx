@@ -45,9 +45,9 @@ export default function DashboardHome() {
     queryFn: async () => {
       const res = await fetch('/api/admin/dashboard/stats', {
         headers: {
-          'Authorization': `Bearer ${auth.jwt}`,
           'Content-Type': 'application/json',
-        }
+        },
+        credentials: "include",
       });
       const data = await res.json();
 
@@ -67,9 +67,9 @@ export default function DashboardHome() {
     queryFn: async () => {
       const res = await fetch('/api/admin/dashboard/activity', {
         headers: {
-          'Authorization': `Bearer ${auth.jwt}`,
           'Content-Type': 'application/json',
-        }
+        },
+        credentials: "include",
       });
       const data = await res.json();
 
@@ -89,9 +89,9 @@ export default function DashboardHome() {
     queryFn: async () => {
       const res = await fetch(`/api/admin/dashboard/submissions-activities?range=${timeRange}`, {
         headers: {
-          'Authorization': `Bearer ${auth.jwt}`,
           'Content-Type': 'application/json',
-        }
+        },
+        credentials: "include",
       });
       const data = await res.json();
 

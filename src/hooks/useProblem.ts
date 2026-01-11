@@ -6,7 +6,9 @@ export function useProblem(problemSlug: string) {
   const { data: problem, isLoading, isError, error } = useQuery<Problem, APIError>({
     queryKey: [`problem-${problemSlug}-data`],
     queryFn: async () => {
-      const res = await fetch(`/api/problems/${problemSlug}`);
+      const res = await fetch(`/api/problems/${problemSlug}`, {
+        credentials: "include",
+      });
       const data = await res.json();
 
       if (!res.ok) {

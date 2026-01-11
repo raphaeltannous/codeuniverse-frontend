@@ -69,14 +69,12 @@ export default function PlatformProblemsProblemset() {
     useQuery<UserProgress>({
       queryKey: ['user-progress', user?.username],
       queryFn: async () => {
-        if (!auth.jwt) {
+        if (!auth.isAuthenticated) {
           return [];
         }
 
         const response = await fetch('/api/problems/progress', {
-          headers: {
-            Authorization: `Bearer ${auth.jwt}`,
-          },
+          credentials: "include",
         });
 
         if (!response.ok) {
@@ -84,7 +82,7 @@ export default function PlatformProblemsProblemset() {
         }
         return response.json();
       },
-      enabled: !!auth?.jwt,
+      enabled: !!auth.isAuthenticated,
     });
 
   // Fetch problems
@@ -129,11 +127,7 @@ export default function PlatformProblemsProblemset() {
       }
 
       const response = await fetch(`/api/problems?${params}`, {
-        headers: auth.jwt
-          ? {
-              Authorization: `Bearer ${auth.jwt}`,
-            }
-          : {},
+        credentials: auth?.isAuthenticated ? "include" : "omit",
       });
 
       if (!response.ok) {

@@ -7,21 +7,17 @@ import type {
 } from "~/types/problem/run";
 import type { APIError } from "~/types/api-error";
 import { ResultStatus } from "~/types/problem/status";
-import { useAuth } from "~/context/AuthContext";
 
 export function useRunProblem(problemSlug: string, language: string) {
-  const { auth } = useAuth();
   const [runId, setRunId] = useState<string | null>(null);
 
   const runMutation = useMutation<RunResponse, APIError, RunRequest>({
     mutationFn: async (body) => {
       const result = await fetch(`/api/problems/${problemSlug}/run/${language}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.jwt}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
+        credentials: "include",
       });
       if (!result.ok) throw (await result.json()) as APIError;
       return result.json() as Promise<RunResponse>;
@@ -33,10 +29,7 @@ export function useRunProblem(problemSlug: string, language: string) {
     queryKey: ["run-status", runId],
     queryFn: async () => {
       const result = await fetch(`/api/problems/${problemSlug}/run/${runId}/check`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
       });
       if (!result.ok) throw (await result.json()) as APIError;
       return result.json() as Promise<RunResultsReponse>;

@@ -22,7 +22,7 @@ export default function ProblemSubmissions({ problem }: ProblemEditorProps) {
     queryKey: [`problem-${problemSlug}-submissions-data`],
     queryFn: async () => {
       const res = await fetch(`/api/problems/${problemSlug}/submissions`, {
-        headers: { "Authorization": `Bearer ${auth.jwt}` },
+        credentials: "include",
       });
       const data = await res.json();
 

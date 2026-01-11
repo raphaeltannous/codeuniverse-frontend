@@ -151,9 +151,7 @@ export default function UsersDashboard() {
         params.append("verified", verificationFilter);
 
       const response = await fetch(`/api/admin/users?${params}`, {
-        headers: {
-          Authorization: `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -161,7 +159,7 @@ export default function UsersDashboard() {
       }
       return response.json();
     },
-    enabled: !!auth.jwt,
+    enabled: !!auth.isAuthenticated,
     staleTime: 1000 * 60 * 2,
   });
 
@@ -217,8 +215,8 @@ export default function UsersDashboard() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -249,8 +247,8 @@ export default function UsersDashboard() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -287,9 +285,7 @@ export default function UsersDashboard() {
     mutationFn: async (username: string) => {
       const response = await fetch(`/api/admin/users/${username}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
       });
 
       if (!response.ok) {

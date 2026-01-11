@@ -46,9 +46,9 @@ export default function UserProfilePage() {
       if (isOwnProfile) {
         const res = await fetch(`/api/profile`, {
           headers: {
-            "Authorization": `Bearer ${auth.jwt}`,
             "Content-Type": "application/json",
-          }
+          },
+          credentials: "include",
         });
         const data = await res.json();
 
@@ -81,8 +81,8 @@ export default function UserProfilePage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
 

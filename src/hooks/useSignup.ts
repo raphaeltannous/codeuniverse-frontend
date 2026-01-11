@@ -18,6 +18,7 @@ export function useSignup(options?: UseSignupOptions) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
+        credentials: "include",
       });
 
       if (!res.ok) {
@@ -29,7 +30,7 @@ export function useSignup(options?: UseSignupOptions) {
     },
 
     onSuccess: (response) => {
-      completeMfa(response.jwtToken);
+      completeMfa();
       navigate("/problems");
       options?.onSuccess?.(response);
     },

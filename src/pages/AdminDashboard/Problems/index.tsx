@@ -169,9 +169,7 @@ export default function ProblemsDashboard() {
     queryKey: ['supported-languages'],
     queryFn: async () => {
       const response = await fetch('/api/admin/supported-languages', {
-        headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        }
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -179,7 +177,7 @@ export default function ProblemsDashboard() {
       }
       return (await response.json()) as Language[];
     },
-    enabled: !!auth.jwt,
+    enabled: !!auth.isAuthenticated,
   });
 
   // Use useEffect to handle the side effect when languagesData changes
@@ -222,9 +220,7 @@ export default function ProblemsDashboard() {
       if (appliedShowOnlyPremium !== 'all') params.append('premium', appliedShowOnlyPremium === 'premium' ? 'premium' : 'free');
 
       const response = await fetch(`/api/admin/problems?${params}`, {
-        headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        }
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -232,7 +228,7 @@ export default function ProblemsDashboard() {
       }
       return response.json();
     },
-    enabled: !!auth.jwt,
+    enabled: !!auth.isAuthenticated,
     staleTime: 1000 * 60 * 2,
   });
 
@@ -261,8 +257,8 @@ export default function ProblemsDashboard() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(basicData),
       });
 
@@ -292,8 +288,8 @@ export default function ProblemsDashboard() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -321,9 +317,7 @@ export default function ProblemsDashboard() {
     mutationFn: async (slug: string) => {
       const response = await fetch(`/api/admin/problems/${slug}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
       });
 
       if (!response.ok) {

@@ -91,9 +91,7 @@ export default function VideoUploadModal({
     mutationFn: async (formData: FormData) => {
       const res = await fetch(`/api/admin/courses/${courseSlug}/lessons/${lessonId}/video`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${auth.jwt}`,
-        },
+        credentials: 'include',
         body: formData,
       });
 
@@ -254,9 +252,7 @@ export default function VideoUploadModal({
   const handleRemoveVideo = async () => {
     const res = await fetch(`/api/admin/courses/${courseSlug}/lessons/${lessonId}/video`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${auth.jwt}`,
-      },
+      credentials: 'include',
     });
 
     if (res.ok) {

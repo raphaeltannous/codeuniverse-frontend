@@ -35,9 +35,7 @@ export default function AvatarUploadModal({
     mutationFn: async (formData: FormData) => {
       const res = await fetch('/api/profile/avatar', {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${auth.jwt}`,
-        },
+        credentials: 'include',
         body: formData,
       });
 
@@ -55,7 +53,7 @@ export default function AvatarUploadModal({
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["userProfile", auth.jwt]
+        queryKey: ["userProfile", auth.isAuthenticated]
       });
 
       onClose();
@@ -117,9 +115,7 @@ export default function AvatarUploadModal({
   const handleRemoveAvatar = async () => {
     const res = await fetch('/api/profile/avatar', {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${auth.jwt}`,
-      },
+      credentials: 'include',
     });
 
     if (res.ok) {
@@ -129,7 +125,7 @@ export default function AvatarUploadModal({
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["userProfile", auth.jwt]
+        queryKey: ["userProfile", auth.isAuthenticated]
       });
 
       onClose();

@@ -183,9 +183,7 @@ export default function EditProblemPage() {
     queryKey: ["admin-problem", slug],
     queryFn: async () => {
       const response = await fetch(`/api/admin/problems/${slug}`, {
-        headers: {
-          Authorization: `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -193,7 +191,7 @@ export default function EditProblemPage() {
       }
       return response.json();
     },
-    enabled: !!auth.jwt && !!slug,
+    enabled: !!auth.isAuthenticated && !!slug,
   });
 
   // Fetch hints separately
@@ -205,9 +203,7 @@ export default function EditProblemPage() {
     queryKey: ["admin-problem-hints", slug],
     queryFn: async () => {
       const response = await fetch(`/api/admin/problems/${slug}/hints`, {
-        headers: {
-          Authorization: `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -215,7 +211,7 @@ export default function EditProblemPage() {
       }
       return response.json();
     },
-    enabled: !!auth.jwt && !!slug,
+    enabled: !!auth.isAuthenticated && !!slug,
   });
 
   // Fetch code snippets separately
@@ -229,9 +225,7 @@ export default function EditProblemPage() {
       const response = await fetch(
         `/api/admin/problems/${slug}/code-snippets`,
         {
-          headers: {
-            Authorization: `Bearer ${auth.jwt}`,
-          },
+          credentials: "include",
         },
       );
 
@@ -240,7 +234,7 @@ export default function EditProblemPage() {
       }
       return response.json();
     },
-    enabled: !!auth.jwt && !!slug,
+    enabled: !!auth.isAuthenticated && !!slug,
   });
 
   // Fetch testcases separately
@@ -252,9 +246,7 @@ export default function EditProblemPage() {
     queryKey: ["admin-problem-testcases", slug],
     queryFn: async () => {
       const response = await fetch(`/api/admin/problems/${slug}/testcases`, {
-        headers: {
-          Authorization: `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -262,7 +254,7 @@ export default function EditProblemPage() {
       }
       return response.json();
     },
-    enabled: !!auth.jwt && !!slug,
+    enabled: !!auth.isAuthenticated && !!slug,
   });
 
   // Fetch limits config separately
@@ -274,9 +266,7 @@ export default function EditProblemPage() {
     queryKey: ["admin-problem-limits", slug],
     queryFn: async () => {
       const response = await fetch(`/api/admin/problems/${slug}/config`, {
-        headers: {
-          Authorization: `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -284,7 +274,7 @@ export default function EditProblemPage() {
       }
       return response.json();
     },
-    enabled: !!auth.jwt && !!slug,
+    enabled: !!auth.isAuthenticated && !!slug,
   });
 
   // Fetch supported languages (not used for creating snippets anymore)
@@ -293,9 +283,7 @@ export default function EditProblemPage() {
       queryKey: ["supported-languages"],
       queryFn: async () => {
         const response = await fetch("/api/admin/supported-languages", {
-          headers: {
-            Authorization: `Bearer ${auth.jwt}`,
-          },
+          credentials: "include",
         });
 
         if (!response.ok) {
@@ -303,7 +291,7 @@ export default function EditProblemPage() {
         }
         return (await response.json()) as Language[];
       },
-      enabled: !!auth.jwt,
+      enabled: !!auth.isAuthenticated,
     });
 
   // Use effect to set form data when problem loads
@@ -376,8 +364,8 @@ export default function EditProblemPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -406,8 +394,8 @@ export default function EditProblemPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify({ hint }),
       });
 
@@ -442,8 +430,8 @@ export default function EditProblemPage() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth.jwt}`,
           },
+          credentials: "include",
           body: JSON.stringify({ hint }),
         },
       );
@@ -477,9 +465,7 @@ export default function EditProblemPage() {
         `/api/admin/problems/${slug}/hints/${hintId}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${auth.jwt}`,
-          },
+          credentials: "include",
         },
       );
 
@@ -516,8 +502,8 @@ export default function EditProblemPage() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth.jwt}`,
           },
+          credentials: "include",
           body: JSON.stringify(data),
         },
       );
@@ -549,8 +535,8 @@ export default function EditProblemPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -595,8 +581,8 @@ export default function EditProblemPage() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth.jwt}`,
           },
+          credentials: "include",
           body: JSON.stringify(data),
         },
       );
@@ -634,9 +620,7 @@ export default function EditProblemPage() {
         `/api/admin/problems/${slug}/testcases/${testcaseId}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${auth.jwt}`,
-          },
+          credentials: "include",
         },
       );
 
@@ -665,8 +649,8 @@ export default function EditProblemPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
 

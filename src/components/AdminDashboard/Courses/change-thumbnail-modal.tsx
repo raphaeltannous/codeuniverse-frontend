@@ -36,7 +36,6 @@ export default function ThumbnailChangeModal({
   courseSlug,
   courseTitle,
 }: ThumbnailChangeModalProps) {
-  const { auth } = useAuth();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -47,9 +46,7 @@ export default function ThumbnailChangeModal({
     mutationFn: async (formData: FormData) => {
       const res = await fetch(`/api/admin/courses/${courseSlug}/thumbnail`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${auth.jwt}`,
-        },
+        credentials: 'include',
         body: formData,
       });
 

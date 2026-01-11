@@ -24,15 +24,12 @@ export default function CoursesList() {
         ? '/api/courses/loggedIn'
         : '/api/courses';
 
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      };
-
-      if (auth?.isAuthenticated && auth.jwt) {
-        headers['Authorization'] = `Bearer ${auth.jwt}`;
-      }
-
-      const response = await fetch(endpoint, { headers });
+      const response = await fetch(endpoint, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: auth?.isAuthenticated ? "include" : "omit",
+      });
 
       if (!response.ok) {
         throw new Error(`Failed to fetch courses: ${response.status}`);

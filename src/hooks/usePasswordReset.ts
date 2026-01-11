@@ -17,6 +17,7 @@ export function usePasswordReset(options?: UsePasswordResetOptions) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
+        credentials: "include",
       });
 
       if (!res.ok) {

@@ -36,18 +36,10 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     isLoading,
     error,
   } = useQuery<User>({
-    queryKey: ["userProfile", auth.jwt],
-    queryFn: async ({ queryKey }) => {
-      const [, token] = queryKey;
-
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
+    queryKey: ["userProfile", auth.isAuthenticated],
+    queryFn: async () => {
       const res = await fetch("/api/profile/me", {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
+        credentials: "include",
       });
 
       if (res.status === 401) {
@@ -60,7 +52,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
       return (await res.json()) as User;
     },
-    enabled: auth.isAuthenticated && !!auth.jwt,
+    enabled: auth.isAuthenticated,
     staleTime: 5 * 60 * 1000,
     retry: (failureCount, error) => {
       if (error.message.includes("401") || error.message.includes("Session expired")) {

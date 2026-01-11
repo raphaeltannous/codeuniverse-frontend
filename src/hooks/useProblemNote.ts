@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '~/context/AuthContext';
 import type { APIError } from '~/types/api-error';
 import type { ProblemNote, ProblemNoteSaveRequest, ProblemNoteSaveResponse } from '~/types/problem/note';
 
@@ -8,7 +7,6 @@ interface UseProblemNoteOptions {
 }
 
 export function useProblemNote(problemSlug: string, options?: UseProblemNoteOptions) {
-  const { auth } = useAuth();
   const queryClient = useQueryClient();
   const problemNoteKey = ["problem-note", problemSlug];
 
@@ -16,7 +14,7 @@ export function useProblemNote(problemSlug: string, options?: UseProblemNoteOpti
     queryKey: problemNoteKey,
     queryFn: async () => {
       const res = await fetch(`/api/problems/${problemSlug}/notes`, {
-        headers: { "Authorization": `Bearer ${auth.jwt}` },
+        credentials: "include",
       });
       const data = await res.json();
 
@@ -38,8 +36,8 @@ export function useProblemNote(problemSlug: string, options?: UseProblemNoteOpti
         method: method,
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(requestBody),
       });
 

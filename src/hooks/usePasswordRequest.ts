@@ -17,6 +17,7 @@ export function usePasswordRequest(options?: UsePasswordRequestOptions) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
+        credentials: "include",
       });
 
       if (!res.ok) {

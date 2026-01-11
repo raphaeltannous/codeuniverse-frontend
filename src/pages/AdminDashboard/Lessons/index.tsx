@@ -69,9 +69,7 @@ export default function LessonsDashboard() {
     queryKey: ['lessons', courseSlug],
     queryFn: async () => {
       const response = await fetch(`${API_BASE}/${courseSlug}/lessons`, {
-        headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
       });
       if (!response.ok) {
         throw new Error('Failed to fetch lessons');
@@ -87,8 +85,8 @@ export default function LessonsDashboard() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          "Authorization": `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
       if (!response.ok) {
@@ -111,8 +109,8 @@ export default function LessonsDashboard() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          "Authorization": `Bearer ${auth.jwt}`,
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
       if (!response.ok) {
@@ -133,9 +131,7 @@ export default function LessonsDashboard() {
     mutationFn: async (id: string) => {
       const response = await fetch(`${API_BASE}/${courseSlug}/lessons/${id}`, {
         method: 'DELETE',
-        headers: {
-          "Authorization": `Bearer ${auth.jwt}`,
-        },
+        credentials: "include",
       });
       if (!response.ok) {
         throw new Error('Failed to delete lesson');
