@@ -22,3 +22,86 @@
 .wmde-markdown-color {
   background-color: inherit;
 }
+
+// Problem Skeleton Loading Animation
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-title {
+  height: 2.5rem;
+  background: linear-gradient(90deg, var(--bs-gray-200) 25%, var(--bs-gray-400) 50%, var(--bs-gray-200) 75%);
+  background-size: 200% 100%;
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+  animation: shimmer 2s infinite;
+  opacity: 0.7;
+
+  @media (prefers-color-scheme: dark) {
+    background: linear-gradient(90deg, $skeleton-dark-start 25%, $skeleton-dark-middle 50%, $skeleton-dark-end 75%);
+    background-size: 200% 100%;
+    opacity: 0.5;
+  }
+}
+
+.skeleton-badge {
+  height: 2rem;
+  width: 120px;
+  background: linear-gradient(90deg, var(--bs-gray-200) 25%, var(--bs-gray-400) 50%, var(--bs-gray-200) 75%);
+  background-size: 200% 100%;
+  border-radius: 0.25rem;
+  animation: shimmer 2s infinite;
+  opacity: 0.7;
+
+  @media (prefers-color-scheme: dark) {
+    background: linear-gradient(90deg, $skeleton-dark-start 25%, $skeleton-dark-middle 50%, $skeleton-dark-end 75%);
+    background-size: 200% 100%;
+    opacity: 0.5;
+  }
+}
+
+.skeleton-tabs {
+  display: flex;
+  gap: 1rem;
+}
+
+.skeleton-tab-item {
+  height: 2.5rem;
+  width: 100px;
+  background: linear-gradient(90deg, var(--bs-gray-200) 25%, var(--bs-gray-400) 50%, var(--bs-gray-200) 75%);
+  background-size: 200% 100%;
+  border-radius: 0.25rem;
+  animation: shimmer 2s infinite;
+  opacity: 0.7;
+
+  @media (prefers-color-scheme: dark) {
+    background: linear-gradient(90deg, $skeleton-dark-start 25%, $skeleton-dark-middle 50%, $skeleton-dark-end 75%);
+    background-size: 200% 100%;
+    opacity: 0.5;
+  }
+}
+
+.skeleton-line {
+  height: 1rem;
+  background: linear-gradient(90deg, var(--bs-gray-200) 25%, var(--bs-gray-400) 50%, var(--bs-gray-200) 75%);
+  background-size: 200% 100%;
+  border-radius: 0.25rem;
+  margin-bottom: 0.75rem;
+  animation: shimmer 2s infinite;
+  opacity: 0.7;
+
+  @media (prefers-color-scheme: dark) {
+    background: linear-gradient(90deg, $skeleton-dark-start 25%, $skeleton-dark-middle 50%, $skeleton-dark-end 75%);
+    background-size: 200% 100%;
+    opacity: 0.5;
+  }
+
+  &.skeleton-line-short {
+    width: 60%;
+  }
+}

@@ -1,56 +1,47 @@
 import { Activity, useState } from "react";
 import { Col, Container, Row, Tab, Tabs } from "react-bootstrap";
 import { useParams } from "react-router";
-import type { APIError } from "~/types/api-error";
-import type { Problem } from "~/types/problem";
 import ProblemEditor from "./editor";
-import { useQuery } from "@tanstack/react-query";
 import ProblemSubmissions from "./submissions";
 import ProblemNotes from "./notes";
 import DifficultyBadge from "~/components/shared/difficulty-badge";
+import ProblemSkeleton from "~/components/Platform/Problem/ProblemSkeleton";
+import { useProblem } from "~/hooks/useProblem";
 
 export default function PlatformProblemsProblem() {
   const { problemSlug } = useParams();
   const [activeTab, setActiveTab] = useState('editor');
+  const { problem, isLoading, isError, error } = useProblem(problemSlug || '');
 
   if (!problemSlug) {
     return <div>Problem not found</div>;
   }
 
-  const { data: problem, isLoading, isError, error } = useQuery<Problem, APIError>({
-    queryKey: [`problem-${problemSlug}-data`],
-    queryFn: async () => {
-      const res = await fetch(`/api/problems/${problemSlug}`);
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw data as APIError;
-      }
-      return data as Problem;
-    }
-  })
-
   if (isLoading) {
     return (
-      <>
-        Loading...
-      </>
+      <Container className="problem-page-width mt-4">
+        <ProblemSkeleton />
+      </Container>
     )
   }
 
   if (isError) {
     return (
-      <>
-        {error.message}
-      </>
+      <Container className="problem-page-width mt-4">
+        <div className="alert alert-danger">
+          {error?.message || "Error loading problem"}
+        </div>
+      </Container>
     )
   }
 
   if (!problem) {
     return (
-      <>
-        No problem?
-      </>
+      <Container className="problem-page-width mt-4">
+        <div className="alert alert-warning">
+          Problem not found
+        </div>
+      </Container>
     )
   }
 
