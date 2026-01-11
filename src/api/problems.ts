@@ -37,10 +37,11 @@ export async function getRunStatus(slug: string, runId: string, jwt: string) {
 
 export async function submitProblem(
   slug: string,
+  language: string,
   body: SubmitRequest,
   jwt: string,
 ) {
-  const result = await fetch(`/api/problems/${slug}/submit`, {
+  const result = await fetch(`/api/problems/${slug}/submit/${language}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

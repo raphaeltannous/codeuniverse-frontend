@@ -7,4 +7,5 @@ export interface TestCase {
 
 export interface FailedTestcase extends TestCase {
   got: any;
+  stdOut: string;
 }

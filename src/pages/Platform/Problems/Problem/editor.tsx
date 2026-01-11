@@ -1,6 +1,16 @@
 import { useState } from "react";
 import MDEditor from "@uiw/react-md-editor";
-import { Button, Card, Col, Form, Row, Spinner, Alert } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Row,
+  Spinner,
+  Alert,
+  Tabs,
+  Tab,
+} from "react-bootstrap";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import CodeEditor from "~/components/shared/code-editor";
 import { useAuth } from "~/context/AuthContext";
@@ -9,6 +19,7 @@ import { useSubmitProblem } from "~/hooks/useSubmitProblem";
 import type { Problem } from "~/types/problem";
 import { ResultStatus } from "~/types/problem/status";
 import type { FailedTestcase } from "~/types/problem/testcase";
+import { ChevronDown, ChevronUp } from "react-bootstrap-icons";
 
 interface ProblemEditorProps {
   problem: Problem;
@@ -25,8 +36,10 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
     problemSlug,
     language,
   );
-  const { submitMutation, submissionStatusQuery } =
-    useSubmitProblem(problemSlug);
+  const { submitMutation, submissionStatusQuery } = useSubmitProblem(
+    problemSlug,
+    language,
+  );
 
   const handleRun = () => runMutation.mutate({ code });
   const handleSubmit = () =>
@@ -46,14 +59,10 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
   const showRunResult = !!runId && isCompleted(runStatusQuery.data?.status);
   const showSubmitChecking =
     !!submissionStatusQuery.data &&
-    !["Accepted", "Failed", "Error", "Time Limit Exceeded"].includes(
-      submissionStatusQuery.data.status,
-    );
+    !isCompleted(submissionStatusQuery.data.status);
   const showSubmitResult =
     !!submissionStatusQuery.data &&
-    ["Accepted", "Failed", "Error", "Time Limit Exceeded"].includes(
-      submissionStatusQuery.data.status,
-    );
+    isCompleted(submissionStatusQuery.data.status);
 
   return (
     <div>
@@ -133,6 +142,9 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
             <StatusRow
               title={submissionStatusQuery.data?.status}
               status={submissionStatusQuery.data?.status}
+              stdout={submissionStatusQuery.data?.stdOut}
+              stderr={submissionStatusQuery.data?.stdErr}
+              failedTestcases={submissionStatusQuery.data?.failedTestcases}
             />
           )}
 
@@ -217,31 +229,125 @@ function StatusRow({
       {failedTestcases && failedTestcases.length > 0 && (
         <div className="card my-3">
           <div className="card-body">
-            <h5 className="card-title text-danger mb-3">Failed Test Case</h5>
+            <h5 className="card-title text-danger mb-3">
+              Failed Test Cases ({failedTestcases.length})
+            </h5>
 
-            <div className="mb-2">
-              <strong>Input:</strong>
-              <code className="d-block bg-body-tertiary p-2 mt-1 rounded">
-                {JSON.stringify(failedTestcases[0].input)}
-              </code>
-            </div>
+            <Tabs
+              defaultActiveKey={0}
+              id="failed-testcases-tabs"
+              className="mb-3"
+              mountOnEnter={true}
+              unmountOnExit={false}
+            >
+              {failedTestcases.map((testcase, index) => (
+                <Tab
+                  key={testcase.id}
+                  eventKey={index}
+                  title={`Case ${index + 1}`}
+                  tabClassName={index === 0 ? "" : ""}
+                >
+                  <div className="mt-3">
+                    {/* Test case details */}
+                    <div className="mb-2">
+                      <strong>Input:</strong>
+                      <code className="d-block bg-body-tertiary p-2 mt-1 rounded">
+                        {JSON.stringify(testcase.input)}
+                      </code>
+                    </div>
 
-            <div className="mb-2">
-              <strong className="">Expected:</strong>
-              <code className="d-block bg-body-tertiary p-2 mt-1 rounded">
-                {JSON.stringify(failedTestcases[0].expected)}
-              </code>
-            </div>
+                    <div className="mb-2">
+                      <strong>Expected:</strong>
+                      <code className="d-block bg-body-tertiary p-2 mt-1 rounded">
+                        {JSON.stringify(testcase.expected)}
+                      </code>
+                    </div>
 
-            <div className="mb-0">
-              <strong className="">Got:</strong>
-              <code className="d-block p-2 bg-body-tertiary mt-1 rounded">
-                {JSON.stringify(failedTestcases[0].got)}
-              </code>
-            </div>
+                    <div className="mb-2">
+                      <strong>Got:</strong>
+                      <code className="d-block bg-body-tertiary p-2 mt-1 rounded">
+                        {JSON.stringify(testcase.got)}
+                      </code>
+                    </div>
+
+                    {testcase.stdOut && (
+                      <ExpandableStdout stdOut={testcase.stdOut} />
+                    )}
+                  </div>
+                </Tab>
+              ))}
+            </Tabs>
           </div>
         </div>
       )}
     </>
+  );
+}
+
+function ExpandableStdout({ stdOut }: { stdOut: string }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const maxLines = 10;
+  const lines = stdOut.split("\n");
+  const needsTruncation = lines.length > maxLines;
+
+  const displayLines = isExpanded
+    ? lines
+    : needsTruncation
+      ? lines.slice(0, maxLines)
+      : lines;
+
+  return (
+    <div className="mb-3">
+      <div className="d-flex justify-content-between align-items-center mb-2">
+        <div className="d-flex align-items-center gap-2">
+          <strong>Output:</strong>
+          {needsTruncation && !isExpanded && (
+            <span className="badge bg-warning">Truncated</span>
+          )}
+        </div>
+        {needsTruncation && (
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="d-flex align-items-center gap-1"
+          >
+            {isExpanded ? (
+              <>
+                <ChevronUp size={12} />
+                Collapse
+              </>
+            ) : (
+              <>
+                <ChevronDown size={12} />
+                Expand
+              </>
+            )}
+          </Button>
+        )}
+      </div>
+
+      <div
+        className="bg-body-tertiary p-3 rounded"
+        style={{
+          maxHeight: isExpanded ? "none" : "250px",
+          overflowY: "auto",
+        }}
+      >
+        <pre className="m-0" style={{ whiteSpace: "pre-wrap" }}>
+          {displayLines.join("\n")}
+        </pre>
+      </div>
+
+      {needsTruncation && (
+        <div className="mt-2 text-center">
+          <small className="text-muted">
+            {isExpanded
+              ? `Showing all ${lines.length} lines`
+              : `Showing first ${maxLines} of ${lines.length} lines`}
+          </small>
+        </div>
+      )}
+    </div>
   );
 }

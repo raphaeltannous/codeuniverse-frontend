@@ -6,12 +6,13 @@ import type { APIError } from "~/types/api-error";
 import { ResultStatus } from "~/types/problem/status";
 import { useAuth } from "~/context/AuthContext";
 
-export function useSubmitProblem(problemSlug: string) {
+export function useSubmitProblem(problemSlug: string, language: string) {
   const { auth } = useAuth();
   const [submissionId, setSubmissionId] = useState<string | null>(null);
 
   const submitMutation = useMutation<SubmitResponse, APIError, SubmitRequest>({
-    mutationFn: (body) => API.submitProblem(problemSlug, body, auth.jwt),
+    mutationFn: (body) =>
+      API.submitProblem(problemSlug, language, body, auth.jwt),
     onSuccess: (data) => setSubmissionId(data.submissionId),
   });
 

@@ -1,4 +1,5 @@
 import type { ResultStatus } from "./status";
+import type { FailedTestcase } from "./testcase";
 
 export interface SubmitRequest {
   problemSlug: string;
@@ -20,7 +21,11 @@ export interface Submission {
   executionTime: number;
   memoryUsage: number;
 
-  isAccepted: boolean;
+  failedTestcases: FailedTestcase[];
+
+  stdOut: string;
+  stdErr: string;
 
   createdAt: string;
+  updatedAt: string;
 }
