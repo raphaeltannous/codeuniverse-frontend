@@ -1,13 +1,19 @@
+import { ProblemDifficulty } from "./problem/difficulty";
+import type { TestCase } from "./problem/testcase";
+
 export interface Problem {
+  id: string;
   title: string;
   slug: string;
   description: string;
-  difficulty: Difficulty;
+  difficulty: ProblemDifficulty;
   hints: string[];
   codeSnippets: CodeSnippet[];
   testcases: TestCase[];
-  isPaid: boolean;
+  isPremium: boolean;
   isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CodeSnippet {
@@ -15,3 +21,5 @@ export interface CodeSnippet {
   languageName: string;
   languageSlug: string;
 }
+
+export type Difficulty = ProblemDifficulty;
