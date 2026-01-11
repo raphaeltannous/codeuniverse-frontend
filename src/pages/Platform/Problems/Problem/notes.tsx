@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import MDEditor from '@uiw/react-md-editor';
 import { useEffect, useState } from 'react';
-import { Card, Col, Row, Button } from 'react-bootstrap';
+import { Card, Col, Row, Button, Spinner } from 'react-bootstrap';
+import { CheckCircle } from 'react-bootstrap-icons';
 import { useAuth } from '~/context/AuthContext';
 import type { APIError } from '~/types/api-error';
 import type { Problem } from '~/types/problem';
@@ -64,10 +65,14 @@ export default function ProblemNotes({ problem }: ProblemNotesProps) {
           ...variables,
         }
       );
+      setShowSaved(true);
+      const timer = setTimeout(() => setShowSaved(false), 2000);
+      return () => clearTimeout(timer);
     },
   });
 
   const [value, setValue] = useState<string | undefined>("");
+  const [showSaved, setShowSaved] = useState(false);
   useEffect(() => {
     if (problemNote) setValue(problemNote.markdown)
   }, [problemNote])
@@ -102,9 +107,28 @@ export default function ProblemNotes({ problem }: ProblemNotesProps) {
       <Card className="shadow-sm mb-3">
         <Card.Header as="h5">
           <Row className="align-items-center">
-            <Col><h5 className="mb-0 ">Problem Notes</h5></Col>
+            <Col className="d-flex align-items-center gap-2">
+              <h5 className="mb-0">Problem Notes</h5>
+              {saveMutation.isPending && (
+                <div className="d-flex align-items-center gap-1 text-muted">
+                  <Spinner animation="border" size="sm" />
+                  <span className="small fw-semibold">Saving...</span>
+                </div>
+              )}
+              {showSaved && (
+                <div className="d-flex align-items-center gap-1 text-muted">
+                  <CheckCircle size={18} />
+                  <span className="small fw-semibold">Saved</span>
+                </div>
+              )}
+            </Col>
             <Col xs="auto">
-              <Button variant="primary" onClick={handleSave} size="sm">
+              <Button 
+                variant="primary" 
+                onClick={handleSave} 
+                size="sm"
+                disabled={saveMutation.isPending}
+              >
                 Save
               </Button>
             </Col>
