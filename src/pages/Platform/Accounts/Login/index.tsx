@@ -56,7 +56,7 @@ export default function PlatformAccountsLogin() {
             </div>
           </Activity>
 
-          <Button type="submit" variant="secondary" className="w-100 mb-3">
+          <Button type="submit" variant="secondary" className="w-100 mb-3" disabled={loginMutation.isPending}>
             Sign In
           </Button>
 

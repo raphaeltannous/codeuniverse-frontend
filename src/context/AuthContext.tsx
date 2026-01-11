@@ -5,11 +5,12 @@ type AuthState = {
   isAuthenticated: boolean
   mfaPending: boolean
   jwt?: string
+  mfaToken?: string
 }
 
 type AuthContextType = {
   auth: AuthState
-  loginStarted: () => void
+  loginStarted: (mfaToken: string) => void
   completeMfa: (token: string) => void
   logout: () => void
 }
@@ -63,10 +64,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(auth))
   }, [auth, hydrated])
 
-  const loginStarted = () => {
+  const loginStarted = (mfaToken: string) => {
     setAuth({
       mfaPending: true,
       isAuthenticated: false,
+      mfaToken,
     })
   }
 

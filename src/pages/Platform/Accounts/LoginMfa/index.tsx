@@ -1,16 +1,17 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent, Activity } from "react";
 import { Button, Container, Form, Image } from "react-bootstrap";
 import logo from "../../../../assets/logo.svg";
-import { useNavigate, useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
 import type { MfaForm } from "~/types/auth/mfa";
 import { useMfa } from "~/hooks/useMfa";
+import { useAuth } from "~/context/AuthContext";
 
 export default function PlatformAccountsLoginMFA() {
   const navigate = useNavigate();
+  const { auth } = useAuth();
   const { mfaMutation, mfaResendRequestMutation } = useMfa();
 
-  const [params] = useSearchParams();
-  const token = params.get("token") || "";
+  const token = auth.mfaToken || "";
 
   useEffect(() => {
     if (!token) {
@@ -22,6 +23,10 @@ export default function PlatformAccountsLoginMFA() {
     token: token,
     code: "",
   });
+
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, token: token }));
+  }, [token]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -64,12 +69,12 @@ export default function PlatformAccountsLoginMFA() {
             </div>
           </Activity>
 
-          <Button type="submit" variant="secondary" className="w-100 mb-3">
+          <Button type="submit" variant="secondary" className="w-100 mb-3" disabled={mfaMutation.isPending}>
             Verify Code
           </Button>
 
           <div className="text-center text-muted small">
-            Didn’t get it? <a href="#" onClick={handleResendClick}>Resend code</a>
+            Didn't get it? <a href="#" onClick={handleResendClick} style={{ pointerEvents: mfaResendRequestMutation.isPending ? 'none' : 'auto', opacity: mfaResendRequestMutation.isPending ? 0.6 : 1 }}>Resend code</a>
           </div>
 
           <Activity mode={mfaResendRequestMutation.isError ? 'visible' : 'hidden'}>

@@ -11,7 +11,7 @@ interface UseMfaOptions {
 
 export function useMfa(options?: UseMfaOptions) {
   const navigate = useNavigate();
-  const { completeMfa } = useAuth();
+  const { completeMfa, loginStarted } = useAuth();
 
   const mfaMutation = useMutation<MfaResponse, APIError, MfaForm>({
     mutationFn: async (body: MfaForm) => {
@@ -56,7 +56,7 @@ export function useMfa(options?: UseMfaOptions) {
     },
 
     onSuccess: (response) => {
-      navigate(`?token=${response.newToken}`);
+      loginStarted(response.newToken);
       options?.onResendSuccess?.(response.newToken);
     },
   });

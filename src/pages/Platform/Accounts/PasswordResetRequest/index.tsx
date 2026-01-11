@@ -52,7 +52,7 @@ export default function PlatformAccountsPasswordResetRequest() {
             </div>
           </Activity>
 
-          <Button type="submit" variant="secondary" className="w-100 mb-3">
+          <Button type="submit" variant="secondary" className="w-100 mb-3" disabled={passwordRequestMutation.isPending}>
             Send reset email
           </Button>
 

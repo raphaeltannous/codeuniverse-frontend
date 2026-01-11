@@ -29,8 +29,8 @@ export function useLogin(options?: UseLoginOptions) {
     },
 
     onSuccess: (responseData) => {
-      loginStarted();
-      navigate(`/accounts/login/mfa?token=${responseData.mfaToken}`);
+      loginStarted(responseData.mfaToken);
+      navigate('/accounts/login/mfa');
       options?.onSuccess?.(responseData);
     },
   });
