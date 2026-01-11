@@ -1,78 +1,27 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import MDEditor from '@uiw/react-md-editor';
 import { useEffect, useState } from 'react';
 import { Card, Col, Row, Button, Spinner } from 'react-bootstrap';
 import { CheckCircle } from 'react-bootstrap-icons';
-import { useAuth } from '~/context/AuthContext';
-import type { APIError } from '~/types/api-error';
+import { useProblemNote } from '~/hooks/useProblemNote';
 import type { Problem } from '~/types/problem';
-import type { ProblemNote, ProblemNoteSaveRequest, ProblemNoteSaveResponse } from '~/types/problem/note';
 
 interface ProblemNotesProps {
   problem: Problem;
 }
 
 export default function ProblemNotes({ problem }: ProblemNotesProps) {
-  const { auth } = useAuth();
-
-  const problemSlug = problem.slug;
-  const queryClient = useQueryClient();
-  const problemNoteKey = ["problem-note", problemSlug];
-
-  const { data: problemNote, isLoading, isError, error } = useQuery<ProblemNote, APIError>({
-    queryKey: problemNoteKey,
-    queryFn: async () => {
-      const res = await fetch(`/api/problems/${problemSlug}/notes`, {
-        headers: { "Authorization": `Bearer ${auth.jwt}` },
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw data as APIError;
-      }
-      return data as ProblemNote;
-    },
-    retry: (failureCount, error) => {
-      if (error.code === "PROBLEM_NOTE_NOT_FOUND") return false;
-      return failureCount < 2;
-    }
-  })
-
-  const saveMutation = useMutation<ProblemNoteSaveResponse, APIError, ProblemNoteSaveRequest>({
-    mutationFn: async (body: ProblemNoteSaveRequest) => {
-      const { method, ...requestBody } = body;
-      const res = await fetch(`/api/problems/${problem.slug}/notes`, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${auth.jwt}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!res.ok) {
-        const err = (await res.json()) as APIError;
-        throw err;
-      };
-
-      return (await res.json()) as ProblemNoteSaveResponse;
-    },
-
-    onSuccess: (_, variables) => {
-      queryClient.setQueryData(
-        problemNoteKey,
-        {
-          ...variables,
-        }
-      );
-      setShowSaved(true);
-      const timer = setTimeout(() => setShowSaved(false), 2000);
-      return () => clearTimeout(timer);
-    },
-  });
-
   const [value, setValue] = useState<string | undefined>("");
   const [showSaved, setShowSaved] = useState(false);
+
+  const handleSaveSuccess = () => {
+    setShowSaved(true);
+    const timer = setTimeout(() => setShowSaved(false), 2000);
+    return () => clearTimeout(timer);
+  };
+
+  const { problemNote, isLoading, isError, error, saveMutation } = useProblemNote(problem.slug, {
+    onSaveSuccess: handleSaveSuccess,
+  });
   useEffect(() => {
     if (problemNote) setValue(problemNote.markdown)
   }, [problemNote])
@@ -93,7 +42,7 @@ export default function ProblemNotes({ problem }: ProblemNotesProps) {
   }
 
   if (isError) {
-    if (error.code !== "PROBLEM_NOTE_NOT_FOUND") {
+    if (error && error.code !== "PROBLEM_NOTE_NOT_FOUND") {
       return (
         <>
           {error.message}
@@ -129,7 +78,7 @@ export default function ProblemNotes({ problem }: ProblemNotesProps) {
                 size="sm"
                 disabled={saveMutation.isPending}
               >
-                Save
+                {error?.code === "PROBLEM_NOTE_NOT_FOUND" ? "Create Note" : "Save"}
               </Button>
             </Col>
           </Row>
