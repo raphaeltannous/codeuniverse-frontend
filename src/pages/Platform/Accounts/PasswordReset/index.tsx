@@ -2,28 +2,11 @@ import { Button, Container, Form, Image } from "react-bootstrap";
 import logo from "~/assets/logo.svg";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
 import { Activity, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import type { PasswordResetForm, PasswordResetResponse } from "~/types/auth/password-reset";
-import type { APIError } from "~/types/api-error";
-import { useMutation } from "@tanstack/react-query";
+import type { PasswordResetForm } from "~/types/auth/password-reset";
+import { usePasswordReset } from "~/hooks/usePasswordReset";
 
 export default function PlatformAccountsPasswordReset() {
-  const passwordResetMutation = useMutation<PasswordResetResponse, APIError, PasswordResetForm>({
-    mutationFn: async (body: PasswordResetForm) => {
-      const res = await fetch("/api/auth/password/reset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const err = (await res.json()) as APIError;
-        throw err;
-      };
-
-      return (await res.json()) as PasswordResetResponse;
-    },
-  });
-
+  const { passwordResetMutation } = usePasswordReset();
 
   const [params] = useSearchParams();
   const token = params.get("token") || "";
@@ -67,6 +50,7 @@ export default function PlatformAccountsPasswordReset() {
             onChange={handleChange}
             placeholder="New password"
             className="mb-3"
+            autoComplete="new-password"
           />
 
           <Form.Control
@@ -76,6 +60,7 @@ export default function PlatformAccountsPasswordReset() {
             onChange={handleChange}
             placeholder="Confirm password"
             className="mb-3"
+            autoComplete="new-password"
           />
 
           <Activity mode={passwordResetMutation.isError ? 'visible' : 'hidden'}>

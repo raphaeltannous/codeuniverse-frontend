@@ -1,37 +1,12 @@
 import { Button, Container, Form, Image } from "react-bootstrap";
 import logo from "~/assets/logo.svg";
 import { Activity, useState, type ChangeEvent, type FormEvent } from "react";
-import { NavLink, useNavigate } from "react-router";
-import { useMutation } from "@tanstack/react-query";
-import type { LoginForm, LoginResponse } from "~/types/auth/login";
-import type { APIError } from "~/types/api-error";
-import { useAuth } from "~/context/AuthContext";
+import { NavLink } from "react-router";
+import type { LoginForm } from "~/types/auth/login";
+import { useLogin } from "~/hooks/useLogin";
 
 export default function PlatformAccountsLogin() {
-  const navigate = useNavigate();
-  const { loginStarted } = useAuth();
-
-  const loginMutation = useMutation<LoginResponse, APIError, LoginForm>({
-    mutationFn: async (body: LoginForm) => {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const err = (await res.json()) as APIError;
-        throw err;
-      };
-
-      return (await res.json()) as LoginResponse;
-    },
-
-    onSuccess: (responseData) => {
-      loginStarted()
-      navigate(`/accounts/login/mfa?token=${responseData.mfaToken}`)
-    },
-  });
+  const { loginMutation } = useLogin();
 
   const [form, setForm] = useState<LoginForm>({
     username: "",
@@ -63,6 +38,7 @@ export default function PlatformAccountsLogin() {
             onChange={handleChange}
             placeholder="Username"
             className="mb-3"
+            autoComplete="username"
           />
           <Form.Control
             type="password"
@@ -71,6 +47,7 @@ export default function PlatformAccountsLogin() {
             onChange={handleChange}
             placeholder="Password"
             className="mb-3"
+            autoComplete="current-password"
           />
 
           <Activity mode={loginMutation.isError ? 'visible' : 'hidden'}>

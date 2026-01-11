@@ -1,38 +1,12 @@
 import { Button, Container, Form, Image } from "react-bootstrap";
 import logo from "../../../../assets/logo.svg";
 import { Activity, useState, type ChangeEvent, type FormEvent } from "react";
-import { NavLink, useNavigate } from "react-router";
-import { useMutation } from "@tanstack/react-query";
-import type { SignupForm, SignupResponse } from "~/types/auth/signup";
-import type { APIError } from "~/types/api-error";
-import { useAuth } from "~/context/AuthContext";
+import { NavLink } from "react-router";
+import type { SignupForm } from "~/types/auth/signup";
+import { useSignup } from "~/hooks/useSignup";
 
 export default function PlatformAccountsSignup() {
-  const { completeMfa } = useAuth();
-  const navigate = useNavigate();
-
-  const signupMutation = useMutation<SignupResponse, APIError, SignupForm>({
-    mutationFn: async (body: SignupForm) => {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const err = (await res.json()) as APIError;
-        throw err;
-      };
-
-      return (await res.json()) as SignupResponse;
-    },
-
-    onSuccess: (response) => {
-      completeMfa(response.jwtToken)
-
-      navigate("/problems")
-    },
-  });
+  const { signupMutation } = useSignup();
 
   const [form, setForm] = useState<SignupForm>({
     username: "",
@@ -66,6 +40,7 @@ export default function PlatformAccountsSignup() {
             onChange={handleChange}
             placeholder="Username"
             className="mb-3"
+            autoComplete="username"
           />
           <Form.Control
             type="password"
@@ -74,6 +49,7 @@ export default function PlatformAccountsSignup() {
             onChange={handleChange}
             placeholder="Password"
             className="mb-3"
+            autoComplete="new-password"
           />
           <Form.Control
             type="password"
@@ -82,6 +58,7 @@ export default function PlatformAccountsSignup() {
             onChange={handleChange}
             placeholder="Confirm Password"
             className="mb-3"
+            autoComplete="new-password"
           />
           <Form.Control
             type="email"
@@ -90,6 +67,7 @@ export default function PlatformAccountsSignup() {
             onChange={handleChange}
             placeholder="Email"
             className="mb-3"
+            autoComplete="email"
           />
 
           <Activity mode={signupMutation.isError ? 'visible' : 'hidden'}>
@@ -98,7 +76,7 @@ export default function PlatformAccountsSignup() {
             </div>
           </Activity>
 
-          <Button type="submit" variant="secondary" className="w-100 mb-3">
+          <Button type="submit" variant="secondary" className="w-100 mb-3" disabled={signupMutation.isPending}>
             Sign Up
           </Button>
 

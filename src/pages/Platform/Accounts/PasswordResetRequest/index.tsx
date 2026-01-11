@@ -2,27 +2,11 @@ import { Button, Container, Form, Image } from "react-bootstrap";
 import logo from "../../../../assets/logo.svg";
 import { NavLink } from "react-router";
 import { Activity, useState, type ChangeEvent, type FormEvent } from "react";
-import type { PasswordRequestForm, PasswordRequestResponse } from "~/types/auth/password-request";
-import type { APIError } from "~/types/api-error";
-import { useMutation } from "@tanstack/react-query";
+import type { PasswordRequestForm } from "~/types/auth/password-request";
+import { usePasswordRequest } from "~/hooks/usePasswordRequest";
 
 export default function PlatformAccountsPasswordResetRequest() {
-  const passwordRequestMutation = useMutation<PasswordRequestResponse, APIError, PasswordRequestForm>({
-    mutationFn: async (body: PasswordRequestForm) => {
-      const res = await fetch("/api/auth/password/request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const err = (await res.json()) as APIError;
-        throw err;
-      };
-
-      return (await res.json()) as PasswordRequestResponse;
-    },
-  });
+  const { passwordRequestMutation } = usePasswordRequest();
 
   const [form, setForm] = useState<PasswordRequestForm>({
     email: "",
@@ -54,6 +38,7 @@ export default function PlatformAccountsPasswordResetRequest() {
             onChange={handleChange}
             placeholder="Your account email"
             className="mb-3"
+            autoComplete="email"
           />
 
           <Activity mode={passwordRequestMutation.isError ? 'visible' : 'hidden'}>
