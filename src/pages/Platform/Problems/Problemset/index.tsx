@@ -157,13 +157,17 @@ export default function PlatformProblemsProblemset() {
 
   // Handle filter changes
   const handleFilterChange = (key: keyof Filters, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    const newFilters = { ...appliedFilters, [key]: value };
+    setFilters(newFilters);
+    if (key === 'difficulty') {
+      setAppliedFilters(newFilters);
+      setPage(1);
+    }
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setAppliedFilters(filters);
-    setAppliedShowOnlyPremium(showOnlyPremium);
     setPage(1); // Reset to first page when search is performed
   };
 
@@ -212,9 +216,9 @@ export default function PlatformProblemsProblemset() {
     setPage(1);
   };
 
-  const handleApplyFilters = () => {
-    setAppliedFilters(filters);
-    setAppliedShowOnlyPremium(showOnlyPremium);
+  const handleShowOnlyPremiumChange = (value: 'all' | 'premium' | 'free') => {
+    setShowOnlyPremium(value);
+    setAppliedShowOnlyPremium(value);
     setPage(1);
   };
 
@@ -418,10 +422,9 @@ export default function PlatformProblemsProblemset() {
             page={page}
             totalPages={totalPages}
             onFilterChange={handleFilterChange}
-            onShowOnlyPremiumChange={setShowOnlyPremium}
+            onShowOnlyPremiumChange={handleShowOnlyPremiumChange}
             onSearch={handleSearch}
             onResetFilters={handleResetFilters}
-            onApplyFilters={handleApplyFilters}
             onSortByChange={handleSortByChange}
             onSortOrderChange={handleSortOrderChange}
           />

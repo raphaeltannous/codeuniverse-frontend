@@ -15,7 +15,6 @@ interface ProblemsFilterProps {
   onShowOnlyPremiumChange: (value: 'all' | 'premium' | 'free') => void;
   onSearch: (e: React.FormEvent) => void;
   onResetFilters: () => void;
-  onApplyFilters: () => void;
   onSortByChange: (value: string) => void;
   onSortOrderChange: (value: string) => void;
   // Admin-only filters
@@ -37,7 +36,6 @@ export default function ProblemsFilter({
   onShowOnlyPremiumChange,
   onSearch,
   onResetFilters,
-  onApplyFilters,
   onSortByChange,
   onSortOrderChange,
   showAdminFilters = false,
@@ -48,21 +46,9 @@ export default function ProblemsFilter({
   // Get difficulty options from the imported enum
   const difficultyOptions = Object.values(ProblemDifficulty);
 
-  // Check if filters have changed
-  const hasFilterChanges = () => {
-    const baseChanges =
-      filters.search !== appliedFilters.search ||
-      filters.difficulty !== appliedFilters.difficulty ||
-      filters.sortBy !== appliedFilters.sortBy ||
-      filters.sortOrder !== appliedFilters.sortOrder ||
-      showOnlyPremium !== appliedShowOnlyPremium;
-
-    // Include visibility filter changes if admin filters are enabled
-    if (showAdminFilters && onVisibilityFilterChange) {
-      return baseChanges || visibilityFilter !== appliedVisibilityFilter;
-    }
-
-    return baseChanges;
+  // Check if search has changed
+  const hasSearchChanged = () => {
+    return filters.search !== appliedFilters.search;
   };
 
   return (
@@ -81,8 +67,8 @@ export default function ProblemsFilter({
             />
             <Button
               type="submit"
-              variant={hasFilterChanges() ? 'primary' : 'secondary'}
-              disabled={!hasFilterChanges()}
+              variant={hasSearchChanged() ? 'primary' : 'secondary'}
+              disabled={!hasSearchChanged()}
             >
               Search
             </Button>
@@ -91,7 +77,7 @@ export default function ProblemsFilter({
 
         <Col md={2}>
           <Form.Select
-            value={filters.difficulty}
+            value={appliedFilters.difficulty}
             onChange={(e) => onFilterChange('difficulty', e.target.value)}
           >
             <option value="all">All Difficulties</option>
@@ -105,7 +91,7 @@ export default function ProblemsFilter({
 
         <Col md={2}>
           <Form.Select
-            value={showOnlyPremium}
+            value={appliedShowOnlyPremium}
             onChange={(e) =>
               onShowOnlyPremiumChange(
                 e.target.value as 'all' | 'premium' | 'free',
@@ -121,7 +107,7 @@ export default function ProblemsFilter({
         {showAdminFilters && onVisibilityFilterChange && (
           <Col md={2}>
             <Form.Select
-              value={visibilityFilter}
+              value={appliedVisibilityFilter}
               onChange={(e) =>
                 onVisibilityFilterChange(
                   e.target.value as 'all' | 'public' | 'private',
@@ -173,15 +159,6 @@ export default function ProblemsFilter({
                   onClick={onResetFilters}
                 >
                   Clear Filters
-                </Button>
-              )}
-              {hasFilterChanges() && (
-                <Button
-                  variant="outline-primary"
-                  size="sm"
-                  onClick={onApplyFilters}
-                >
-                  Apply Filters
                 </Button>
               )}
             </div>

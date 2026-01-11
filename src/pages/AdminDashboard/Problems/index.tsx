@@ -591,14 +591,17 @@ export default function ProblemsDashboard() {
   };
 
   const handleFilterChange = (key: keyof Filters, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    const newFilters = { ...appliedFilters, [key]: value };
+    setFilters(newFilters);
+    if (key === 'difficulty') {
+      setAppliedFilters(newFilters);
+      setPage(1);
+    }
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setAppliedFilters(filters);
-    setAppliedShowOnlyPremium(showOnlyPremium);
-    setAppliedVisibilityFilter(visibilityFilter);
     setPage(1);
   };
 
@@ -618,10 +621,15 @@ export default function ProblemsDashboard() {
     setPage(1);
   };
 
-  const handleApplyFilters = () => {
-    setAppliedFilters(filters);
-    setAppliedShowOnlyPremium(showOnlyPremium);
-    setAppliedVisibilityFilter(visibilityFilter);
+  const handleShowOnlyPremiumChange = (value: 'all' | 'premium' | 'free') => {
+    setShowOnlyPremium(value);
+    setAppliedShowOnlyPremium(value);
+    setPage(1);
+  };
+
+  const handleVisibilityFilterChange = (value: 'all' | 'public' | 'private') => {
+    setVisibilityFilter(value);
+    setAppliedVisibilityFilter(value);
     setPage(1);
   };
 
@@ -866,16 +874,15 @@ export default function ProblemsDashboard() {
             page={page}
             totalPages={totalPages}
             onFilterChange={handleFilterChange}
-            onShowOnlyPremiumChange={setShowOnlyPremium}
+            onShowOnlyPremiumChange={handleShowOnlyPremiumChange}
             onSearch={handleSearch}
             onResetFilters={handleResetFilters}
-            onApplyFilters={handleApplyFilters}
             onSortByChange={handleSortByChange}
             onSortOrderChange={handleSortOrderChange}
             showAdminFilters={true}
             visibilityFilter={visibilityFilter}
             appliedVisibilityFilter={appliedVisibilityFilter}
-            onVisibilityFilterChange={setVisibilityFilter}
+            onVisibilityFilterChange={handleVisibilityFilterChange}
           />
         </Card.Body>
       </Card>
@@ -901,7 +908,7 @@ export default function ProblemsDashboard() {
                       <Code size={48} className="text-muted mb-3" />
                       <h5 className="mb-2">No problems found</h5>
                       <p className="text-muted mb-0">
-                        {searchTerm ? 'Try a different search term' : 'No problems match your filters'}
+                        {appliedFilters.search ? 'Try a different search term' : 'No problems match your filters'}
                       </p>
                       <Button
                         variant="primary"
