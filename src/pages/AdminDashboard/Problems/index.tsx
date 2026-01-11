@@ -198,9 +198,9 @@ export default function ProblemsDashboard() {
         sortOrder,
       });
 
-      if (visibilityFilter !== 'all') params.append('isPublic', visibilityFilter === 'public' ? 'true' : 'false');
-      if (premiumFilter !== 'all') params.append('isPremium', premiumFilter === 'premium' ? 'true' : 'false');
-      if (difficultyFilter !== 'all') params.append('difficulty', difficultyFilter);
+      if (visibilityFilter !== 'all') params.append('public', visibilityFilter === 'public' ? 'public' : 'private');
+      if (premiumFilter !== 'all') params.append('premium', premiumFilter === 'premium' ? 'premium' : 'free');
+      if (difficultyFilter !== 'all') params.append('difficulty', difficultyFilter.toLowerCase());
 
       const response = await fetch(`/api/admin/problems?${params}`, {
         headers: {
@@ -852,14 +852,8 @@ export default function ProblemsDashboard() {
                     <Dropdown.Item onClick={() => setSortBy('title')}>
                       Title {sortBy === 'title' && (sortOrder === 'asc' ? <SortAlphaUp className="ms-2" /> : <SortAlphaDown className="ms-2" />)}
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSortBy('difficulty')}>
-                      Difficulty {sortBy === 'difficulty' && (sortOrder === 'asc' ? <SortAlphaUp className="ms-2" /> : <SortAlphaDown className="ms-2" />)}
-                    </Dropdown.Item>
                     <Dropdown.Item onClick={() => setSortBy('createdAt')}>
                       Created Date {sortBy === 'createdAt' && (sortOrder === 'asc' ? <SortAlphaUp className="ms-2" /> : <SortAlphaDown className="ms-2" />)}
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSortBy('updatedAt')}>
-                      Updated Date {sortBy === 'updatedAt' && (sortOrder === 'asc' ? <SortAlphaUp className="ms-2" /> : <SortAlphaDown className="ms-2" />)}
                     </Dropdown.Item>
                     <Dropdown.Divider />
                     <Dropdown.Item onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>

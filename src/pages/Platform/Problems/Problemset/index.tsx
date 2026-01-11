@@ -16,8 +16,6 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import {
   Search,
-  SortAlphaDown,
-  SortAlphaUp,
   Code,
   Lock,
   Globe,
@@ -186,9 +184,10 @@ export default function PlatformProblemsProblemset() {
     setPage(1);
   };
 
-  const handleSort = (field: 'title' | 'createdAt') => {
+  const handleSortByChange = (value: string) => {
+    const newSortBy = value as 'title' | 'createdAt';
     const newSortOrder: 'asc' | 'desc' =
-      appliedFilters.sortBy === field
+      appliedFilters.sortBy === newSortBy
         ? appliedFilters.sortOrder === 'asc'
           ? 'desc'
           : 'asc'
@@ -196,7 +195,18 @@ export default function PlatformProblemsProblemset() {
 
     const newFilters: Filters = {
       ...appliedFilters,
-      sortBy: field,
+      sortBy: newSortBy,
+      sortOrder: newSortOrder,
+    };
+    setFilters(newFilters);
+    setAppliedFilters(newFilters);
+    setPage(1);
+  };
+
+  const handleSortOrderChange = (value: string) => {
+    const newSortOrder = value as 'asc' | 'desc';
+    const newFilters: Filters = {
+      ...appliedFilters,
       sortOrder: newSortOrder,
     };
     setFilters(newFilters);
@@ -471,46 +481,24 @@ export default function PlatformProblemsProblemset() {
                 </Form.Select>
               </Col>
 
-              <Col md={4}>
-                <div className="d-flex gap-2 align-items-center">
-                  <small className="text-muted">Sort by:</small>
-                  <div className="btn-group">
-                    <Button
-                      variant={
-                        appliedFilters.sortBy === 'title'
-                          ? 'primary'
-                          : 'outline-primary'
-                      }
-                      size="sm"
-                      onClick={() => handleSort('title')}
-                    >
-                      Title{' '}
-                      {appliedFilters.sortBy === 'title' &&
-                        (appliedFilters.sortOrder === 'asc' ? (
-                          <SortAlphaUp className="ms-1" />
-                        ) : (
-                          <SortAlphaDown className="ms-1" />
-                        ))}
-                    </Button>
-                    <Button
-                      variant={
-                        appliedFilters.sortBy === 'createdAt'
-                          ? 'primary'
-                          : 'outline-primary'
-                      }
-                      size="sm"
-                      onClick={() => handleSort('createdAt')}
-                    >
-                      Date Created{' '}
-                      {appliedFilters.sortBy === 'createdAt' &&
-                        (appliedFilters.sortOrder === 'asc' ? (
-                          <SortAlphaUp className="ms-1" />
-                        ) : (
-                          <SortAlphaDown className="ms-1" />
-                        ))}
-                    </Button>
-                  </div>
-                </div>
+              <Col md={2}>
+                <Form.Select
+                  value={appliedFilters.sortBy}
+                  onChange={(e) => handleSortByChange(e.target.value)}
+                >
+                  <option value="title">Sort by Title</option>
+                  <option value="createdAt">Sort by Date</option>
+                </Form.Select>
+              </Col>
+
+              <Col md={2}>
+                <Form.Select
+                  value={appliedFilters.sortOrder}
+                  onChange={(e) => handleSortOrderChange(e.target.value)}
+                >
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </Form.Select>
               </Col>
             </Row>
 

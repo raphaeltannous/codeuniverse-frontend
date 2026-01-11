@@ -1,6 +1,6 @@
 import type { Problem } from "../problem";
 
-export type UserProgress = string[]; // Array of solved problem slugs
+export type UserProgress = string[];
 
 export interface ProblemsResponse {
   problems: Problem[];
