@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import * as API from "~/api/problems";
 import type { SubmitRequest, SubmitResponse } from "~/types/problem/submission";
 import type { APIError } from "~/types/api-error";
 import { ResultStatus } from "~/types/problem/status";
@@ -11,15 +10,36 @@ export function useSubmitProblem(problemSlug: string, language: string) {
   const [submissionId, setSubmissionId] = useState<string | null>(null);
 
   const submitMutation = useMutation<SubmitResponse, APIError, SubmitRequest>({
-    mutationFn: (body) =>
-      API.submitProblem(problemSlug, language, body, auth.jwt),
+    mutationFn: async (body) => {
+      const result = await fetch(`/api/problems/${problemSlug}/submit/${language}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.jwt}`,
+        },
+        body: JSON.stringify(body),
+      });
+      if (!result.ok) throw (await result.json()) as APIError;
+      return result.json() as Promise<SubmitResponse>;
+    },
     onSuccess: (data) => setSubmissionId(data.submissionId),
   });
 
-  const submissionStatusQuery = useQuery({
+  const submissionStatusQuery = useQuery<any, APIError>({
     queryKey: ["submission-status", submissionId],
-    queryFn: () =>
-      API.getSubmissionStatus(problemSlug, submissionId!, auth.jwt),
+    queryFn: async () => {
+      const result = await fetch(
+        `/api/problems/${problemSlug}/submit/${submissionId}/check`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth.jwt}`,
+          },
+        },
+      );
+      if (!result.ok) throw (await result.json()) as APIError;
+      return result.json();
+    },
     enabled: !!submissionId,
     refetchInterval: (query) => {
       const status = query.state.data?.status as ResultStatus | undefined;

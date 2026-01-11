@@ -1,7 +1,5 @@
-// src/hooks/useRunProblem.ts
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import * as API from "~/api/problems";
 import type {
   RunRequest,
   RunResponse,
@@ -16,13 +14,33 @@ export function useRunProblem(problemSlug: string, language: string) {
   const [runId, setRunId] = useState<string | null>(null);
 
   const runMutation = useMutation<RunResponse, APIError, RunRequest>({
-    mutationFn: (body) => API.runProblem(problemSlug, language, body, auth.jwt),
+    mutationFn: async (body) => {
+      const result = await fetch(`/api/problems/${problemSlug}/run/${language}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.jwt}`,
+        },
+        body: JSON.stringify(body),
+      });
+      if (!result.ok) throw (await result.json()) as APIError;
+      return result.json() as Promise<RunResponse>;
+    },
     onSuccess: (data) => setRunId(data.runId),
   });
 
   const runStatusQuery = useQuery<RunResultsReponse, APIError>({
     queryKey: ["run-status", runId],
-    queryFn: () => API.getRunStatus(problemSlug, runId!, auth.jwt),
+    queryFn: async () => {
+      const result = await fetch(`/api/problems/${problemSlug}/run/${runId}/check`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.jwt}`,
+        },
+      });
+      if (!result.ok) throw (await result.json()) as APIError;
+      return result.json() as Promise<RunResultsReponse>;
+    },
     enabled: !!runId,
     refetchInterval: (query) => {
       const status = query.state.data?.status as ResultStatus | undefined;
