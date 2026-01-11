@@ -12,16 +12,11 @@ import {
   Badge,
   Table,
   Modal,
-  Dropdown,
   Pagination,
 } from 'react-bootstrap';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Plus,
-  Search,
-  Filter,
-  SortAlphaDown,
-  SortAlphaUp,
   Pencil,
   Trash,
   Code,
@@ -35,7 +30,9 @@ import {
 import { useAuth } from '~/context/AuthContext';
 import MDEditor from '@uiw/react-md-editor';
 import CodeEditor from '~/components/shared/code-editor';
+import ProblemsFilter from '~/components/shared/problems-filter';
 import { Link } from 'react-router';
+import type { Filters } from '~/types/problem/problemset';
 
 // Interfaces matching your backend structure
 interface ProblemBasic {
@@ -120,12 +117,24 @@ export default function ProblemsDashboard() {
   const queryClient = useQueryClient();
 
   // State for filtering and pagination
-  const [searchTerm, setSearchTerm] = useState('');
-  const [visibilityFilter, setVisibilityFilter] = useState<string>('all');
-  const [premiumFilter, setPremiumFilter] = useState<string>('all');
-  const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'title' | 'createdAt' | 'updatedAt' | 'difficulty'>('createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [filters, setFilters] = useState<Filters>({
+    difficulty: 'all',
+    search: '',
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+  });
+
+  const [appliedFilters, setAppliedFilters] = useState<Filters>({
+    difficulty: 'all',
+    search: '',
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+  });
+
+  const [showOnlyPremium, setShowOnlyPremium] = useState<'all' | 'premium' | 'free'>('all');
+  const [appliedShowOnlyPremium, setAppliedShowOnlyPremium] = useState<'all' | 'premium' | 'free'>('all');
+  const [visibilityFilter, setVisibilityFilter] = useState<'all' | 'public' | 'private'>('all');
+  const [appliedVisibilityFilter, setAppliedVisibilityFilter] = useState<'all' | 'public' | 'private'>('all');
   const [page, setPage] = useState(1);
   const limit = 10;
 
@@ -188,19 +197,29 @@ export default function ProblemsDashboard() {
     error,
     refetch
   } = useQuery<ProblemsResponse>({
-    queryKey: ['admin-problems', page, searchTerm, visibilityFilter, premiumFilter, difficultyFilter, sortBy, sortOrder],
+    queryKey: ['admin-problems', page, appliedFilters, appliedShowOnlyPremium, appliedVisibilityFilter],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
-        search: searchTerm,
-        sortBy,
-        sortOrder,
       });
 
-      if (visibilityFilter !== 'all') params.append('public', visibilityFilter === 'public' ? 'public' : 'private');
-      if (premiumFilter !== 'all') params.append('premium', premiumFilter === 'premium' ? 'premium' : 'free');
-      if (difficultyFilter !== 'all') params.append('difficulty', difficultyFilter.toLowerCase());
+      // Only add search if it's not empty
+      if (appliedFilters.search.trim()) {
+        params.append('search', appliedFilters.search);
+      }
+
+      // Add sort parameters
+      params.append('sortBy', appliedFilters.sortBy);
+      params.append('sortOrder', appliedFilters.sortOrder);
+
+      // Only add difficulty if it's not 'all'
+      if (appliedFilters.difficulty !== 'all') {
+        params.append('difficulty', appliedFilters.difficulty.toLowerCase());
+      }
+
+      if (appliedVisibilityFilter !== 'all') params.append('public', appliedVisibilityFilter === 'public' ? 'public' : 'private');
+      if (appliedShowOnlyPremium !== 'all') params.append('premium', appliedShowOnlyPremium === 'premium' ? 'premium' : 'free');
 
       const response = await fetch(`/api/admin/problems?${params}`, {
         headers: {
@@ -571,18 +590,68 @@ export default function ProblemsDashboard() {
     }, 300);
   };
 
+  const handleFilterChange = (key: keyof Filters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setAppliedFilters(filters);
+    setAppliedShowOnlyPremium(showOnlyPremium);
+    setAppliedVisibilityFilter(visibilityFilter);
     setPage(1);
   };
 
   const handleResetFilters = () => {
-    setSearchTerm('');
+    const resetFilters: Filters = {
+      difficulty: 'all',
+      search: '',
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    };
+    setFilters(resetFilters);
+    setAppliedFilters(resetFilters);
+    setShowOnlyPremium('all');
+    setAppliedShowOnlyPremium('all');
     setVisibilityFilter('all');
-    setPremiumFilter('all');
-    setDifficultyFilter('all');
-    setSortBy('createdAt');
-    setSortOrder('desc');
+    setAppliedVisibilityFilter('all');
+    setPage(1);
+  };
+
+  const handleApplyFilters = () => {
+    setAppliedFilters(filters);
+    setAppliedShowOnlyPremium(showOnlyPremium);
+    setAppliedVisibilityFilter(visibilityFilter);
+    setPage(1);
+  };
+
+  const handleSortByChange = (value: string) => {
+    const newSortBy = value as 'title' | 'createdAt';
+    const newSortOrder: 'asc' | 'desc' =
+      appliedFilters.sortBy === newSortBy
+        ? appliedFilters.sortOrder === 'asc'
+          ? 'desc'
+          : 'asc'
+        : 'desc';
+
+    const newFilters: Filters = {
+      ...appliedFilters,
+      sortBy: newSortBy,
+      sortOrder: newSortOrder,
+    };
+    setFilters(newFilters);
+    setAppliedFilters(newFilters);
+    setPage(1);
+  };
+
+  const handleSortOrderChange = (value: string) => {
+    const newSortOrder = value as 'asc' | 'desc';
+    const newFilters: Filters = {
+      ...appliedFilters,
+      sortOrder: newSortOrder,
+    };
+    setFilters(newFilters);
+    setAppliedFilters(newFilters);
     setPage(1);
   };
 
@@ -788,103 +857,26 @@ export default function ProblemsDashboard() {
       {/* Filters and Search */}
       <Card className="border-0 shadow-sm mb-4">
         <Card.Body>
-          <Form onSubmit={handleSearch}>
-            <Row className="g-3">
-              <Col md={4}>
-                <InputGroup>
-                  <InputGroup.Text>
-                    <Search size={18} />
-                  </InputGroup.Text>
-                  <Form.Control
-                    type="search"
-                    placeholder="Search by title or description..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <Button type="submit" variant="primary">
-                    Search
-                  </Button>
-                </InputGroup>
-              </Col>
-
-              <Col md={2}>
-                <Form.Select
-                  value={visibilityFilter}
-                  onChange={(e) => setVisibilityFilter(e.target.value)}
-                >
-                  <option value="all">All Visibility</option>
-                  <option value="public">Public</option>
-                  <option value="private">Private</option>
-                </Form.Select>
-              </Col>
-
-              <Col md={2}>
-                <Form.Select
-                  value={premiumFilter}
-                  onChange={(e) => setPremiumFilter(e.target.value)}
-                >
-                  <option value="all">All Access</option>
-                  <option value="free">Free</option>
-                  <option value="premium">Premium</option>
-                </Form.Select>
-              </Col>
-
-              <Col md={2}>
-                <Form.Select
-                  value={difficultyFilter}
-                  onChange={(e) => setDifficultyFilter(e.target.value)}
-                >
-                  <option value="all">All Difficulties</option>
-                  {difficultyOptions.map(diff => (
-                    <option key={diff} value={diff}>{diff}</option>
-                  ))}
-                </Form.Select>
-              </Col>
-
-              <Col md={2}>
-                <Dropdown>
-                  <Dropdown.Toggle variant="outline-secondary" className="w-100">
-                    <Filter size={18} className="me-2" />
-                    Sort
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Header>Sort By</Dropdown.Header>
-                    <Dropdown.Item onClick={() => setSortBy('title')}>
-                      Title {sortBy === 'title' && (sortOrder === 'asc' ? <SortAlphaUp className="ms-2" /> : <SortAlphaDown className="ms-2" />)}
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSortBy('createdAt')}>
-                      Created Date {sortBy === 'createdAt' && (sortOrder === 'asc' ? <SortAlphaUp className="ms-2" /> : <SortAlphaDown className="ms-2" />)}
-                    </Dropdown.Item>
-                    <Dropdown.Divider />
-                    <Dropdown.Item onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
-                      {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
-              </Col>
-            </Row>
-
-            <Row className="mt-3">
-              <Col>
-                <div className="d-flex justify-content-between">
-                  <div className="d-flex gap-2">
-                    <Badge bg="light" text="dark" className="px-3 py-2">
-                      Showing {problems.length} of {total} problems • Page {page} of {totalPages}
-                    </Badge>
-                    {(searchTerm || visibilityFilter !== 'all' || premiumFilter !== 'all' || difficultyFilter !== 'all') && (
-                      <Button
-                        variant="outline-secondary"
-                        size="sm"
-                        onClick={handleResetFilters}
-                      >
-                        Clear Filters
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </Col>
-            </Row>
-          </Form>
+          <ProblemsFilter
+            filters={filters}
+            appliedFilters={appliedFilters}
+            showOnlyPremium={showOnlyPremium}
+            appliedShowOnlyPremium={appliedShowOnlyPremium}
+            total={total}
+            page={page}
+            totalPages={totalPages}
+            onFilterChange={handleFilterChange}
+            onShowOnlyPremiumChange={setShowOnlyPremium}
+            onSearch={handleSearch}
+            onResetFilters={handleResetFilters}
+            onApplyFilters={handleApplyFilters}
+            onSortByChange={handleSortByChange}
+            onSortOrderChange={handleSortOrderChange}
+            showAdminFilters={true}
+            visibilityFilter={visibilityFilter}
+            appliedVisibilityFilter={appliedVisibilityFilter}
+            onVisibilityFilterChange={setVisibilityFilter}
+          />
         </Card.Body>
       </Card>
 

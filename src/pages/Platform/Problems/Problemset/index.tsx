@@ -7,15 +7,12 @@ import {
   Button,
   Spinner,
   Alert,
-  Form,
-  InputGroup,
   Badge,
   Table,
   Pagination,
 } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Search,
   Code,
   Lock,
   Globe,
@@ -26,6 +23,7 @@ import { useNavigate } from 'react-router';
 import { useAuth } from '~/context/AuthContext';
 import { useUser } from '~/context/UserContext';
 import { ProblemDifficulty } from '~/types/problem/difficulty';
+import ProblemsFilter from '~/components/shared/problems-filter';
 import type { Problem } from '~/types/problem';
 import type {
   UserProgress,
@@ -286,20 +284,6 @@ export default function PlatformProblemsProblemset() {
     });
   };
 
-  // Check if filters have changed
-  const hasFilterChanges = () => {
-    return (
-      filters.search !== appliedFilters.search ||
-      filters.difficulty !== appliedFilters.difficulty ||
-      filters.sortBy !== appliedFilters.sortBy ||
-      filters.sortOrder !== appliedFilters.sortOrder ||
-      showOnlyPremium !== appliedShowOnlyPremium
-    );
-  };
-
-  // Get difficulty options from the imported enum
-  const difficultyOptions = Object.values(ProblemDifficulty);
-
   const isLoading = isLoadingProblems || isLoadingProgress;
   const solvedCount = solvedSlugs.size;
 
@@ -425,115 +409,22 @@ export default function PlatformProblemsProblemset() {
       {/* Filters and Search */}
       <Card className="border-0 shadow-sm mb-4">
         <Card.Body>
-          <Form onSubmit={handleSearch}>
-            <Row className="g-3">
-              <Col md={4}>
-                <InputGroup>
-                  <InputGroup.Text>
-                    <Search size={18} />
-                  </InputGroup.Text>
-                  <Form.Control
-                    type="search"
-                    placeholder="Search problems..."
-                    value={filters.search}
-                    onChange={(e) =>
-                      handleFilterChange('search', e.target.value)
-                    }
-                  />
-                  <Button
-                    type="submit"
-                    variant={hasFilterChanges() ? 'primary' : 'secondary'}
-                    disabled={!hasFilterChanges()}
-                  >
-                    Search
-                  </Button>
-                </InputGroup>
-              </Col>
-
-              <Col md={2}>
-                <Form.Select
-                  value={filters.difficulty}
-                  onChange={(e) =>
-                    handleFilterChange('difficulty', e.target.value)
-                  }
-                >
-                  <option value="all">All Difficulties</option>
-                  {difficultyOptions.map((diff) => (
-                    <option key={diff} value={diff}>
-                      {diff}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Col>
-
-              <Col md={2}>
-                <Form.Select
-                  value={showOnlyPremium}
-                  onChange={(e) =>
-                    setShowOnlyPremium(
-                      e.target.value as 'all' | 'premium' | 'free',
-                    )
-                  }
-                >
-                  <option value="all">All Problems</option>
-                  <option value="free">Free Only</option>
-                  <option value="premium">Premium Only</option>
-                </Form.Select>
-              </Col>
-
-              <Col md={2}>
-                <Form.Select
-                  value={appliedFilters.sortBy}
-                  onChange={(e) => handleSortByChange(e.target.value)}
-                >
-                  <option value="title">Sort by Title</option>
-                  <option value="createdAt">Sort by Date</option>
-                </Form.Select>
-              </Col>
-
-              <Col md={2}>
-                <Form.Select
-                  value={appliedFilters.sortOrder}
-                  onChange={(e) => handleSortOrderChange(e.target.value)}
-                >
-                  <option value="asc">Ascending</option>
-                  <option value="desc">Descending</option>
-                </Form.Select>
-              </Col>
-            </Row>
-
-            <Row className="mt-3">
-              <Col>
-                <div className="d-flex justify-content-between align-items-center">
-                  <div className="d-flex gap-2">
-                    <Badge bg="light" text="dark" className="px-3 py-2">
-                      {total} problems • Page {page} of {totalPages}
-                    </Badge>
-                    {(appliedFilters.search ||
-                      appliedFilters.difficulty !== 'all' ||
-                      appliedShowOnlyPremium !== 'all') && (
-                      <Button
-                        variant="outline-secondary"
-                        size="sm"
-                        onClick={handleResetFilters}
-                      >
-                        Clear Filters
-                      </Button>
-                    )}
-                    {hasFilterChanges() && (
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        onClick={handleApplyFilters}
-                      >
-                        Apply Filters
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </Col>
-            </Row>
-          </Form>
+          <ProblemsFilter
+            filters={filters}
+            appliedFilters={appliedFilters}
+            showOnlyPremium={showOnlyPremium}
+            appliedShowOnlyPremium={appliedShowOnlyPremium}
+            total={total}
+            page={page}
+            totalPages={totalPages}
+            onFilterChange={handleFilterChange}
+            onShowOnlyPremiumChange={setShowOnlyPremium}
+            onSearch={handleSearch}
+            onResetFilters={handleResetFilters}
+            onApplyFilters={handleApplyFilters}
+            onSortByChange={handleSortByChange}
+            onSortOrderChange={handleSortOrderChange}
+          />
         </Card.Body>
       </Card>
 
