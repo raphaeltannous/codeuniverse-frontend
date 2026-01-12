@@ -26,23 +26,13 @@ import {
   FileEarmarkPlay
 } from 'react-bootstrap-icons';
 import { Link, useParams } from 'react-router';
-import {
-  useQuery,
-  useMutation,
-  useQueryClient
-} from '@tanstack/react-query';
-import { useAuth } from '~/context/AuthContext';
 import type { Lesson, LessonFormData } from '~/types/course/lesson';
-import { apiFetch } from '~/utils/api';
 import VideoUploadModal from '~/components/AdminDashboard/Lessons/video-upload-modal';
 import VideoPlayer from '~/components/shared/video-player';
-
-const API_BASE = '/api/admin/courses';
+import { useAdminLessons } from '~/hooks/useAdminLessons';
 
 export default function LessonsDashboard() {
-  const { auth } = useAuth();
   const { courseSlug } = useParams<{ courseSlug: string }>();
-  const queryClient = useQueryClient();
 
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -61,89 +51,33 @@ export default function LessonsDashboard() {
     lessonNumber: 0,
   });
 
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingLesson(null);
+    setFormData({
+      title: '',
+      description: '',
+      lessonNumber: 0,
+    });
+  };
+
+  // Use the hook
   const {
-    data: lessonsData,
+    lessonsData,
     isLoading,
     isError,
-    error: fetchError
-  } = useQuery({
-    queryKey: ['lessons', courseSlug],
-    queryFn: async () => {
-      const response = await apiFetch(`${API_BASE}/${courseSlug}/lessons`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch lessons');
-      }
-      return response.json();
-    },
-    enabled: !!courseSlug,
-  });
-
-  const createMutation = useMutation({
-    mutationFn: async (data: LessonFormData) => {
-      const response = await apiFetch(`${API_BASE}/${courseSlug}/lessons`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create lesson');
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons', courseSlug] });
-      handleCloseModal();
-    },
-    onError: (error: Error) => {
-      console.error('Error creating lesson:', error);
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: LessonFormData }) => {
-      const response = await apiFetch(`${API_BASE}/${courseSlug}/lessons/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update lesson');
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons', courseSlug] });
-      handleCloseModal();
-    },
-    onError: (error: Error) => {
-      console.error('Error updating lesson:', error);
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await apiFetch(`${API_BASE}/${courseSlug}/lessons/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete lesson');
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons', courseSlug] });
+    error: fetchError,
+    refetch,
+    createMutation,
+    updateMutation,
+    deleteMutation,
+  } = useAdminLessons({
+    courseSlug: courseSlug || '',
+    onCreateSuccess: handleCloseModal,
+    onUpdateSuccess: handleCloseModal,
+    onDeleteSuccess: () => {
       setShowDeleteModal(false);
       setLessonToDelete(null);
-    },
-    onError: (error: Error) => {
-      console.error('Error deleting lesson:', error);
     },
   });
 
@@ -189,16 +123,6 @@ export default function LessonsDashboard() {
     if (lessonToDelete) {
       deleteMutation.mutate(lessonToDelete);
     }
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setEditingLesson(null);
-    setFormData({
-      title: '',
-      description: '',
-      lessonNumber: 0,
-    });
   };
 
   const handlePlayVideo = (lesson: Lesson) => {
@@ -273,7 +197,7 @@ export default function LessonsDashboard() {
             <Button
               variant="outline-danger"
               size="sm"
-              onClick={() => queryClient.invalidateQueries({ queryKey: ['lessons', courseSlug] })}
+              onClick={() => refetch()}
               disabled={isLoading}
             >
               Retry
