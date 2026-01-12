@@ -1,5 +1,6 @@
-import { Container, Row, Col, Spinner, Alert, Button } from 'react-bootstrap';
+import { Container, Row, Col, Alert, Button } from 'react-bootstrap';
 import CourseCard from '~/components/Shared/CourseCard';
+import CourseListSkeleton from '~/components/Platform/Courses/CourseListSkeleton';
 import { useAuth } from '~/context/AuthContext';
 import { useCoursesList, type CourseWithProgress } from '~/hooks/useCoursesList';
 
@@ -26,12 +27,7 @@ export default function CoursesList() {
   };
 
   if (isLoading) {
-    return (
-      <Container className="py-5 text-center">
-        <Spinner animation="border" variant="primary" />
-        <p className="mt-3 text-muted">Loading courses...</p>
-      </Container>
-    );
+    return <CourseListSkeleton />;
   }
 
   if (isError) {

@@ -25,6 +25,7 @@ import {
 } from 'react-bootstrap-icons';
 import { useAuth } from '~/context/AuthContext';
 import VideoPlayer from '~/components/Shared/VideoPlayer';
+import CourseLessonsSkeleton from '~/components/Platform/Courses/CourseLessonsSkeleton';
 import { useCourseLessons } from '~/hooks/useCourseLessons';
 
 type ProgressResponse = Record<string, boolean>;
@@ -116,17 +117,12 @@ export default function CourseLessonsPage() {
   const completedLessonsCount = Object.values(localProgress).filter(Boolean).length;
 
   if (isLoading || isLoadingProgress) {
-    return (
-      <Container className="py-5 text-center">
-        <Spinner animation="border" variant="primary" />
-        <p className="mt-3 text-muted">Loading course content...</p>
-      </Container>
-    );
+    return <CourseLessonsSkeleton />;
   }
 
   if (isError) {
     return (
-      <Container className="py-4">
+      <Container fluid className="py-3 py-md-4">
         <Alert variant="danger" className="mb-4">
           <div className="d-flex justify-content-between align-items-center">
             <div>
@@ -218,10 +214,10 @@ export default function CourseLessonsPage() {
                       </div>
                     </div>
 
-                    <div className="flex-grow-1">
-                      <div className="d-flex justify-content-between align-items-start mb-1">
-                        <h6 className="fw-semibold mb-0">{lesson.title}</h6>
-                        <div className="d-flex align-items-center gap-1">
+                    <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                      <div className="d-flex justify-content-between align-items-start mb-1 gap-2">
+                        <h6 className="fw-semibold mb-0 text-truncate">{lesson.title}</h6>
+                        <div className="d-flex align-items-center gap-1 flex-shrink-0">
                           <small className="text-muted">
                             <Clock size={12} className="me-1" />
                             {formatDuration(lesson.durationSeconds)}
@@ -248,7 +244,7 @@ export default function CourseLessonsPage() {
   );
 
   return (
-    <Container fluid className="py-3 py-md-4">
+    <Container fluid className="py-3 py-md-0">
       <MobileSidebar />
 
       <div className="mb-4">
@@ -362,6 +358,7 @@ export default function CourseLessonsPage() {
         </Col>
 
         <Col lg={8}>
+          {currentLesson ? (
           <Card className="border-0">
             <Card.Header className="border-0">
               <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-2">
@@ -393,11 +390,6 @@ export default function CourseLessonsPage() {
                   <VideoPlayer
                     videoUrl={`/api/static/lessons/${currentLesson.videoUrl}`}
                     key={currentLesson.id}
-                    onEnded={() => {
-                      if (!localProgress[currentLesson.id]) {
-                        markLessonMutation.mutate(currentLesson.id);
-                      }
-                    }}
                   />
                 ) : (
                   <div className="ratio ratio-16x9  rounded d-flex flex-column align-items-center justify-content-center ">
@@ -471,6 +463,9 @@ export default function CourseLessonsPage() {
               </div>
             </Card.Body>
           </Card>
+          ) : (
+            <Alert variant="info">No lesson selected</Alert>
+          )}
         </Col>
       </Row>
     </Container>
