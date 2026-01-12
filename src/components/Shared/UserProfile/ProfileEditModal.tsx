@@ -1,8 +1,8 @@
 import { Activity, useState } from "react";
 import { Alert, Button, Form, Modal, Spinner } from "react-bootstrap";
 import type { UserProfile, UserProfileUpdateRequest } from "~/types/user";
-import BasicForm from "./basic-information-form";
-import LinksForm from "./links-form";
+import BasicForm from "./BasicInformationForm";
+import LinksForm from "./LinksForm";
 
 export default function ProfileEditModal({
   section,

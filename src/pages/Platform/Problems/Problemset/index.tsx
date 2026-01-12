@@ -17,14 +17,13 @@ import {
   Lock,
   Globe,
   CheckCircle,
-  Award,
 } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router';
 import { useAuth } from '~/context/AuthContext';
 import { useUser } from '~/context/UserContext';
 import { apiFetch } from "~/utils/api";
-import { ProblemDifficulty } from '~/types/problem/difficulty';
 import ProblemsFilter from '~/components/Shared/ProblemFilter';
+import StatsCard from '~/components/Shared/StatsCard';
 import type { Problem } from '~/types/problem/problem';
 import type {
   UserProgress,
@@ -287,90 +286,41 @@ export default function PlatformProblemsProblemset() {
         </p>
       </div>
 
-      {/* Progress Card */}
-      {user && solvedCount > 0 && (
-        <Card className="border-0 shadow-sm mb-4">
-          <Card.Body>
-            <div className="d-flex align-items-center gap-3">
-              <div className="bg-success bg-opacity-10 p-3 rounded-circle">
-                <CheckCircle size={24} className="text-success" />
-              </div>
-              <div>
-                <h5 className="fw-bold mb-0">Your Progress</h5>
-                <p className="text-muted mb-0">
-                  You have solved {solvedCount} problem
-                  {solvedCount !== 1 ? 's' : ''}
-                </p>
-              </div>
-            </div>
-          </Card.Body>
-        </Card>
-      )}
-
       {/* Stats Cards */}
       <Row className="mb-4">
         <Col md={3} sm={6}>
-          <Card className="border-0 shadow-sm h-100">
-            <Card.Body className="d-flex align-items-center">
-              <div className="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
-                <Code size={24} className="text-primary" />
-              </div>
-              <div>
-                <h5 className="mb-0 fw-bold">{total}</h5>
-                <p className="text-muted mb-0">Total Problems</p>
-              </div>
-            </Card.Body>
-          </Card>
+          <StatsCard
+            icon={Code}
+            iconColor="text-primary"
+            bgColorClass="bg-primary"
+            value={total}
+            label="Total Problems"
+          />
         </Col>
         <Col md={3} sm={6}>
-          <Card className="border-0 shadow-sm h-100">
-            <Card.Body className="d-flex align-items-center">
-              <div className="bg-success bg-opacity-10 p-3 rounded-circle me-3">
-                <Globe size={24} className="text-success" />
-              </div>
-              <div>
-                <h5 className="mb-0 fw-bold">
-                  {problems.filter((p) => p.isPublic).length}
-                </h5>
-                <p className="text-muted mb-0">Public Problems</p>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3} sm={6}>
-          <Card className="border-0 shadow-sm h-100">
-            <Card.Body className="d-flex align-items-center">
-              <div className="bg-warning bg-opacity-10 p-3 rounded-circle me-3">
-                <Lock size={24} className="text-warning" />
-              </div>
-              <div>
-                <h5 className="mb-0 fw-bold">
-                  {problems.filter((p) => p.isPremium).length}
-                </h5>
-                <p className="text-muted mb-0">Premium Problems</p>
-              </div>
-            </Card.Body>
-          </Card>
+          <StatsCard
+            icon={Lock}
+            iconColor="text-warning"
+            bgColorClass="bg-warning"
+            value={problems.filter((p) => p.isPremium).length}
+            label="Premium Problems"
+          />
         </Col>
         {user && (
           <Col md={3} sm={6}>
-            <Card className="border-0 shadow-sm h-100">
-              <Card.Body className="d-flex align-items-center">
-                <div className="bg-info bg-opacity-10 p-3 rounded-circle me-3">
-                  <CheckCircle size={24} className="text-info" />
-                </div>
-                <div>
-                  <h5 className="mb-0 fw-bold">{solvedCount}</h5>
-                  <p className="text-muted mb-0">Solved</p>
-                </div>
-              </Card.Body>
-            </Card>
+            <StatsCard
+              icon={CheckCircle}
+              iconColor="text-info"
+              bgColorClass="bg-info"
+              value={solvedCount}
+              label="Solved"
+            />
           </Col>
         )}
       </Row>
 
       {/* Filters and Search */}
-      <Card className="border-0 shadow-sm mb-4">
+      <Card className="border-0 mb-4">
         <Card.Body>
           <ProblemsFilter
             filters={filters}
@@ -391,7 +341,7 @@ export default function PlatformProblemsProblemset() {
       </Card>
 
       {/* Problems Table */}
-      <Card className="border-0 shadow-sm">
+      <Card className="border-0">
         <Card.Body className="p-0">
           <div className="table-responsive">
             <Table hover className="mb-0">
@@ -438,12 +388,6 @@ export default function PlatformProblemsProblemset() {
                         <div>
                           <div className="fw-semibold">{problem.title}</div>
                           <small className="text-muted">/{problem.slug}</small>
-                          <div
-                            className="mt-1 small text-truncate"
-                            style={{ maxWidth: '300px' }}
-                          >
-                            {problem.description.substring(0, 100)}...
-                          </div>
                         </div>
                       </td>
                       <td>

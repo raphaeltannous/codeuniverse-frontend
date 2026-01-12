@@ -14,15 +14,15 @@ import {
 import { useAuth } from '~/context/AuthContext';
 import { apiFetch } from "~/utils/api";
 import type { UserProfile, UserProfileUpdateRequest } from '~/types/user';
-import ProfileLinks from '~/components/Shared/user-profile/profile-links';
-import ProfileStats from '~/components/Shared/user-profile/profile-stats';
+import ProfileLinks from '~/components/Shared/UserProfile/ProfileLinks';
+import ProfileStats from '~/components/Shared/UserProfile/ProfileStats';
 import type { APIError } from '~/types/api-error';
-import ProfileSection from '~/components/Shared/user-profile/profile-section';
-import ProfileEditModal from '~/components/Shared/user-profile/profile-edit-modal';
+import ProfileSection from '~/components/Shared/UserProfile/ProfileSection';
+import ProfileEditModal from '~/components/Shared/UserProfile/ProfileEditModal';
 import { useLocation, useParams } from 'react-router';
 import { useUser } from '~/context/UserContext';
 import { Pencil } from 'react-bootstrap-icons';
-import AvatarUploadModal from '~/components/Shared/user-profile/avatar-upload-modal';
+import AvatarUploadModal from '~/components/Shared/UserProfile/AvatarUploadModal';
 
 export default function UserProfilePage() {
   const { username: urlUsername } = useParams<{ username: string }>();
