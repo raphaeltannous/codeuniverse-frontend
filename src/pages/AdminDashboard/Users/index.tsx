@@ -36,6 +36,7 @@ import {
 } from "react-bootstrap-icons";
 import { useAuth } from "~/context/AuthContext";
 import { useAdminUsers } from "~/hooks/useAdminUsers";
+import StatsCard from "~/components/Shared/StatsCard";
 
 interface User {
   id: string;
@@ -501,56 +502,40 @@ export default function UsersDashboard() {
 
       <Row className="mb-4">
         <Col md={3} sm={6}>
-          <Card className="border-0 h-100">
-            <Card.Body className="d-flex align-items-center">
-              <div className="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
-                <Person size={24} className="text-primary" />
-              </div>
-              <div>
-                <h5 className="mb-0 fw-bold">{total}</h5>
-                <p className="text-muted mb-0">Total Users</p>
-              </div>
-            </Card.Body>
-          </Card>
+          <StatsCard
+            icon={Person}
+            iconColor="text-primary"
+            bgColorClass="bg-primary"
+            value={total}
+            label="Total Users"
+          />
         </Col>
         <Col md={3} sm={6}>
-          <Card className="border-0 h-100">
-            <Card.Body className="d-flex align-items-center">
-              <div className="bg-success bg-opacity-10 p-3 rounded-circle me-3">
-                <CheckCircle size={24} className="text-success" />
-              </div>
-              <div>
-                <h5 className="mb-0 fw-bold">{activeUsers}</h5>
-                <p className="text-muted mb-0">Active Users</p>
-              </div>
-            </Card.Body>
-          </Card>
+          <StatsCard
+            icon={CheckCircle}
+            iconColor="text-success"
+            bgColorClass="bg-success"
+            value={activeUsers}
+            label="Active Users"
+          />
         </Col>
         <Col md={3} sm={6}>
-          <Card className="border-0 h-100">
-            <Card.Body className="d-flex align-items-center">
-              <div className="bg-danger bg-opacity-10 p-3 rounded-circle me-3">
-                <Shield size={24} className="text-danger" />
-              </div>
-              <div>
-                <h5 className="mb-0 fw-bold">{adminUsers}</h5>
-                <p className="text-muted mb-0">Administrators</p>
-              </div>
-            </Card.Body>
-          </Card>
+          <StatsCard
+            icon={Shield}
+            iconColor="text-danger"
+            bgColorClass="bg-danger"
+            value={adminUsers}
+            label="Administrators"
+          />
         </Col>
         <Col md={3} sm={6}>
-          <Card className="border-0 h-100">
-            <Card.Body className="d-flex align-items-center">
-              <div className="bg-info bg-opacity-10 p-3 rounded-circle me-3">
-                <Envelope size={24} className="text-info" />
-              </div>
-              <div>
-                <h5 className="mb-0 fw-bold">{verifiedUsers}</h5>
-                <p className="text-muted mb-0">Verified Users</p>
-              </div>
-            </Card.Body>
-          </Card>
+          <StatsCard
+            icon={Envelope}
+            iconColor="text-info"
+            bgColorClass="bg-info"
+            value={verifiedUsers}
+            label="Verified Users"
+          />
         </Col>
       </Row>
 

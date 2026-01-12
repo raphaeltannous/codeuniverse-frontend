@@ -23,6 +23,7 @@ import {
   Camera,
 } from 'react-bootstrap-icons';
 import CourseCard from '~/components/Shared/CourseCard';
+import StatsCard from '~/components/Shared/StatsCard';
 import type { Course, CourseFormData } from '~/types/course/course';
 import ThumbnailChangeModal from '~/components/AdminDashboard/Courses/change-thumbnail-modal';
 import { useAdminCourses } from '~/hooks/useAdminCourses';
@@ -269,56 +270,40 @@ export default function DashboardCourses() {
         <>
           <Row className="mb-4">
             <Col md={3} sm={6}>
-              <Card className="border-0 shadow-sm h-100">
-                <Card.Body className="d-flex align-items-center">
-                  <div className="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
-                    <Book size={24} className="text-primary" />
-                  </div>
-                  <div>
-                    <h5 className="mb-0 fw-bold">{courses.length}</h5>
-                    <p className="text-muted mb-0">Total Courses</p>
-                  </div>
-                </Card.Body>
-              </Card>
+              <StatsCard
+                icon={Book}
+                iconColor="text-primary"
+                bgColorClass="bg-primary"
+                value={courses.length}
+                label="Total Courses"
+              />
             </Col>
             <Col md={3} sm={6}>
-              <Card className="border-0 shadow-sm h-100">
-                <Card.Body className="d-flex align-items-center">
-                  <div className="bg-success bg-opacity-10 p-3 rounded-circle me-3">
-                    <Eye size={24} className="text-success" />
-                  </div>
-                  <div>
-                    <h5 className="mb-0 fw-bold">{publishedCourses.length}</h5>
-                    <p className="text-muted mb-0">Published</p>
-                  </div>
-                </Card.Body>
-              </Card>
+              <StatsCard
+                icon={Eye}
+                iconColor="text-success"
+                bgColorClass="bg-success"
+                value={publishedCourses.length}
+                label="Published"
+              />
             </Col>
             <Col md={3} sm={6}>
-              <Card className="border-0 shadow-sm h-100">
-                <Card.Body className="d-flex align-items-center">
-                  <div className="bg-warning bg-opacity-10 p-3 rounded-circle me-3">
-                    <EyeSlash size={24} className="text-warning" />
-                  </div>
-                  <div>
-                    <h5 className="mb-0 fw-bold">{draftCourses.length}</h5>
-                    <p className="text-muted mb-0">Drafts</p>
-                  </div>
-                </Card.Body>
-              </Card>
+              <StatsCard
+                icon={EyeSlash}
+                iconColor="text-warning"
+                bgColorClass="bg-warning"
+                value={draftCourses.length}
+                label="Drafts"
+              />
             </Col>
             <Col md={3} sm={6}>
-              <Card className="border-0 shadow-sm h-100">
-                <Card.Body className="d-flex align-items-center">
-                  <div className="bg-info bg-opacity-10 p-3 rounded-circle me-3">
-                    <ListTask size={24} className="text-info" />
-                  </div>
-                  <div>
-                    <h5 className="mb-0 fw-bold">{totalLessons}</h5>
-                    <p className="text-muted mb-0">Total Lessons</p>
-                  </div>
-                </Card.Body>
-              </Card>
+              <StatsCard
+                icon={ListTask}
+                iconColor="text-info"
+                bgColorClass="bg-info"
+                value={totalLessons}
+                label="Total Lessons"
+              />
             </Col>
           </Row>
 
