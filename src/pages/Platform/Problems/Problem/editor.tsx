@@ -12,7 +12,7 @@ import {
   Tab,
 } from "react-bootstrap";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
-import CodeEditor from "~/components/shared/code-editor";
+import CodeEditor from "~/components/Shared/CodeEditor";
 import { useAuth } from "~/context/AuthContext";
 import { useRunProblem } from "~/hooks/useRunProblem";
 import { useSubmitProblem } from "~/hooks/useSubmitProblem";

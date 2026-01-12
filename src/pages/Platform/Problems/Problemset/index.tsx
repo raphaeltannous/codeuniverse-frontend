@@ -24,7 +24,7 @@ import { useAuth } from '~/context/AuthContext';
 import { useUser } from '~/context/UserContext';
 import { apiFetch } from "~/utils/api";
 import { ProblemDifficulty } from '~/types/problem/difficulty';
-import ProblemsFilter from '~/components/shared/problems-filter';
+import ProblemsFilter from '~/components/Shared/ProblemFilter';
 import type { Problem } from '~/types/problem';
 import type {
   UserProgress,

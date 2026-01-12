@@ -37,7 +37,7 @@ import {
 } from "react-bootstrap-icons";
 import { useAuth } from "~/context/AuthContext";
 import MDEditor from "@uiw/react-md-editor";
-import CodeEditor from "~/components/shared/code-editor";
+import CodeEditor from "~/components/Shared/CodeEditor";
 import { apiFetch } from "~/utils/api";
 
 // Interfaces

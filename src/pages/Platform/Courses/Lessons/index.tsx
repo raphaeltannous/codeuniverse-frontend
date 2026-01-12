@@ -24,7 +24,7 @@ import {
   ArrowRight,
 } from 'react-bootstrap-icons';
 import { useAuth } from '~/context/AuthContext';
-import VideoPlayer from '~/components/shared/video-player';
+import VideoPlayer from '~/components/Shared/VideoPlayer';
 import { useCourseLessons } from '~/hooks/useCourseLessons';
 
 type ProgressResponse = Record<string, boolean>;

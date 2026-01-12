@@ -2,7 +2,7 @@ import { Activity } from 'react';
 import { Card } from 'react-bootstrap';
 import { Link } from 'react-router';
 import type { Course } from '~/types/course/course';
-import DifficultyBadge from '../difficulty-badge';
+import DifficultyBadge from '../DifficultyBadge';
 import type { Difficulty } from '~/types/problem';
 
 interface CourseCardProps extends Course {

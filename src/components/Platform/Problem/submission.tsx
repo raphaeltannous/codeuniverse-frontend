@@ -1,5 +1,5 @@
 import { Badge, Card, Col, Row, Accordion } from "react-bootstrap";
-import CodeEditor from "~/components/shared/code-editor";
+import CodeEditor from "~/components/Shared/CodeEditor";
 import type { ResultStatus } from "~/types/problem/status";
 import type { Submission } from "~/types/problem/submission";
 

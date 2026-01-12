@@ -28,7 +28,7 @@ import {
 import { Link, useParams } from 'react-router';
 import type { Lesson, LessonFormData } from '~/types/course/lesson';
 import VideoUploadModal from '~/components/AdminDashboard/Lessons/video-upload-modal';
-import VideoPlayer from '~/components/shared/video-player';
+import VideoPlayer from '~/components/Shared/VideoPlayer';
 import { useAdminLessons } from '~/hooks/useAdminLessons';
 
 export default function LessonsDashboard() {

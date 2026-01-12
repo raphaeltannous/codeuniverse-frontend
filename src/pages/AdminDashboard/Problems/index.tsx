@@ -29,9 +29,9 @@ import {
 } from 'react-bootstrap-icons';
 import { useAuth } from '~/context/AuthContext';
 import MDEditor from '@uiw/react-md-editor';
-import CodeEditor from '~/components/shared/code-editor';
+import CodeEditor from '~/components/Shared/CodeEditor';
 import { apiFetch } from '~/utils/api';
-import ProblemsFilter from '~/components/shared/problems-filter';
+import ProblemsFilter from '~/components/Shared/ProblemFilter';
 import { Link } from 'react-router';
 import type { Filters } from '~/types/problem/problemset';
 

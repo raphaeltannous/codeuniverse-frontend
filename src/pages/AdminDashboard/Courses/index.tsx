@@ -22,7 +22,7 @@ import {
   FileEarmarkText,
   Camera,
 } from 'react-bootstrap-icons';
-import CourseCard from '~/components/shared/course-card';
+import CourseCard from '~/components/Shared/CourseCard';
 import type { Course, CourseFormData } from '~/types/course/course';
 import ThumbnailChangeModal from '~/components/AdminDashboard/Courses/change-thumbnail-modal';
 import { useAdminCourses } from '~/hooks/useAdminCourses';

@@ -4,7 +4,7 @@ import { useParams } from "react-router";
 import ProblemEditor from "./editor";
 import ProblemSubmissions from "./submissions";
 import ProblemNotes from "./notes";
-import DifficultyBadge from "~/components/shared/difficulty-badge";
+import DifficultyBadge from "~/components/Shared/DifficultyBadge";
 import ProblemSkeleton from "~/components/Platform/Problem/ProblemSkeleton";
 import { useProblem } from "~/hooks/useProblem";
 

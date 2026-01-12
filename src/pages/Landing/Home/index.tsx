@@ -1,8 +1,8 @@
 import React from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { Link } from 'react-router';
-import CodeEditor from '~/components/shared/code-editor';
-import DifficultyBadge from '~/components/shared/difficulty-badge';
+import CodeEditor from '~/components/Shared/CodeEditor';
+import DifficultyBadge from '~/components/Shared/DifficultyBadge';
 import type { Difficulty } from '~/types/problem';
 
 const LandingHome: React.FC = () => {
@@ -106,7 +106,7 @@ const LandingHome: React.FC = () => {
                   </div>
                 </div>
                 <pre className="bg-body-tertiary mb-0 rounded-bottom" style={{ height: '330px' }}>
-                  <CodeEditor code={mainGoExample} language='golang' onCodeChange={() => { }} readonly={true} />
+                  <CodeEditor code={mainGoExample} language='go' onCodeChange={() => { }} readonly={true} />
                 </pre>
               </div>
             </Col>
