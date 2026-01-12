@@ -1,6 +1,5 @@
 import { Container, Row, Col, Spinner, Alert, Button } from 'react-bootstrap';
 import CourseCard from '~/components/shared/course-card';
-import type { Course } from '~/types/course/course';
 import { useAuth } from '~/context/AuthContext';
 import { useCoursesList, type CourseWithProgress } from '~/hooks/useCoursesList';
 
