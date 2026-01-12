@@ -18,7 +18,7 @@ import { useNavigate } from 'react-router';
 import { useUser } from '~/context/UserContext';
 import ProblemsFilter from '~/components/Shared/ProblemFilter';
 import StatsCard from '~/components/Shared/StatsCard';
-import ProblemsetSkeleton from '~/components/Platform/Problems/ProblemsetSkeleton';
+import { ProblemTableSkeleton } from '~/components/Platform/Problems/ProblemsetSkeleton';
 import { useProblemset } from '~/hooks/useProblemset';
 import type { Problem } from '~/types/problem/problem';
 import DifficultyBadge from '~/components/Shared/DifficultyBadge';
@@ -85,10 +85,6 @@ export default function PlatformProblemsProblemset() {
     });
   };
 
-  if (isLoading) {
-    return <ProblemsetSkeleton />;
-  }
-
   if (isError) {
     return (
       <Container fluid className="py-4">
@@ -108,10 +104,9 @@ export default function PlatformProblemsProblemset() {
     <Container fluid className="py-4">
       {/* Header */}
       <div className="mb-4">
-        <h2 className="mb-1 fw-bold">Problem Set</h2>
+        <h2 className="mb-1 fw-bold">Problems</h2>
         <p className="text-muted mb-0">
           Sharpen your coding skills with our curated collection of problems.
-          {!user && ' Sign in to track your progress!'}
         </p>
       </div>
 
@@ -124,6 +119,7 @@ export default function PlatformProblemsProblemset() {
             bgColorClass="bg-primary"
             value={total}
             label="Total Problems"
+            isLoading={isLoading}
           />
         </Col>
         <Col md={3} sm={6}>
@@ -133,6 +129,7 @@ export default function PlatformProblemsProblemset() {
             bgColorClass="bg-warning"
             value={problems.filter((p) => p.isPremium).length}
             label="Premium Problems"
+            isLoading={isLoading}
           />
         </Col>
         {user && (
@@ -143,6 +140,7 @@ export default function PlatformProblemsProblemset() {
               bgColorClass="bg-info"
               value={solvedCount}
               label="Solved"
+              isLoading={isLoading}
             />
           </Col>
         )}
@@ -184,7 +182,9 @@ export default function PlatformProblemsProblemset() {
                 </tr>
               </thead>
               <tbody>
-                {problems.length === 0 ? (
+                {isLoading ? (
+                  <ProblemTableSkeleton />
+                ) : problems.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="text-center py-5">
                       <Code size={48} className="text-muted mb-3" />
