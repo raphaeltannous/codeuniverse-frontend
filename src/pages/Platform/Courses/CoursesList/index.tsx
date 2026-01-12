@@ -1,49 +1,20 @@
 import { Container, Row, Col, Spinner, Alert, Button } from 'react-bootstrap';
 import CourseCard from '~/components/shared/course-card';
-import { useQuery } from '@tanstack/react-query';
-import { apiFetch } from "~/utils/api";
 import type { Course } from '~/types/course/course';
 import { useAuth } from '~/context/AuthContext';
-
-interface CourseWithProgress extends Course {
-  completionPercentage: number;
-}
+import { useCoursesList, type CourseWithProgress } from '~/hooks/useCoursesList';
 
 export default function CoursesList() {
   const { auth } = useAuth();
 
   const {
-    data: courses = [],
+    courses,
     isLoading,
     isError,
     error,
     refetch
-  } = useQuery<CourseWithProgress[]>({
-    queryKey: ['courses', auth?.isAuthenticated ? 'authenticated' : 'public'],
-    queryFn: async () => {
-      const endpoint = auth?.isAuthenticated
-        ? '/api/courses/loggedIn'
-        : '/api/courses';
-
-      const response = await apiFetch(endpoint, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch courses: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      return data.map((course: CourseWithProgress) => ({
-        ...course,
-        completionPercentage: course.completionPercentage || 0,
-      }));
-    },
-    staleTime: 1000 * 60 * 5,
-    retry: 2,
+  } = useCoursesList({
+    isAuthenticated: !!auth.isAuthenticated,
   });
 
   const getButtonText = (course: CourseWithProgress) => {
