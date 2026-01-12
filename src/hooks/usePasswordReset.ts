@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { apiFetch } from "~/utils/api";
 import type { PasswordResetForm, PasswordResetResponse } from "~/types/auth/password-reset";
 import type { APIError } from "~/types/api-error";
 
@@ -13,11 +14,10 @@ export function usePasswordReset(options?: UsePasswordResetOptions) {
     PasswordResetForm
   >({
     mutationFn: async (body: PasswordResetForm) => {
-      const res = await fetch("/api/auth/password/reset", {
+      const res = await apiFetch("/api/auth/password/reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        credentials: "include",
       });
 
       if (!res.ok) {

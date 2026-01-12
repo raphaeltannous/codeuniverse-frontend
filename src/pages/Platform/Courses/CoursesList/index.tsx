@@ -1,6 +1,7 @@
 import { Container, Row, Col, Spinner, Alert, Button } from 'react-bootstrap';
 import CourseCard from '~/components/shared/course-card';
 import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from "~/utils/api";
 import type { Course } from '~/types/course/course';
 import { useAuth } from '~/context/AuthContext';
 
@@ -24,11 +25,10 @@ export default function CoursesList() {
         ? '/api/courses/loggedIn'
         : '/api/courses';
 
-      const response = await fetch(endpoint, {
+      const response = await apiFetch(endpoint, {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: auth?.isAuthenticated ? "include" : "omit",
       });
 
       if (!response.ok) {

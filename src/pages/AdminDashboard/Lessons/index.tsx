@@ -33,6 +33,7 @@ import {
 } from '@tanstack/react-query';
 import { useAuth } from '~/context/AuthContext';
 import type { Lesson, LessonFormData } from '~/types/course/lesson';
+import { apiFetch } from '~/utils/api';
 import VideoUploadModal from '~/components/AdminDashboard/Lessons/video-upload-modal';
 import VideoPlayer from '~/components/shared/video-player';
 
@@ -68,9 +69,8 @@ export default function LessonsDashboard() {
   } = useQuery({
     queryKey: ['lessons', courseSlug],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/${courseSlug}/lessons`, {
-        credentials: "include",
-      });
+      const response = await apiFetch(`${API_BASE}/${courseSlug}/lessons`);
+
       if (!response.ok) {
         throw new Error('Failed to fetch lessons');
       }
@@ -81,14 +81,14 @@ export default function LessonsDashboard() {
 
   const createMutation = useMutation({
     mutationFn: async (data: LessonFormData) => {
-      const response = await fetch(`${API_BASE}/${courseSlug}/lessons`, {
+      const response = await apiFetch(`${API_BASE}/${courseSlug}/lessons`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: "include",
         body: JSON.stringify(data),
       });
+
       if (!response.ok) {
         throw new Error('Failed to create lesson');
       }
@@ -105,14 +105,14 @@ export default function LessonsDashboard() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: LessonFormData }) => {
-      const response = await fetch(`${API_BASE}/${courseSlug}/lessons/${id}`, {
+      const response = await apiFetch(`${API_BASE}/${courseSlug}/lessons/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: "include",
         body: JSON.stringify(data),
       });
+
       if (!response.ok) {
         throw new Error('Failed to update lesson');
       }
@@ -129,10 +129,10 @@ export default function LessonsDashboard() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`${API_BASE}/${courseSlug}/lessons/${id}`, {
+      const response = await apiFetch(`${API_BASE}/${courseSlug}/lessons/${id}`, {
         method: 'DELETE',
-        credentials: "include",
       });
+
       if (!response.ok) {
         throw new Error('Failed to delete lesson');
       }

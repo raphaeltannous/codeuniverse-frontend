@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiFetch } from "~/utils/api";
 import type {
   RunRequest,
   RunResponse,
@@ -13,11 +14,10 @@ export function useRunProblem(problemSlug: string, language: string) {
 
   const runMutation = useMutation<RunResponse, APIError, RunRequest>({
     mutationFn: async (body) => {
-      const result = await fetch(`/api/problems/${problemSlug}/run/${language}`, {
+      const result = await apiFetch(`/api/problems/${problemSlug}/run/${language}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        credentials: "include",
       });
       if (!result.ok) throw (await result.json()) as APIError;
       return result.json() as Promise<RunResponse>;
@@ -28,9 +28,7 @@ export function useRunProblem(problemSlug: string, language: string) {
   const runStatusQuery = useQuery<RunResultsReponse, APIError>({
     queryKey: ["run-status", runId],
     queryFn: async () => {
-      const result = await fetch(`/api/problems/${problemSlug}/run/${runId}/check`, {
-        credentials: "include",
-      });
+      const result = await apiFetch(`/api/problems/${problemSlug}/run/${runId}/check`);
       if (!result.ok) throw (await result.json()) as APIError;
       return result.json() as Promise<RunResultsReponse>;
     },

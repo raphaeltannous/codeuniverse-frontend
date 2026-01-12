@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
+import { apiFetch } from "~/utils/api";
 import type { MfaForm, MfaResponse } from "~/types/auth/mfa";
 import type { APIError } from "~/types/api-error";
 import type { MfaResendRequestResponse, MfaResendRequest } from "~/types/auth/mfa-resend-request";
@@ -15,11 +16,10 @@ export function useMfa(options?: UseMfaOptions) {
 
   const mfaMutation = useMutation<MfaResponse, APIError, MfaForm>({
     mutationFn: async (body: MfaForm) => {
-      const res = await fetch("/api/auth/login/mfa", {
+      const res = await apiFetch("/api/auth/login/mfa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        credentials: "include",
       });
 
       if (!res.ok) {
@@ -42,11 +42,10 @@ export function useMfa(options?: UseMfaOptions) {
     MfaResendRequest
   >({
     mutationFn: async (body: MfaResendRequest) => {
-      const res = await fetch("/api/auth/login/mfa/resend", {
+      const res = await apiFetch("/api/auth/login/mfa/resend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        credentials: "include",
       });
 
       if (!res.ok) {

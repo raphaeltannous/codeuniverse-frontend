@@ -3,6 +3,7 @@ import { Button, Modal, Form, Spinner, Alert, Image } from 'react-bootstrap';
 import { Upload } from 'react-bootstrap-icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '~/context/AuthContext';
+import { apiFetch } from "~/utils/api";
 import type { APIError } from '~/types/api-error';
 import type { UserProfile } from '~/types/user';
 
@@ -33,9 +34,8 @@ export default function AvatarUploadModal({
 
   const uploadAvatarMutation = useMutation<UploadResponse, APIError, FormData>({
     mutationFn: async (formData: FormData) => {
-      const res = await fetch('/api/profile/avatar', {
+      const res = await apiFetch('/api/profile/avatar', {
         method: 'PUT',
-        credentials: 'include',
         body: formData,
       });
 
@@ -113,9 +113,8 @@ export default function AvatarUploadModal({
   };
 
   const handleRemoveAvatar = async () => {
-    const res = await fetch('/api/profile/avatar', {
+    const res = await apiFetch('/api/profile/avatar', {
       method: 'DELETE',
-      credentials: 'include',
     });
 
     if (res.ok) {

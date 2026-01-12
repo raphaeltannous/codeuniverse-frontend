@@ -15,6 +15,7 @@ import {
 } from 'react-bootstrap';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router';
+import { apiFetch } from "~/utils/api";
 import {
   PlayCircle,
   CheckCircle,
@@ -50,9 +51,8 @@ export default function CourseLessonsPage() {
   } = useQuery<LessonsResponse>({
     queryKey: ['course-lessons', courseSlug],
     queryFn: async () => {
-      const response = await fetch(`/api/courses/${courseSlug}`, {
-        credentials: "include",
-      });
+      const response = await apiFetch(`/api/courses/${courseSlug}`);
+
       if (!response.ok) {
         throw new Error('Failed to fetch lessons');
       }
@@ -70,9 +70,8 @@ export default function CourseLessonsPage() {
   } = useQuery<ProgressResponse>({
     queryKey: ['user-lesson-progress', courseSlug],
     queryFn: async () => {
-      const response = await fetch(`/api/courses/${courseSlug}/progress`, {
-        credentials: "include",
-      });
+      const response = await apiFetch(`/api/courses/${courseSlug}/progress`);
+
       if (!response.ok) {
         return {};
       }
@@ -92,12 +91,11 @@ export default function CourseLessonsPage() {
   // Mutation for marking lesson as watched
   const markLessonMutation = useMutation({
     mutationFn: async (lessonId: string) => {
-      const response = await fetch(`/api/courses/${courseSlug}/${lessonId}`, {
+      const response = await apiFetch(`/api/courses/${courseSlug}/${lessonId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: "include",
         body: JSON.stringify({}),
       });
 

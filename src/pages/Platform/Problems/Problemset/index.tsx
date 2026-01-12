@@ -22,6 +22,7 @@ import {
 import { useNavigate } from 'react-router';
 import { useAuth } from '~/context/AuthContext';
 import { useUser } from '~/context/UserContext';
+import { apiFetch } from "~/utils/api";
 import { ProblemDifficulty } from '~/types/problem/difficulty';
 import ProblemsFilter from '~/components/shared/problems-filter';
 import type { Problem } from '~/types/problem';
@@ -73,9 +74,7 @@ export default function PlatformProblemsProblemset() {
           return [];
         }
 
-        const response = await fetch('/api/problems/progress', {
-          credentials: "include",
-        });
+        const response = await apiFetch('/api/problems/progress');
 
         if (!response.ok) {
           throw new Error('Failed to fetch user progress');
@@ -126,9 +125,7 @@ export default function PlatformProblemsProblemset() {
         );
       }
 
-      const response = await fetch(`/api/problems?${params}`, {
-        credentials: auth?.isAuthenticated ? "include" : "omit",
-      });
+      const response = await apiFetch(`/api/problems?${params}`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch problems');

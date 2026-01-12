@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import SubmissionCard from "~/components/Platform/Problem/submission";
 import { useAuth } from "~/context/AuthContext";
+import { apiFetch } from "~/utils/api";
 import type { APIError } from "~/types/api-error";
 import type { Problem } from "~/types/problem";
 import type { Submission } from "~/types/problem/submission";
@@ -21,9 +22,8 @@ export default function ProblemSubmissions({ problem }: ProblemEditorProps) {
   const { data: problemSubmissions, isLoading, isError, error } = useQuery<Submission[], APIError>({
     queryKey: [`problem-${problemSlug}-submissions-data`],
     queryFn: async () => {
-      const res = await fetch(`/api/problems/${problemSlug}/submissions`, {
-        credentials: "include",
-      });
+      const res = await apiFetch(`/api/problems/${problemSlug}/submissions`);
+
       const data = await res.json();
 
       if (!res.ok) {

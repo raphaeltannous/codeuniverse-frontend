@@ -23,6 +23,7 @@ import {
 } from 'react-bootstrap-icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '~/context/AuthContext';
+import { apiFetch } from "~/utils/api";
 
 interface VideoUploadModalProps {
   show: boolean;
@@ -89,9 +90,8 @@ export default function VideoUploadModal({
 
   const uploadVideoMutation = useMutation<VideoUploadResponse, APIError, FormData>({
     mutationFn: async (formData: FormData) => {
-      const res = await fetch(`/api/admin/courses/${courseSlug}/lessons/${lessonId}/video`, {
+      const res = await apiFetch(`/api/admin/courses/${courseSlug}/lessons/${lessonId}/video`, {
         method: 'PUT',
-        credentials: 'include',
         body: formData,
       });
 
@@ -250,9 +250,8 @@ export default function VideoUploadModal({
   };
 
   const handleRemoveVideo = async () => {
-    const res = await fetch(`/api/admin/courses/${courseSlug}/lessons/${lessonId}/video`, {
+    const res = await apiFetch(`/api/admin/courses/${courseSlug}/lessons/${lessonId}/video`, {
       method: 'DELETE',
-      credentials: 'include',
     });
 
     if (res.ok) {

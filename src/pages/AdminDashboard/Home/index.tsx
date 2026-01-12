@@ -24,6 +24,7 @@ import {
   PersonPlus,
   HourglassSplit,
 } from 'react-bootstrap-icons';
+import { apiFetch } from "~/utils/api";
 import type { APIError } from '~/types/api-error';
 import { useAuth } from '~/context/AuthContext';
 import type { ActivityLog, DailySubmissions, DashboardStats } from '~/types/dashboard/stats';
@@ -43,12 +44,12 @@ export default function DashboardHome() {
   } = useQuery<DashboardStats, APIError>({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
-      const res = await fetch('/api/admin/dashboard/stats', {
+      const res = await apiFetch('/api/admin/dashboard/stats', {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: "include",
       });
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -65,12 +66,12 @@ export default function DashboardHome() {
   } = useQuery<ActivityLog[], APIError>({
     queryKey: ['recent-activity'],
     queryFn: async () => {
-      const res = await fetch('/api/admin/dashboard/activity', {
+      const res = await apiFetch('/api/admin/dashboard/activity', {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: "include",
       });
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -87,12 +88,12 @@ export default function DashboardHome() {
   } = useQuery<DailySubmissions[], APIError>({
     queryKey: ['submission-trends', timeRange],
     queryFn: async () => {
-      const res = await fetch(`/api/admin/dashboard/submissions-activities?range=${timeRange}`, {
+      const res = await apiFetch(`/api/admin/dashboard/submissions-activities?range=${timeRange}`, {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: "include",
       });
+
       const data = await res.json();
 
       if (!res.ok) {

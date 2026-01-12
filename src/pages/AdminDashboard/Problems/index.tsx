@@ -30,6 +30,7 @@ import {
 import { useAuth } from '~/context/AuthContext';
 import MDEditor from '@uiw/react-md-editor';
 import CodeEditor from '~/components/shared/code-editor';
+import { apiFetch } from '~/utils/api';
 import ProblemsFilter from '~/components/shared/problems-filter';
 import { Link } from 'react-router';
 import type { Filters } from '~/types/problem/problemset';
@@ -168,9 +169,7 @@ export default function ProblemsDashboard() {
   } = useQuery<Language[]>({
     queryKey: ['supported-languages'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/supported-languages', {
-        credentials: "include",
-      });
+      const response = await apiFetch('/api/admin/supported-languages');
 
       if (!response.ok) {
         throw new Error('Failed to fetch supported languages');
@@ -219,9 +218,7 @@ export default function ProblemsDashboard() {
       if (appliedVisibilityFilter !== 'all') params.append('public', appliedVisibilityFilter === 'public' ? 'public' : 'private');
       if (appliedShowOnlyPremium !== 'all') params.append('premium', appliedShowOnlyPremium === 'premium' ? 'premium' : 'free');
 
-      const response = await fetch(`/api/admin/problems?${params}`, {
-        credentials: "include",
-      });
+      const response = await apiFetch(`/api/admin/problems?${params}`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch problems');
@@ -253,12 +250,11 @@ export default function ProblemsDashboard() {
         testcases: null,
       };
 
-      const response = await fetch('/api/admin/problems', {
+      const response = await apiFetch('/api/admin/problems', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: "include",
         body: JSON.stringify(basicData),
       });
 
@@ -284,12 +280,11 @@ export default function ProblemsDashboard() {
   // Update problem mutation - full data for editing
   const updateProblemMutation = useMutation({
     mutationFn: async ({ slug, data }: { slug: string; data: ProblemFormData }) => {
-      const response = await fetch(`/api/admin/problems/${slug}`, {
+      const response = await apiFetch(`/api/admin/problems/${slug}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -315,9 +310,8 @@ export default function ProblemsDashboard() {
   // Delete problem mutation
   const deleteProblemMutation = useMutation({
     mutationFn: async (slug: string) => {
-      const response = await fetch(`/api/admin/problems/${slug}`, {
+      const response = await apiFetch(`/api/admin/problems/${slug}`, {
         method: 'DELETE',
-        credentials: "include",
       });
 
       if (!response.ok) {

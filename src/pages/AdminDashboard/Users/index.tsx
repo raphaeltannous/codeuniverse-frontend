@@ -36,6 +36,7 @@ import {
   ExclamationTriangle,
 } from "react-bootstrap-icons";
 import { useAuth } from "~/context/AuthContext";
+import { apiFetch } from "~/utils/api";
 
 interface User {
   id: string;
@@ -150,9 +151,7 @@ export default function UsersDashboard() {
       if (verificationFilter !== "all")
         params.append("verified", verificationFilter);
 
-      const response = await fetch(`/api/admin/users?${params}`, {
-        credentials: "include",
-      });
+      const response = await apiFetch(`/api/admin/users?${params}`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch users");
@@ -211,12 +210,11 @@ export default function UsersDashboard() {
       username: string;
       data: UpdateUserData;
     }) => {
-      const response = await fetch(`/api/admin/users/${username}`, {
+      const response = await apiFetch(`/api/admin/users/${username}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -243,12 +241,11 @@ export default function UsersDashboard() {
 
   const createUserMutation = useMutation({
     mutationFn: async (data: CreateUserData) => {
-      const response = await fetch(`/api/admin/users`, {
+      const response = await apiFetch(`/api/admin/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -283,9 +280,8 @@ export default function UsersDashboard() {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (username: string) => {
-      const response = await fetch(`/api/admin/users/${username}`, {
+      const response = await apiFetch(`/api/admin/users/${username}`, {
         method: "DELETE",
-        credentials: "include",
       });
 
       if (!response.ok) {

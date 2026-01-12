@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
+import { apiFetch } from "~/utils/api";
 import type { LoginForm, LoginResponse } from "~/types/auth/login";
 import type { APIError } from "~/types/api-error";
 import { useAuth } from "~/context/AuthContext";
@@ -14,11 +15,10 @@ export function useLogin(options?: UseLoginOptions) {
 
   const loginMutation = useMutation<LoginResponse, APIError, LoginForm>({
     mutationFn: async (body: LoginForm) => {
-      const res = await fetch("/api/auth/login", {
+      const res = await apiFetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        credentials: "include",
       });
 
       if (!res.ok) {

@@ -38,6 +38,7 @@ import {
 import { useAuth } from "~/context/AuthContext";
 import MDEditor from "@uiw/react-md-editor";
 import CodeEditor from "~/components/shared/code-editor";
+import { apiFetch } from "~/utils/api";
 
 // Interfaces
 interface ProblemBasic {
@@ -182,9 +183,7 @@ export default function EditProblemPage() {
   } = useQuery<Problem>({
     queryKey: ["admin-problem", slug],
     queryFn: async () => {
-      const response = await fetch(`/api/admin/problems/${slug}`, {
-        credentials: "include",
-      });
+      const response = await apiFetch(`/api/admin/problems/${slug}`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch problem");
@@ -202,9 +201,7 @@ export default function EditProblemPage() {
   } = useQuery<Hint[]>({
     queryKey: ["admin-problem-hints", slug],
     queryFn: async () => {
-      const response = await fetch(`/api/admin/problems/${slug}/hints`, {
-        credentials: "include",
-      });
+      const response = await apiFetch(`/api/admin/problems/${slug}/hints`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch hints");
@@ -222,11 +219,8 @@ export default function EditProblemPage() {
   } = useQuery<ProblemCode[]>({
     queryKey: ["admin-problem-code-snippets", slug],
     queryFn: async () => {
-      const response = await fetch(
-        `/api/admin/problems/${slug}/code-snippets`,
-        {
-          credentials: "include",
-        },
+      const response = await apiFetch(
+        `/api/admin/problems/${slug}/code-snippets`
       );
 
       if (!response.ok) {
@@ -245,9 +239,7 @@ export default function EditProblemPage() {
   } = useQuery<ProblemTestcase[]>({
     queryKey: ["admin-problem-testcases", slug],
     queryFn: async () => {
-      const response = await fetch(`/api/admin/problems/${slug}/testcases`, {
-        credentials: "include",
-      });
+      const response = await apiFetch(`/api/admin/problems/${slug}/testcases`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch test cases");
@@ -265,9 +257,7 @@ export default function EditProblemPage() {
   } = useQuery<ProblemCodeConfig>({
     queryKey: ["admin-problem-limits", slug],
     queryFn: async () => {
-      const response = await fetch(`/api/admin/problems/${slug}/config`, {
-        credentials: "include",
-      });
+      const response = await apiFetch(`/api/admin/problems/${slug}/config`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch limits config");
@@ -282,9 +272,7 @@ export default function EditProblemPage() {
     useQuery<Language[]>({
       queryKey: ["supported-languages"],
       queryFn: async () => {
-        const response = await fetch("/api/admin/supported-languages", {
-          credentials: "include",
-        });
+        const response = await apiFetch("/api/admin/supported-languages");
 
         if (!response.ok) {
           throw new Error("Failed to fetch supported languages");
@@ -360,12 +348,11 @@ export default function EditProblemPage() {
   // Update problem mutation
   const updateProblemMutation = useMutation({
     mutationFn: async (data: ProblemFormData) => {
-      const response = await fetch(`/api/admin/problems/${slug}`, {
+      const response = await apiFetch(`/api/admin/problems/${slug}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -390,12 +377,11 @@ export default function EditProblemPage() {
   // Create hint mutation
   const createHintMutation = useMutation({
     mutationFn: async (hint: string) => {
-      const response = await fetch(`/api/admin/problems/${slug}/hints`, {
+      const response = await apiFetch(`/api/admin/problems/${slug}/hints`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify({ hint }),
       });
 
@@ -424,14 +410,13 @@ export default function EditProblemPage() {
   // Update hint mutation
   const updateHintMutation = useMutation({
     mutationFn: async ({ hintId, hint }: { hintId: string; hint: string }) => {
-      const response = await fetch(
+      const response = await apiFetch(
         `/api/admin/problems/${slug}/hints/${hintId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
           body: JSON.stringify({ hint }),
         },
       );
@@ -461,11 +446,10 @@ export default function EditProblemPage() {
   // Delete hint mutation
   const deleteHintMutation = useMutation({
     mutationFn: async (hintId: string) => {
-      const response = await fetch(
+      const response = await apiFetch(
         `/api/admin/problems/${slug}/hints/${hintId}`,
         {
           method: "DELETE",
-          credentials: "include",
         },
       );
 
@@ -496,14 +480,13 @@ export default function EditProblemPage() {
       languageSlug: string;
       data: ProblemCode;
     }) => {
-      const response = await fetch(
+      const response = await apiFetch(
         `/api/admin/problems/${slug}/code-snippets/${languageSlug}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
           body: JSON.stringify(data),
         },
       );
@@ -531,12 +514,11 @@ export default function EditProblemPage() {
   // Create testcase mutation (sends individual testcase)
   const createTestcaseMutation = useMutation({
     mutationFn: async (data: Omit<ProblemTestcase, "id">) => {
-      const response = await fetch(`/api/admin/problems/${slug}/testcases`, {
+      const response = await apiFetch(`/api/admin/problems/${slug}/testcases`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -575,14 +557,13 @@ export default function EditProblemPage() {
       testcaseId: number;
       data: Omit<ProblemTestcase, "id">;
     }) => {
-      const response = await fetch(
+      const response = await apiFetch(
         `/api/admin/problems/${slug}/testcases/${testcaseId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
           body: JSON.stringify(data),
         },
       );
@@ -616,11 +597,10 @@ export default function EditProblemPage() {
   // Delete testcase mutation
   const deleteTestcaseMutation = useMutation({
     mutationFn: async (testcaseId: number) => {
-      const response = await fetch(
+      const response = await apiFetch(
         `/api/admin/problems/${slug}/testcases/${testcaseId}`,
         {
           method: "DELETE",
-          credentials: "include",
         },
       );
 
@@ -645,12 +625,11 @@ export default function EditProblemPage() {
   // Update limits config mutation
   const updateLimitsConfigMutation = useMutation({
     mutationFn: async (data: ProblemCodeConfig) => {
-      const response = await fetch(`/api/admin/problems/${slug}/config`, {
+      const response = await apiFetch(`/api/admin/problems/${slug}/config`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify(data),
       });
 

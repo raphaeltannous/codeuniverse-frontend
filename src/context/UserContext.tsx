@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiFetch } from "~/utils/api";
 
 type User = {
   username: string;
@@ -38,13 +39,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   } = useQuery<User>({
     queryKey: ["userProfile", auth.isAuthenticated],
     queryFn: async () => {
-      const res = await fetch("/api/profile/me", {
-        credentials: "include",
-      });
-
-      if (res.status === 401) {
-        throw new Error("Session expired");
-      }
+      const res = await apiFetch("/api/profile/me");
 
       if (!res.ok) {
         throw new Error(`Failed to fetch user: ${res.statusText}`);
@@ -54,20 +49,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     },
     enabled: auth.isAuthenticated,
     staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (error.message.includes("401") || error.message.includes("Session expired")) {
-        return false;
-      }
-      return failureCount < 2;
-    },
   });
-
-  useEffect(() => {
-    if (error?.message.includes("Session expired")) {
-      const { logout } = useAuth();
-      logout();
-    }
-  }, [error]);
 
   useEffect(() => {
     if (!auth.isAuthenticated) {

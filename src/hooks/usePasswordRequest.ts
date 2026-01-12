@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { apiFetch } from "~/utils/api";
 import type { PasswordRequestForm, PasswordRequestResponse } from "~/types/auth/password-request";
 import type { APIError } from "~/types/api-error";
 
@@ -13,11 +14,10 @@ export function usePasswordRequest(options?: UsePasswordRequestOptions) {
     PasswordRequestForm
   >({
     mutationFn: async (body: PasswordRequestForm) => {
-      const res = await fetch("/api/auth/password/request", {
+      const res = await apiFetch("/api/auth/password/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        credentials: "include",
       });
 
       if (!res.ok) {

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiFetch } from "~/utils/api";
 import type { APIError } from '~/types/api-error';
 import type { ProblemNote, ProblemNoteSaveRequest, ProblemNoteSaveResponse } from '~/types/problem/note';
 
@@ -13,9 +14,8 @@ export function useProblemNote(problemSlug: string, options?: UseProblemNoteOpti
   const { data: problemNote, isLoading, isError, error } = useQuery<ProblemNote, APIError>({
     queryKey: problemNoteKey,
     queryFn: async () => {
-      const res = await fetch(`/api/problems/${problemSlug}/notes`, {
-        credentials: "include",
-      });
+      const res = await apiFetch(`/api/problems/${problemSlug}/notes`);
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -32,12 +32,11 @@ export function useProblemNote(problemSlug: string, options?: UseProblemNoteOpti
   const saveMutation = useMutation<ProblemNoteSaveResponse, APIError, ProblemNoteSaveRequest>({
     mutationFn: async (body: ProblemNoteSaveRequest) => {
       const { method, ...requestBody } = body;
-      const res = await fetch(`/api/problems/${problemSlug}/notes`, {
+      const res = await apiFetch(`/api/problems/${problemSlug}/notes`, {
         method: method,
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify(requestBody),
       });
 

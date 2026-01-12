@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Activity, useEffect } from "react";
 import { Container, Spinner } from "react-bootstrap";
 import { useNavigate, useSearchParams } from "react-router";
+import { apiFetch } from "~/utils/api";
 
 interface VerificationForm {
   token: string;
@@ -12,11 +13,12 @@ export default function PlatformAccountsEmailVerification() {
 
   const emailVerificationMutation = useMutation({
     mutationFn: async (body: VerificationForm) => {
-      const res = await fetch("/api/auth/signup/verify", {
+      const res = await apiFetch("/api/auth/signup/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
+
       if (!res.ok) throw new Error("Verification Failed.");
       return res.text();
     },

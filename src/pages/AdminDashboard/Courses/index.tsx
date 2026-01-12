@@ -31,6 +31,7 @@ import CourseCard from '~/components/shared/course-card';
 import type { Course, CourseFormData } from '~/types/course/course';
 import { useAuth } from '~/context/AuthContext';
 import ThumbnailChangeModal from '~/components/AdminDashboard/Courses/change-thumbnail-modal';
+import { apiFetch } from '~/utils/api';
 
 const API_BASE = '/api/admin';
 
@@ -65,9 +66,8 @@ export default function DashboardCourses() {
       formData.append('thumbnail', file);
       formData.append('courseSlug', slug);
 
-      const response = await fetch(`${API_BASE}/courses/${slug}/thumbnail`, {
+      const response = await apiFetch(`${API_BASE}/courses/${slug}/thumbnail`, {
         method: 'PUT',
-        credentials: "include",
         body: formData,
       });
 
@@ -105,9 +105,8 @@ export default function DashboardCourses() {
   } = useQuery({
     queryKey: ['courses'],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/courses`, {
-        credentials: "include",
-      });
+      const response = await apiFetch(`${API_BASE}/courses`);
+
       if (!response.ok) {
         throw new Error('Failed to fetch courses');
       }
@@ -119,14 +118,14 @@ export default function DashboardCourses() {
 
   const createMutation = useMutation({
     mutationFn: async (data: CourseFormData) => {
-      const response = await fetch(`${API_BASE}/courses`, {
+      const response = await apiFetch(`${API_BASE}/courses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: "include",
         body: JSON.stringify(data),
       });
+
       if (!response.ok) {
         throw new Error('Failed to create course');
       }
@@ -144,14 +143,14 @@ export default function DashboardCourses() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ slug, data }: { slug: string; data: CourseFormData }) => {
-      const response = await fetch(`${API_BASE}/courses/${slug}`, {
+      const response = await apiFetch(`${API_BASE}/courses/${slug}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: "include",
         body: JSON.stringify(data),
       });
+
       if (!response.ok) {
         throw new Error('Failed to update course');
       }
@@ -169,10 +168,10 @@ export default function DashboardCourses() {
 
   const deleteMutation = useMutation({
     mutationFn: async (slug: string) => {
-      const response = await fetch(`${API_BASE}/courses/${slug}`, {
+      const response = await apiFetch(`${API_BASE}/courses/${slug}`, {
         method: 'DELETE',
-        credentials: "include",
       });
+
       if (!response.ok) {
         throw new Error('Failed to delete course');
       }
@@ -191,14 +190,14 @@ export default function DashboardCourses() {
 
   const togglePublishMutation = useMutation({
     mutationFn: async ({ slug, publish }: { slug: string; publish: boolean }) => {
-      const response = await fetch(`${API_BASE}/courses/${slug}/publish`, {
+      const response = await apiFetch(`${API_BASE}/courses/${slug}/publish`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: "include",
         body: JSON.stringify({ isPublished: publish }),
       });
+
       if (!response.ok) {
         throw new Error('Failed to toggle publish status');
       }

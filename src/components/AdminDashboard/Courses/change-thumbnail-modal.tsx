@@ -13,7 +13,7 @@ import {
   Image as ImageIcon,
 } from 'react-bootstrap-icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '~/context/AuthContext';
+import { apiFetch } from "~/utils/api";
 import type { Course } from '~/types/course/course';
 import type { APIError } from '~/types/api-error';
 
@@ -44,9 +44,8 @@ export default function ThumbnailChangeModal({
 
   const uploadThumbnailMutation = useMutation<UploadResponse, APIError, FormData>({
     mutationFn: async (formData: FormData) => {
-      const res = await fetch(`/api/admin/courses/${courseSlug}/thumbnail`, {
+      const res = await apiFetch(`/api/admin/courses/${courseSlug}/thumbnail`, {
         method: 'PUT',
-        credentials: 'include',
         body: formData,
       });
 

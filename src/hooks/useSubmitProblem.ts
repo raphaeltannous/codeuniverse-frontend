@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiFetch } from "~/utils/api";
 import type { SubmitRequest, SubmitResponse } from "~/types/problem/submission";
 import type { APIError } from "~/types/api-error";
 import { ResultStatus } from "~/types/problem/status";
@@ -9,11 +10,10 @@ export function useSubmitProblem(problemSlug: string, language: string) {
 
   const submitMutation = useMutation<SubmitResponse, APIError, SubmitRequest>({
     mutationFn: async (body) => {
-      const result = await fetch(`/api/problems/${problemSlug}/submit/${language}`, {
+      const result = await apiFetch(`/api/problems/${problemSlug}/submit/${language}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        credentials: "include",
       });
       if (!result.ok) throw (await result.json()) as APIError;
       return result.json() as Promise<SubmitResponse>;
@@ -24,11 +24,8 @@ export function useSubmitProblem(problemSlug: string, language: string) {
   const submissionStatusQuery = useQuery<any, APIError>({
     queryKey: ["submission-status", submissionId],
     queryFn: async () => {
-      const result = await fetch(
-        `/api/problems/${problemSlug}/submit/${submissionId}/check`,
-        {
-          credentials: "include",
-        }
+      const result = await apiFetch(
+        `/api/problems/${problemSlug}/submit/${submissionId}/check`
       );
       if (!result.ok) throw (await result.json()) as APIError;
       return result.json();

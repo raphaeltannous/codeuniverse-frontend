@@ -12,6 +12,7 @@ import {
   ProgressBar,
 } from 'react-bootstrap';
 import { useAuth } from '~/context/AuthContext';
+import { apiFetch } from "~/utils/api";
 import type { UserProfile, UserProfileUpdateRequest } from '~/types/user';
 import ProfileLinks from '~/components/shared/user-profile/profile-links';
 import ProfileStats from '~/components/shared/user-profile/profile-stats';
@@ -44,12 +45,12 @@ export default function UserProfilePage() {
     queryKey: [`user-profile`, targetUsername],
     queryFn: async () => {
       if (isOwnProfile) {
-        const res = await fetch(`/api/profile`, {
+        const res = await apiFetch(`/api/profile`, {
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
         });
+
         const data = await res.json();
 
         if (!res.ok) {
@@ -57,11 +58,12 @@ export default function UserProfilePage() {
         }
         return data as UserProfile;
       } else {
-        const res = await fetch(`/api/users/${targetUsername}/profile`, {
+        const res = await apiFetch(`/api/users/${targetUsername}/profile`, {
           headers: {
             "Content-Type": "application/json",
           }
         });
+
         const data = await res.json();
 
         if (!res.ok) {
@@ -77,12 +79,11 @@ export default function UserProfilePage() {
   const updateProfileMutation = useMutation<UserProfile, APIError, UserProfileUpdateRequest>({
     mutationFn: async (data: UserProfileUpdateRequest) => {
       data.username = targetUsername;
-      const res = await fetch(`/api/profile`, {
+      const res = await apiFetch(`/api/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: "include",
         body: JSON.stringify(data),
       });
 
