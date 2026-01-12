@@ -1,5 +1,5 @@
-import { ProblemDifficulty } from "./problem/difficulty";
-import type { TestCase } from "./problem/testcase";
+import { ProblemDifficulty } from "./difficulty";
+import type { TestCase } from "./testcase";
 
 export interface Problem {
   id: string;
@@ -21,5 +21,3 @@ export interface CodeSnippet {
   languageName: string;
   languageSlug: string;
 }
-
-export type Difficulty = ProblemDifficulty;

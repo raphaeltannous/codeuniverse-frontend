@@ -3,7 +3,7 @@ import SubmissionCard from "~/components/Platform/Problem/submission";
 import { useAuth } from "~/context/AuthContext";
 import { apiFetch } from "~/utils/api";
 import type { APIError } from "~/types/api-error";
-import type { Problem } from "~/types/problem";
+import type { Problem } from "~/types/problem/problem";
 import type { Submission } from "~/types/problem/submission";
 
 interface ProblemEditorProps {

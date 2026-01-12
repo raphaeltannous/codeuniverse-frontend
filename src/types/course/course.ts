@@ -17,6 +17,8 @@ export interface CourseFormData {
   title: string;
   slug: string;
   description: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
+  difficulty: CourseDifficulty;
   isPublished: boolean;
 }
+
+export type CourseDifficulty = 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';

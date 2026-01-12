@@ -1,14 +1,15 @@
 import { Badge } from "react-bootstrap";
-import type { Difficulty } from "~/types/problem";
+import type { CourseDifficulty } from "~/types/course/course";
+import type { ProblemDifficulty } from "~/types/problem/difficulty";
 
 interface DifficultyBadgeProps {
-  difficulty: Difficulty;
+  difficulty: ProblemDifficulty | CourseDifficulty;
 }
 
 export default function DifficultyBadge({
   difficulty,
 }: DifficultyBadgeProps) {
-  const colors: Record<Difficulty, string> = {
+  const colors: Record<ProblemDifficulty | CourseDifficulty, string> = {
     Easy: "bg-success text-white",
     Medium: "bg-warning text-dark",
     Hard: "bg-danger text-white",

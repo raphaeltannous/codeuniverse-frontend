@@ -1,4 +1,4 @@
-import type { Problem } from "../problem";
+import type { Problem } from "./problem";
 
 export type UserProgress = string[];
 

@@ -3,15 +3,15 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import { Link } from 'react-router';
 import CodeEditor from '~/components/Shared/CodeEditor';
 import DifficultyBadge from '~/components/Shared/DifficultyBadge';
-import type { Difficulty } from '~/types/problem';
+import type { ProblemDifficulty } from '~/types/problem/problem';
 
 const LandingHome: React.FC = () => {
   const featuredProblems = [
-    { id: 1, title: 'Two Sum', slug: 'two-sum', difficulty: 'Easy' as Difficulty, acceptance: '49.5%' },
-    { id: 2, title: 'Reverse Linked List', slug: 'reverse-linked-list', difficulty: 'Easy' as Difficulty, acceptance: '68.2%' },
-    { id: 3, title: 'Merge Intervals', slug: 'merge-intervals', difficulty: 'Medium' as Difficulty, acceptance: '42.3%' },
-    { id: 4, title: 'Binary Tree Inorder Traversal', difficulty: 'Medium' as Difficulty, acceptance: '71.8%' },
-    { id: 5, title: 'N-Queens', difficulty: 'Hard' as Difficulty, acceptance: '58.9%' },
+    { id: 1, title: 'Two Sum', slug: 'two-sum', difficulty: 'Easy' as ProblemDifficulty, acceptance: '49.5%' },
+    { id: 2, title: 'Reverse Linked List', slug: 'reverse-linked-list', difficulty: 'Easy' as ProblemDifficulty, acceptance: '68.2%' },
+    { id: 3, title: 'Merge Intervals', slug: 'merge-intervals', difficulty: 'Medium' as ProblemDifficulty, acceptance: '42.3%' },
+    { id: 4, title: 'Binary Tree Inorder Traversal', difficulty: 'Medium' as ProblemDifficulty, acceptance: '71.8%' },
+    { id: 5, title: 'N-Queens', difficulty: 'Hard' as ProblemDifficulty, acceptance: '58.9%' },
   ];
 
   const features = [

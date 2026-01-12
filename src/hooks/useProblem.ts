@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "~/utils/api";
 import type { APIError } from "~/types/api-error";
-import type { Problem } from "~/types/problem";
+import type { Problem } from "~/types/problem/problem";
 
 export function useProblem(problemSlug: string) {
   const { data: problem, isLoading, isError, error } = useQuery<Problem, APIError>({

@@ -16,7 +16,7 @@ import CodeEditor from "~/components/Shared/CodeEditor";
 import { useAuth } from "~/context/AuthContext";
 import { useRunProblem } from "~/hooks/useRunProblem";
 import { useSubmitProblem } from "~/hooks/useSubmitProblem";
-import type { Problem } from "~/types/problem";
+import type { Problem } from "~/types/problem/problem";
 import { ResultStatus } from "~/types/problem/status";
 import type { FailedTestcase } from "~/types/problem/testcase";
 import { ChevronDown, ChevronUp } from "react-bootstrap-icons";

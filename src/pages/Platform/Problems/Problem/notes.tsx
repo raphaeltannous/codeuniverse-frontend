@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Card, Col, Row, Button, Spinner } from 'react-bootstrap';
 import { CheckCircle } from 'react-bootstrap-icons';
 import { useProblemNote } from '~/hooks/useProblemNote';
-import type { Problem } from '~/types/problem';
+import type { Problem } from '~/types/problem/problem';
 
 interface ProblemNotesProps {
   problem: Problem;

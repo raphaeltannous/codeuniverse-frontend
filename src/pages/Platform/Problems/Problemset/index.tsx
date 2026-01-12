@@ -25,12 +25,14 @@ import { useUser } from '~/context/UserContext';
 import { apiFetch } from "~/utils/api";
 import { ProblemDifficulty } from '~/types/problem/difficulty';
 import ProblemsFilter from '~/components/Shared/ProblemFilter';
-import type { Problem } from '~/types/problem';
+import type { Problem } from '~/types/problem/problem';
 import type {
   UserProgress,
   ProblemsResponse,
   Filters,
 } from '~/types/problem/problemset';
+import DifficultyBadge from '~/components/Shared/DifficultyBadge';
+import PremiumBadge from '~/components/Shared/PremiumBadge';
 
 export default function PlatformProblemsProblemset() {
   const { auth } = useAuth();
@@ -222,25 +224,6 @@ export default function PlatformProblemsProblemset() {
     navigate(`/problems/${problem.slug}`);
   };
 
-  // Difficulty badge component
-  const getDifficultyBadge = (difficulty: ProblemDifficulty) => {
-    const difficultyColors = {
-      [ProblemDifficulty.Easy]: 'success',
-      [ProblemDifficulty.Medium]: 'warning',
-      [ProblemDifficulty.Hard]: 'danger',
-    };
-
-    return (
-      <Badge
-        bg={difficultyColors[difficulty]}
-        className="px-2 py-1 d-flex align-items-center gap-1"
-        style={{ fontSize: '0.85rem' }}
-      >
-        <Award size={12} />
-        {difficulty}
-      </Badge>
-    );
-  };
 
   // Status badge component
   const getStatusBadge = (slug: string) => {
@@ -253,21 +236,6 @@ export default function PlatformProblemsProblemset() {
       );
     }
     return null;
-  };
-
-  // Premium badge
-  const getPremiumBadge = (isPremium: boolean) => {
-    return isPremium ? (
-      <Badge bg="warning" className="px-2 py-1">
-        <Lock size={12} className="me-1" />
-        Premium
-      </Badge>
-    ) : (
-      <Badge bg="success" className="px-2 py-1">
-        <Globe size={12} className="me-1" />
-        Free
-      </Badge>
-    );
   };
 
   // Format date
@@ -478,8 +446,12 @@ export default function PlatformProblemsProblemset() {
                           </div>
                         </div>
                       </td>
-                      <td>{getDifficultyBadge(problem.difficulty)}</td>
-                      <td>{getPremiumBadge(problem.isPremium)}</td>
+                      <td>
+                        <DifficultyBadge difficulty={problem.difficulty} />
+                      </td>
+                      <td>
+                        <PremiumBadge status={problem.isPremium ? 'premium' : 'free'} />
+                      </td>
                       <td>
                         {getStatusBadge(problem.slug)}
                         {!solvedSlugs.has(problem.slug) && user && (
