@@ -13,9 +13,7 @@ import {
   ProgressBar,
   Offcanvas
 } from 'react-bootstrap';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router';
-import { apiFetch } from "~/utils/api";
 import {
   PlayCircle,
   CheckCircle,
@@ -25,9 +23,9 @@ import {
   List,
   ArrowRight,
 } from 'react-bootstrap-icons';
-import type { LessonsResponse } from '~/types/course/lesson';
 import { useAuth } from '~/context/AuthContext';
 import VideoPlayer from '~/components/shared/video-player';
+import { useCourseLessons } from '~/hooks/useCourseLessons';
 
 type ProgressResponse = Record<string, boolean>;
 
@@ -35,50 +33,25 @@ export default function CourseLessonsPage() {
   const { auth } = useAuth();
   const { courseSlug } = useParams<{ courseSlug: string }>();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [localProgress, setLocalProgress] = useState<ProgressResponse>({});
 
-  // Fetch course lessons
+  // Use the hook
   const {
-    data: lessonsData,
+    lessonsData,
     isLoading,
     isError,
     error,
-    refetch
-  } = useQuery<LessonsResponse>({
-    queryKey: ['course-lessons', courseSlug],
-    queryFn: async () => {
-      const response = await apiFetch(`/api/courses/${courseSlug}`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch lessons');
-      }
-      return response.json();
-    },
+    refetch,
+    userProgressData,
+    isLoadingProgress,
+    refetchProgress,
+    markLessonMutation,
+  } = useCourseLessons({
+    courseSlug: courseSlug || '',
     enabled: !!courseSlug && !!auth.isAuthenticated,
-    staleTime: 1000 * 60 * 5,
-  });
-
-  // Fetch user progress for this course
-  const {
-    data: userProgressData,
-    isLoading: isLoadingProgress,
-    refetch: refetchProgress
-  } = useQuery<ProgressResponse>({
-    queryKey: ['user-lesson-progress', courseSlug],
-    queryFn: async () => {
-      const response = await apiFetch(`/api/courses/${courseSlug}/progress`);
-
-      if (!response.ok) {
-        return {};
-      }
-      return response.json();
-    },
-    enabled: !!courseSlug && !!auth.isAuthenticated,
-    staleTime: 1000 * 60 * 2,
   });
 
   // Sync server progress to local state when it loads
@@ -87,64 +60,6 @@ export default function CourseLessonsPage() {
       setLocalProgress(userProgressData);
     }
   }, [userProgressData]);
-
-  // Mutation for marking lesson as watched
-  const markLessonMutation = useMutation({
-    mutationFn: async (lessonId: string) => {
-      const response = await apiFetch(`/api/courses/${courseSlug}/${lessonId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({}),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to mark lesson as watched');
-      }
-      return response.json();
-    },
-    onMutate: async (lessonId) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['user-lesson-progress', courseSlug] });
-
-      // Snapshot the previous value
-      const previousProgress = queryClient.getQueryData<ProgressResponse>(['user-lesson-progress', courseSlug]);
-
-      // Optimistically update to the new value
-      queryClient.setQueryData<ProgressResponse>(['user-lesson-progress', courseSlug], (old) => ({
-        ...old,
-        [lessonId]: true,
-      }));
-
-      // Also update local state immediately
-      setLocalProgress(prev => ({
-        ...prev,
-        [lessonId]: true,
-      }));
-
-      return { previousProgress };
-    },
-    onError: (err, lessonId, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
-      if (context?.previousProgress) {
-        queryClient.setQueryData<ProgressResponse>(
-          ['user-lesson-progress', courseSlug],
-          context.previousProgress
-        );
-        setLocalProgress(context.previousProgress);
-      }
-      console.error('Failed to mark lesson as watched:', err);
-    },
-    onSettled: () => {
-      // Always refetch after error or success to ensure sync with server
-      queryClient.invalidateQueries({ queryKey: ['user-lesson-progress', courseSlug] });
-      queryClient.invalidateQueries({ queryKey: ['courses', 'authenticated'] });
-
-      // Force a refetch to ensure data is fresh
-      refetchProgress();
-    },
-  });
 
   // Auto-select first lesson if none selected
   useEffect(() => {
@@ -262,7 +177,6 @@ export default function CourseLessonsPage() {
     );
   }
 
-  // Mobile Sidebar Component
   const MobileSidebar = () => (
     <Offcanvas
       show={showMobileSidebar}
