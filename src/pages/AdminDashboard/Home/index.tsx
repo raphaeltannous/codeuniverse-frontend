@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import {
   Container,
   Row,
@@ -24,84 +23,24 @@ import {
   PersonPlus,
   HourglassSplit,
 } from 'react-bootstrap-icons';
-import { apiFetch } from "~/utils/api";
-import type { APIError } from '~/types/api-error';
-import { useAuth } from '~/context/AuthContext';
-import type { ActivityLog, DailySubmissions, DashboardStats } from '~/types/dashboard/stats';
 import StatsCard from '~/components/AdminDashboard/Home/stats-card';
 import ActivityFeed from '~/components/AdminDashboard/Home/activity-feed';
 import SubmissionChart from '~/components/AdminDashboard/Home/submissions-chart';
+import { useDashboardStats } from '~/hooks/useDashboardStats';
 
 export default function DashboardHome() {
-  const { auth } = useAuth();
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('7d');
 
   const {
-    data: stats,
-    isLoading: statsLoading,
-    isError: statsError,
-    error: statsErrorData
-  } = useQuery<DashboardStats, APIError>({
-    queryKey: ['dashboard-stats'],
-    queryFn: async () => {
-      const res = await apiFetch('/api/admin/dashboard/stats', {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw data as APIError;
-      }
-      return data as DashboardStats;
-    },
-    refetchInterval: 10000,
-  });
-
-  const {
-    data: recentActivity,
-    isLoading: activityLoading
-  } = useQuery<ActivityLog[], APIError>({
-    queryKey: ['recent-activity'],
-    queryFn: async () => {
-      const res = await apiFetch('/api/admin/dashboard/activity', {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw data as APIError;
-      }
-      return data as ActivityLog[];
-    },
-    refetchInterval: 10000,
-  });
-
-  const {
-    data: submissionTrends,
-    isLoading: trendsLoading
-  } = useQuery<DailySubmissions[], APIError>({
-    queryKey: ['submission-trends', timeRange],
-    queryFn: async () => {
-      const res = await apiFetch(`/api/admin/dashboard/submissions-activities?range=${timeRange}`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw data as APIError;
-      }
-      return data as DailySubmissions[];
-    },
-  });
+    stats,
+    statsLoading,
+    statsError,
+    statsErrorData,
+    recentActivity,
+    activityLoading,
+    submissionTrends,
+    trendsLoading,
+  } = useDashboardStats({ timeRange });
 
   if (statsLoading) {
     return (

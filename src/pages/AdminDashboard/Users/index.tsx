@@ -16,7 +16,6 @@ import {
   Pagination,
   Image,
 } from "react-bootstrap";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Person,
   Search,
@@ -36,7 +35,7 @@ import {
   ExclamationTriangle,
 } from "react-bootstrap-icons";
 import { useAuth } from "~/context/AuthContext";
-import { apiFetch } from "~/utils/api";
+import { useAdminUsers } from "~/hooks/useAdminUsers";
 
 interface User {
   id: string;
@@ -87,7 +86,6 @@ interface EditFormErrors {
 
 export default function UsersDashboard() {
   const { auth } = useAuth();
-  const queryClient = useQueryClient();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
@@ -121,45 +119,24 @@ export default function UsersDashboard() {
   });
 
   const {
-    data: usersData,
+    usersData,
     isLoading,
     isError,
     error,
     refetch,
-  } = useQuery<UsersResponse>({
-    queryKey: [
-      "admin-users",
-      offset,
-      searchTerm,
-      roleFilter,
-      statusFilter,
-      verificationFilter,
-      sortBy,
-      sortOrder,
-    ],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        offset: offset.toString(),
-        limit: limit.toString(),
-        search: searchTerm,
-        sortBy,
-        sortOrder,
-      });
-
-      if (roleFilter !== "all") params.append("role", roleFilter);
-      if (statusFilter !== "all") params.append("status", statusFilter);
-      if (verificationFilter !== "all")
-        params.append("verified", verificationFilter);
-
-      const response = await apiFetch(`/api/admin/users?${params}`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch users");
-      }
-      return response.json();
-    },
-    enabled: !!auth.isAuthenticated,
-    staleTime: 1000 * 60 * 2,
+    createUserMutation,
+    updateUserMutation,
+    deleteUserMutation,
+  } = useAdminUsers({
+    offset,
+    limit,
+    searchTerm,
+    roleFilter,
+    statusFilter,
+    verificationFilter,
+    sortBy,
+    sortOrder,
+    isAuthenticated: !!auth.isAuthenticated,
   });
 
   const currentPage = Math.floor(offset / limit) + 1;
@@ -202,112 +179,20 @@ export default function UsersDashboard() {
     return Object.keys(errors).length === 0;
   };
 
-  const updateUserMutation = useMutation({
-    mutationFn: async ({
-      username,
-      data,
-    }: {
-      username: string;
-      data: UpdateUserData;
-    }) => {
-      const response = await apiFetch(`/api/admin/users/${username}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || `Failed to update user: ${response.statusText}`,
-        );
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      setActionSuccess("User updated successfully");
-      setShowEditModal(false);
-      setEditFormErrors({});
-      setTimeout(() => setActionSuccess(""), 3000);
-    },
-    onError: (error: Error) => {
-      setActionError(error.message || "Failed to update user");
-      setTimeout(() => setActionError(""), 5000);
-    },
-  });
-
-  const createUserMutation = useMutation({
-    mutationFn: async (data: CreateUserData) => {
-      const response = await apiFetch(`/api/admin/users`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || `Failed to create user: ${response.statusText}`,
-        );
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      setActionSuccess("User created successfully");
-      setShowCreateModal(false);
-      setCreateFormData({
-        username: "",
-        email: "",
-        password: "",
-        role: "user",
-        isActive: true,
-        isVerified: false,
-        avatarUrl: "",
-      });
-      setTimeout(() => setActionSuccess(""), 3000);
-    },
-    onError: (error: Error) => {
-      setActionError(error.message || "Failed to create user");
-      setTimeout(() => setActionError(""), 5000);
-    },
-  });
-
-  const deleteUserMutation = useMutation({
-    mutationFn: async (username: string) => {
-      const response = await apiFetch(`/api/admin/users/${username}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || `Failed to delete user: ${response.statusText}`,
-        );
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      setShowDeleteModal(false);
-      setSelectedUser(null);
-      setActionSuccess("User deleted successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
-    },
-    onError: (error: Error) => {
-      setActionError(error.message || "Failed to delete user");
-      setTimeout(() => setActionError(""), 5000);
-    },
-  });
-
   const handleDeleteUser = () => {
     if (selectedUser) {
-      deleteUserMutation.mutate(selectedUser.username);
+      deleteUserMutation.mutate(selectedUser.username, {
+        onSuccess: () => {
+          setShowDeleteModal(false);
+          setSelectedUser(null);
+          setActionSuccess("User deleted successfully");
+          setTimeout(() => setActionSuccess(""), 3000);
+        },
+        onError: (error: Error) => {
+          setActionError(error.message || "Failed to delete user");
+          setTimeout(() => setActionError(""), 5000);
+        },
+      });
     }
   };
 
@@ -350,10 +235,24 @@ export default function UsersDashboard() {
       }
 
       if (Object.keys(dataToSend).length > 0) {
-        updateUserMutation.mutate({
-          username: selectedUser.username,
-          data: dataToSend,
-        });
+        updateUserMutation.mutate(
+          {
+            username: selectedUser.username,
+            data: dataToSend,
+          },
+          {
+            onSuccess: () => {
+              setActionSuccess("User updated successfully");
+              setShowEditModal(false);
+              setEditFormErrors({});
+              setTimeout(() => setActionSuccess(""), 3000);
+            },
+            onError: (error: Error) => {
+              setActionError(error.message || "Failed to update user");
+              setTimeout(() => setActionError(""), 5000);
+            },
+          },
+        );
       } else {
         setActionError("No changes detected");
         setTimeout(() => setActionError(""), 3000);
@@ -367,7 +266,26 @@ export default function UsersDashboard() {
       createFormData.email &&
       createFormData.password
     ) {
-      createUserMutation.mutate(createFormData);
+      createUserMutation.mutate(createFormData, {
+        onSuccess: () => {
+          setActionSuccess("User created successfully");
+          setShowCreateModal(false);
+          setCreateFormData({
+            username: "",
+            email: "",
+            password: "",
+            role: "user",
+            isActive: true,
+            isVerified: false,
+            avatarUrl: "",
+          });
+          setTimeout(() => setActionSuccess(""), 3000);
+        },
+        onError: (error: Error) => {
+          setActionError(error.message || "Failed to create user");
+          setTimeout(() => setActionError(""), 5000);
+        },
+      });
     } else {
       setActionError("Username, email, and password are required");
       setTimeout(() => setActionError(""), 5000);
