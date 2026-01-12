@@ -22,22 +22,12 @@ import {
   FileEarmarkText,
   Camera,
 } from 'react-bootstrap-icons';
-import {
-  useQuery,
-  useMutation,
-  useQueryClient
-} from '@tanstack/react-query';
 import CourseCard from '~/components/shared/course-card';
 import type { Course, CourseFormData } from '~/types/course/course';
-import { useAuth } from '~/context/AuthContext';
 import ThumbnailChangeModal from '~/components/AdminDashboard/Courses/change-thumbnail-modal';
-import { apiFetch } from '~/utils/api';
-
-const API_BASE = '/api/admin';
+import { useAdminCourses } from '~/hooks/useAdminCourses';
 
 export default function DashboardCourses() {
-  const { auth } = useAuth();
-  const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
@@ -59,158 +49,42 @@ export default function DashboardCourses() {
     thumbnail: string;
   } | null>(null);
 
-
-  const changeThumbnailMutation = useMutation({
-    mutationFn: async ({ slug, file }: { slug: string; file: File }) => {
-      const formData = new FormData();
-      formData.append('thumbnail', file);
-      formData.append('courseSlug', slug);
-
-      const response = await apiFetch(`${API_BASE}/courses/${slug}/thumbnail`, {
-        method: 'PUT',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update thumbnail');
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      setSuccess('Thumbnail updated successfully!');
-      setShowThumbnailModal(false);
-      setSelectedCourseForThumbnail(null);
-    },
-    onError: (error: Error) => {
-      setError(error.message || 'Failed to update thumbnail');
-    },
-  });
-
-  const handleThumbnailChange = (course: Course) => {
-    setSelectedCourseForThumbnail({
-      slug: course.slug,
-      title: course.title,
-      thumbnail: course.thumbnailURL
-    });
-    setShowThumbnailModal(true);
-  };
-
+  // Use the hook
   const {
-    data: courses = [],
+    courses,
     isLoading,
     isError,
     error: fetchError,
-    refetch
-  } = useQuery({
-    queryKey: ['courses'],
-    queryFn: async () => {
-      const response = await apiFetch(`${API_BASE}/courses`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch courses');
-      }
-      return response.json();
-    },
-    staleTime: 1000 * 60 * 5,
-    retry: 2,
-  });
-
-  const createMutation = useMutation({
-    mutationFn: async (data: CourseFormData) => {
-      const response = await apiFetch(`${API_BASE}/courses`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create course');
-      }
-      return response.json();
-    },
-    onSuccess: (newCourse) => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      setSuccess(`Course "${newCourse.title}" created successfully!`);
+    refetch,
+    createMutation,
+    updateMutation,
+    deleteMutation,
+    togglePublishMutation,
+    changeThumbnailMutation,
+  } = useAdminCourses({
+    onCreateSuccess: (message) => {
+      setSuccess(message);
       handleCloseModal();
     },
-    onError: (error: Error) => {
-      setError(error.message || 'Failed to create course');
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ slug, data }: { slug: string; data: CourseFormData }) => {
-      const response = await apiFetch(`${API_BASE}/courses/${slug}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update course');
-      }
-      return response.json();
-    },
-    onSuccess: (updatedCourse) => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      setSuccess(`Course "${updatedCourse.title}" updated successfully!`);
+    onUpdateSuccess: (message) => {
+      setSuccess(message);
       handleCloseModal();
     },
-    onError: (error: Error) => {
-      setError(error.message || 'Failed to update course');
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (slug: string) => {
-      const response = await apiFetch(`${API_BASE}/courses/${slug}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete course');
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      setSuccess('Course deleted successfully!');
+    onDeleteSuccess: (message) => {
+      setSuccess(message);
       setShowDeleteModal(false);
       setCourseToDelete(null);
     },
-    onError: (error: Error) => {
-      setError(error.message || 'Failed to delete course');
-      setShowDeleteModal(false);
+    onTogglePublishSuccess: (message) => {
+      setSuccess(message);
     },
-  });
-
-  const togglePublishMutation = useMutation({
-    mutationFn: async ({ slug, publish }: { slug: string; publish: boolean }) => {
-      const response = await apiFetch(`${API_BASE}/courses/${slug}/publish`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ isPublished: publish }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to toggle publish status');
-      }
-      return response.json();
+    onThumbnailSuccess: (message) => {
+      setSuccess(message);
+      setShowThumbnailModal(false);
+      setSelectedCourseForThumbnail(null);
     },
-    onSuccess: (toggledCourse) => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      setSuccess(
-        `Course "${toggledCourse.title}" ${toggledCourse.isPublished ? 'published' : 'unpublished'} successfully!`
-      );
-    },
-    onError: (error: Error) => {
-      setError(error.message || 'Failed to toggle publish status');
+    onError: (message) => {
+      setError(message);
     },
   });
 
@@ -295,14 +169,23 @@ export default function DashboardCourses() {
     });
   };
 
-  const filteredCourses = courses.filter((course: { isPublished: any; }) => {
+  const handleThumbnailChange = (course: Course) => {
+    setSelectedCourseForThumbnail({
+      slug: course.slug,
+      title: course.title,
+      thumbnail: course.thumbnailURL
+    });
+    setShowThumbnailModal(true);
+  };
+
+  const filteredCourses = courses.filter((course) => {
     if (filter === 'published') return course.isPublished;
     if (filter === 'draft') return !course.isPublished;
     return true;
   });
 
-  const publishedCourses = courses.filter((c: { isPublished: any; }) => c.isPublished);
-  const draftCourses = courses.filter((c: { isPublished: any; }) => !c.isPublished);
+  const publishedCourses = courses.filter((c) => c.isPublished);
+  const draftCourses = courses.filter((c) => !c.isPublished);
 
   const totalLessons = courses.reduce((acc: number, course: { totalLessons: string; }) => {
     const lessons = parseInt(course.totalLessons) || 0;
@@ -449,10 +332,6 @@ export default function DashboardCourses() {
             currentThumbnail={selectedCourseForThumbnail?.thumbnail || 'default.jpg'}
             courseSlug={selectedCourseForThumbnail?.slug || ''}
             courseTitle={selectedCourseForThumbnail?.title || ''}
-            onThumbnailChange={async (slug: string, file: any) => {
-              await changeThumbnailMutation.mutateAsync({ slug, file });
-              return { success: !changeThumbnailMutation.isError };
-            }}
           />
           <div className="mb-4">
             <div className="border-bottom pb-2">
