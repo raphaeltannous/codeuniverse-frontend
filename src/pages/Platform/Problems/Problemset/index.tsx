@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Activity } from 'react';
 import {
   Container,
   Row,
@@ -24,6 +24,7 @@ import { useUser } from '~/context/UserContext';
 import { apiFetch } from "~/utils/api";
 import ProblemsFilter from '~/components/Shared/ProblemFilter';
 import StatsCard from '~/components/Shared/StatsCard';
+import ProblemsetSkeleton from '~/components/Platform/Problems/ProblemsetSkeleton';
 import type { Problem } from '~/types/problem/problem';
 import type {
   UserProgress,
@@ -250,14 +251,7 @@ export default function PlatformProblemsProblemset() {
   const solvedCount = solvedSlugs.size;
 
   if (isLoading) {
-    return (
-      <Container fluid className="py-4">
-        <div className="text-center py-5">
-          <Spinner animation="border" variant="primary" />
-          <p className="mt-3 text-muted">Loading problems...</p>
-        </div>
-      </Container>
-    );
+    return <ProblemsetSkeleton />;
   }
 
   if (isError) {
@@ -399,7 +393,7 @@ export default function PlatformProblemsProblemset() {
                       <td>
                         {getStatusBadge(problem.slug)}
                         {!solvedSlugs.has(problem.slug) && user && (
-                          <span className="text-muted small ms-2">
+                          <span className="text-muted small">
                             Not solved
                           </span>
                         )}

@@ -172,7 +172,7 @@ export default function UserProfilePage() {
                       <img
                         src={`/api/static/avatars/${profile.avatarUrl}`}
                         alt={`${profile.name || targetUsername} avatar`}
-                        className="rounded shadow"
+                        className="rounded"
                         style={{
                           width: '150px',
                           height: '150px',
@@ -181,7 +181,7 @@ export default function UserProfilePage() {
                       />
                     ) : (
                       <div
-                        className="rounded border bg-primary bg-gradient d-flex align-items-center justify-content-center mx-auto shadow"
+                        className="rounded border bg-primary bg-gradient d-flex align-items-center justify-content-center mx-auto"
                         style={{
                           width: '150px',
                           height: '150px',
@@ -266,7 +266,7 @@ export default function UserProfilePage() {
         </Col>
 
         <Col lg={4}>
-          <Card className="mb-4 shadow-sm border-0">
+          <Card className="mb-4 border-0">
             <Card.Header className="border-0">
               <Card.Title className="mb-0 h6 fw-bold">Activity</Card.Title>
             </Card.Header>
@@ -305,7 +305,7 @@ export default function UserProfilePage() {
             </Card.Body>
           </Card>
 
-          <Card className="shadow-sm border-0">
+          <Card className="border-0">
             <Card.Header className="border-0">
               <Card.Title className="mb-0 h6 fw-bold">Acceptance Rate</Card.Title>
             </Card.Header>

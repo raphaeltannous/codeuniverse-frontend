@@ -386,7 +386,7 @@ export default function DashboardCourses() {
                         <Button
                           variant={course.isPublished ? "warning" : "success"}
                           size="sm"
-                          className="shadow-sm"
+                          className=""
                           onClick={() => togglePublish(course)}
                           disabled={togglePublishMutation.isPending}
                           title={course.isPublished ? "Unpublish" : "Publish"}
@@ -403,7 +403,7 @@ export default function DashboardCourses() {
                         <Button
                           variant="info"
                           size="sm"
-                          className="shadow-sm"
+                          className=""
                           onClick={() => handleEdit(course)}
                           disabled={updateMutation.isPending}
                           title="Edit"
@@ -413,7 +413,7 @@ export default function DashboardCourses() {
                         <Button
                           variant="danger"
                           size="sm"
-                          className="shadow-sm"
+                          className=""
                           onClick={() => handleDelete(course.slug)}
                           disabled={deleteMutation.isPending}
                           title="Delete"
@@ -428,7 +428,7 @@ export default function DashboardCourses() {
                         <Button
                           variant="secondary"
                           size="sm"
-                          className="shadow-sm"
+                          className=""
                           onClick={() => handleThumbnailChange(course)}
                           disabled={changeThumbnailMutation.isPending}
                           title="Change Thumbnail"

@@ -18,7 +18,7 @@ export default function StatsCard({
   const variantClass = `border-${variant} border-start border-${variant} border-4`;
 
   return (
-    <Card className={`h-100 shadow-sm ${variantClass}`}>
+    <Card className={`h-100 ${variantClass}`}>
       <Card.Body>
         <div className="d-flex justify-content-between align-items-start mb-3">
           <div>

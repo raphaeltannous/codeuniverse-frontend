@@ -33,7 +33,7 @@ export default function SubmissionCard({ submission }: SubmissionProps) {
   };
 
   return (
-    <Card className="mb-3 shadow-sm">
+    <Card className="mb-3">
       <Card.Header>
         <Row className="align-items-center mb-2">
           <Col>

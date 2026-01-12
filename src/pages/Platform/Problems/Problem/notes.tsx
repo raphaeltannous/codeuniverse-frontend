@@ -53,7 +53,7 @@ export default function ProblemNotes({ problem }: ProblemNotesProps) {
 
   return (
     <div>
-      <Card className="shadow-sm mb-3">
+      <Card className="mb-3">
         <Card.Header as="h5">
           <Row className="align-items-center">
             <Col className="d-flex align-items-center gap-2">

@@ -45,7 +45,7 @@ export default function PlatformAccountsLoginMFA() {
 
   return (
     <Container className="center-content-between-header-footer">
-      <div className="p-4 m-2 shadow platform-signup rounded-4 bg-body-secondary">
+      <div className="p-4 m-2 platform-signup rounded-4 bg-body-secondary">
         <div className="text-center mb-4">
           <Image src={logo} width={60} height={60} alt="Logo" />
           <h5 className="mt-2">MFA Verification</h5>

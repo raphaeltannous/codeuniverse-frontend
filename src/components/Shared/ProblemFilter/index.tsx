@@ -27,7 +27,6 @@ interface ProblemsFilterProps {
 export default function ProblemsFilter({
   filters,
   appliedFilters,
-  showOnlyPremium,
   appliedShowOnlyPremium,
   total,
   page,
@@ -39,7 +38,6 @@ export default function ProblemsFilter({
   onSortByChange,
   onSortOrderChange,
   showAdminFilters = false,
-  visibilityFilter = 'all',
   appliedVisibilityFilter = 'all',
   onVisibilityFilterChange,
 }: ProblemsFilterProps) {
@@ -53,12 +51,9 @@ export default function ProblemsFilter({
 
   return (
     <Form onSubmit={onSearch}>
-      <Row className="g-3">
+      <Row className="g-2">
         <Col md={showAdminFilters ? 3 : 4}>
           <InputGroup>
-            <InputGroup.Text>
-              <Search size={18} />
-            </InputGroup.Text>
             <Form.Control
               type="search"
               placeholder="Search problems..."
@@ -69,8 +64,9 @@ export default function ProblemsFilter({
               type="submit"
               variant={hasSearchChanged() ? 'primary' : 'secondary'}
               disabled={!hasSearchChanged()}
+              className="d-flex align-items-center gap-2"
             >
-              Search
+              <Search size={18} />
             </Button>
           </InputGroup>
         </Col>
@@ -144,9 +140,9 @@ export default function ProblemsFilter({
 
       <Row className="mt-3">
         <Col>
-          <div className="d-flex justify-content-between align-items-center">
+          <div className="d-flex justify-content-center align-items-center">
             <div className="d-flex gap-2">
-              <Badge bg="light" text="dark" className="px-3 py-2">
+              <Badge className="px-3 py-2">
                 {total} problems • Page {page} of {totalPages}
               </Badge>
               {(appliedFilters.search ||

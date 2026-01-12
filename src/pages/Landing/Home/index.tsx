@@ -94,7 +94,7 @@ const LandingHome: React.FC = () => {
               </div>
             </Col>
             <Col lg={6}>
-              <div className="rounded shadow">
+              <div className="rounded">
                 <div className="p-2 rounded-top">
                   <div className="d-flex justify-content-between align-items-center">
                     <span className="px-1 text-muted">main.go</span>

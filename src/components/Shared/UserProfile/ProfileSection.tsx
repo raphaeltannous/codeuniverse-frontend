@@ -14,7 +14,7 @@ export default function ProfileSection({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="mb-4 shadow-sm border-0">
+    <Card className="mb-4 border-0">
       <Card.Header className="border-0 d-flex justify-content-between align-items-center py-3 px-4">
         <Card.Title className="mb-0 h5 fw-bold">{title}</Card.Title>
         <Activity mode={showEdit && onEdit ? "visible" : "hidden"}>

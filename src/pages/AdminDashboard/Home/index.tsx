@@ -175,7 +175,7 @@ export default function DashboardHome() {
 
       <Row className="g-3 mb-4">
         <Col lg={8}>
-          <Card className="h-100 shadow-sm">
+          <Card className="h-100">
             <Card.Header className="d-flex justify-content-between align-items-center">
               <div>
                 <Card.Title className="h6 mb-0">Submission Activity</Card.Title>
@@ -204,7 +204,7 @@ export default function DashboardHome() {
         </Col>
 
         <Col lg={4}>
-          <Card className="h-100 shadow-sm">
+          <Card className="h-100">
             <Card.Header>
               <Card.Title className="h6 mb-0">Problem Distribution</Card.Title>
             </Card.Header>
@@ -246,7 +246,7 @@ export default function DashboardHome() {
 
       <Row className="g-3 mb-4">
         <Col md={3}>
-          <Card className="h-100 shadow-sm">
+          <Card className="h-100">
             <Card.Body className="text-center">
               <div className="mb-3">
                 <PersonCircle size={32} className="text-success" />
@@ -261,7 +261,7 @@ export default function DashboardHome() {
         </Col>
 
         <Col md={3}>
-          <Card className="h-100 shadow-sm">
+          <Card className="h-100">
             <Card.Body className="text-center">
               <div className="mb-3">
                 <HourglassSplit size={32} className="text-warning" />
@@ -276,7 +276,7 @@ export default function DashboardHome() {
         </Col>
 
         <Col md={3}>
-          <Card className="h-100 shadow-sm">
+          <Card className="h-100">
             <Card.Body className="text-center">
               <div className="mb-3">
                 <Calendar size={32} className="text-info" />
@@ -291,7 +291,7 @@ export default function DashboardHome() {
         </Col>
 
         <Col md={3}>
-          <Card className="h-100 shadow-sm">
+          <Card className="h-100">
             <Card.Body className="text-center">
               <div className="mb-3">
                 <PersonPlus size={32} className="text-primary" />
