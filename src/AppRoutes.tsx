@@ -14,7 +14,6 @@ import PlatformAccountsEmailVerification from "./pages/Platform/Accounts/EmailVe
 import PlatformProblems from "./pages/Platform/Problems";
 import PlatformProblemsProblemset from "./pages/Platform/Problems/Problemset";
 import PlatformProblemsProblem from "./pages/Platform/Problems/Problem";
-import { authMiddleware } from "./middlewares/authentication";
 import { guestOnly } from "./middlewares/guestonly";
 import PlatformAccountsLogout from "./pages/Platform/Accounts/Logout";
 import CoursesList from "./pages/Platform/Courses/CoursesList";
@@ -67,7 +66,7 @@ const AppRoutes = createBrowserRouter(
           element: <PlatformProblems />,
           children: [
             { index: true, element: <PlatformProblemsProblemset /> },
-            { path: ":problemSlug", middleware: [authMiddleware], element: <PlatformProblemsProblem /> }
+            { path: ":problemSlug",  element: <PlatformProblemsProblem /> }
           ]
         },
         {
@@ -75,11 +74,11 @@ const AppRoutes = createBrowserRouter(
           element: <PlatformCourses />,
           children: [
             { index: true, element: <CoursesList /> },
-            { path: ":courseSlug", middleware: [authMiddleware], element: <CourseLessonsPagee /> }
+            { path: ":courseSlug",  element: <CourseLessonsPagee /> }
           ],
         },
         {
-          path: "/profile", middleware: [authMiddleware], element: <UserProfilePage />
+          path: "/profile",  element: <UserProfilePage />
         },
         {
           path: "/users/:username", element: <UserProfilePage />
@@ -89,7 +88,7 @@ const AppRoutes = createBrowserRouter(
 
     {
       path: "/dashboard",
-      middleware: [authMiddleware],
+      
       element: <DashboardLayout />,
       children: [
         { index: true, element: <DashboardHome /> },

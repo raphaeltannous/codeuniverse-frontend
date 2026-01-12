@@ -1,15 +1,17 @@
 import { redirect, type MiddlewareFunction } from "react-router";
+import { apiFetch } from "~/utils/api";
 
 export const guestOnly: MiddlewareFunction = async ({ request }) => {
-  const auth = JSON.parse(localStorage.getItem("auth") ?? "{}");
-  const path = new URL(request.url).pathname;
+  try {
+    const res = await apiFetch("/api/auth/status", {
+      method: "GET",
+    });
 
-  if (auth.isAuthenticated) {
-    throw redirect("/problems");
-  }
-
-  if (auth.mfaPending && path !== "/accounts/login/mfa") {
-    throw redirect("/accounts/login/mfa");
+    if (res.ok) {
+      throw redirect("/problems");
+    }
+  } catch (error) {
+    if (error instanceof Response) throw error;
   }
 
   return null;
