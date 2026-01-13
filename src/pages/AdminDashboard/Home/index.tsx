@@ -23,6 +23,7 @@ import {
   HourglassSplit,
 } from 'react-bootstrap-icons';
 import DashboardStatsCard from '~/components/AdminDashboard/Home/DashboardStatsCard';
+import DashboardInfoCard from '~/components/AdminDashboard/Home/DashboardInfoCard';
 import ActivityFeed from '~/components/AdminDashboard/Home/ActivityFeed';
 import SubmissionChart from '~/components/AdminDashboard/Home/SubmissionChart';
 import DashboardSkeleton from '~/components/AdminDashboard/Home/DashboardSkeleton';
@@ -236,63 +237,47 @@ export default function AdminDashboardHome() {
 
       <Row className="g-3 mb-4">
         <Col md={3}>
-          <Card className="h-100">
-            <Card.Body className="text-center">
-              <div className="mb-3">
-                <PersonCircle size={32} className="text-success" />
-              </div>
-              <h3 className="h4 mb-1">{stats.totalAdmins.toLocaleString()}</h3>
-              <p className="text-muted mb-0">Administrators</p>
-              <Badge bg="success" className="mt-2">
-                {Math.round((stats.totalAdmins / stats.totalUsers) * 100)}% of users
-              </Badge>
-            </Card.Body>
-          </Card>
+          <DashboardInfoCard
+            icon={PersonCircle}
+            iconColor="text-success"
+            value={stats.totalAdmins.toLocaleString()}
+            label="Administrators"
+            badgeColor="success"
+            badgeText={`${Math.round((stats.totalAdmins / stats.totalUsers) * 100)}% of users`}
+          />
         </Col>
 
         <Col md={3}>
-          <Card className="h-100">
-            <Card.Body className="text-center">
-              <div className="mb-3">
-                <HourglassSplit size={32} className="text-warning" />
-              </div>
-              <h3 className="h4 mb-1">{stats.pendingSubmissions.toLocaleString()}</h3>
-              <p className="text-muted mb-0">Pending Submissions</p>
-              <Badge bg="warning" className="mt-2">
-                {Math.round((stats.pendingSubmissions / stats.totalSubmissions) * 100)}% of total
-              </Badge>
-            </Card.Body>
-          </Card>
+          <DashboardInfoCard
+            icon={HourglassSplit}
+            iconColor="text-warning"
+            value={stats.pendingSubmissions.toLocaleString()}
+            label="Pending Submissions"
+            badgeColor="warning"
+            badgeText={`${Math.round((stats.pendingSubmissions / stats.totalSubmissions) * 100)}% of total`}
+          />
         </Col>
 
         <Col md={3}>
-          <Card className="h-100">
-            <Card.Body className="text-center">
-              <div className="mb-3">
-                <Calendar size={32} className="text-info" />
-              </div>
-              <h3 className="h4 mb-1">{stats.submissionsLast30d.toLocaleString()}</h3>
-              <p className="text-muted mb-0">Submissions (Last 30 days)</p>
-              <Badge bg="info" className="mt-2">
-                {Math.round((stats.submissionsLast30d / stats.totalSubmissions) * 100)}% of total
-              </Badge>
-            </Card.Body>
-          </Card>
+          <DashboardInfoCard
+            icon={Calendar}
+            iconColor="text-info"
+            value={stats.submissionsLast30d.toLocaleString()}
+            label="Submissions (Last 30 days)"
+            badgeColor="info"
+            badgeText={`${Math.round((stats.submissionsLast30d / stats.totalSubmissions) * 100)}% of total`}
+          />
         </Col>
 
         <Col md={3}>
-          <Card className="h-100">
-            <Card.Body className="text-center">
-              <div className="mb-3">
-                <PersonPlus size={32} className="text-primary" />
-              </div>
-              <h3 className="h4 mb-1">{stats.totalUsersRegisteredLast7d.toLocaleString()}</h3>
-              <p className="text-muted mb-0">New Users (Last 7 days)</p>
-              <Badge bg="primary" className="mt-2">
-                {Math.round((stats.totalUsersRegisteredLast7d / stats.totalUsers) * 100)}% of total
-              </Badge>
-            </Card.Body>
-          </Card>
+          <DashboardInfoCard
+            icon={PersonPlus}
+            iconColor="text-primary"
+            value={stats.totalUsersRegisteredLast7d.toLocaleString()}
+            label="New Users (Last 7 days)"
+            badgeColor="primary"
+            badgeText={`${Math.round((stats.totalUsersRegisteredLast7d / stats.totalUsers) * 100)}% of total`}
+          />
         </Col>
       </Row>
 
