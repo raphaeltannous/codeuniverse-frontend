@@ -1,50 +1,28 @@
 import { Outlet } from "react-router";
 import AdminDashboardHeaderComponent from "~/components/AdminDashboard/Header";
+import DashboardSkeleton from "~/components/AdminDashboard/Home/DashboardSkeleton";
+import UnauthorizedPage from "~/pages/AdminDashboard/Unauthorized";
 import { useUser } from "~/context/UserContext";
+import { Activity } from "react";
 
 export default function DashboardLayout() {
-  const { user, isLoading, error } = useUser();
+  const { user, isLoading } = useUser();
 
-  if (isLoading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center min-vh-100">
-        Loading...
-      </div>
-    );
+  if (!isLoading && user?.role !== "admin") {
+    return <UnauthorizedPage />;
   }
-
-  if (error) {
-    return (
-      <div className="container py-5">
-        <div className="alert alert-danger">
-          <h4>Error Loading User Data</h4>
-          <p>{error.message}</p>
-          <button
-            className="btn btn-primary"
-            onClick={() => window.location.href = "/login"}
-          >
-            Return to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (user?.role !== "admin") {
-    return (
-      <div>
-        Unauthorized.
-      </div>
-    )
-  }
-
 
   return (
     <div className="d-flex flex-column min-vh-100">
       <AdminDashboardHeaderComponent />
 
       <main className="flex-grow-1">
-        <Outlet />
+        <Activity mode={isLoading ? "visible" : "hidden"}>
+          <DashboardSkeleton />
+        </Activity>
+        <Activity mode={isLoading ? "hidden" : "visible"}>
+          <Outlet />
+        </Activity>
       </main>
 
     </div>
