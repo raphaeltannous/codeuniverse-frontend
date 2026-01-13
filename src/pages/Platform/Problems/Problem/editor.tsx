@@ -55,8 +55,8 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
 
   if (!problem) return <>Problem not found</>;
 
-  const showRunChecking = !!runId && !isCompleted(runStatusQuery.data?.status);
-  const showRunResult = !!runId && isCompleted(runStatusQuery.data?.status);
+  const showRunChecking = !!runId && !isCompleted(runStatusQuery.data?.status ?? ResultStatus.Pending);
+  const showRunResult = !!runId && isCompleted(runStatusQuery.data?.status ?? ResultStatus.Pending);
   const showSubmitChecking =
     !!submissionStatusQuery.data &&
     !isCompleted(submissionStatusQuery.data.status);
@@ -129,7 +129,7 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
           {showRunChecking && <StatusRow title="Running..." />}
           {showRunResult && (
             <StatusRow
-              title={runStatusQuery.data?.status}
+              title={runStatusQuery.data?.status ?? "Unknown Result"}
               status={runStatusQuery.data?.status}
               stdout={runStatusQuery.data?.stdOut}
               stderr={runStatusQuery.data?.stdErr}
@@ -177,7 +177,7 @@ function StatusRow({
   stderr,
   failedTestcases,
 }: {
-  title: string;
+  title: ResultStatus | string;
   status?: ResultStatus;
   stdout?: string;
   stderr?: string;
@@ -193,12 +193,12 @@ function StatusRow({
           {status === "Accepted" && (
             <FaCheckCircle className="text-success" size="1.5em" />
           )}
-          {[
+          {status && [
             ResultStatus.Failed,
             ResultStatus.CompileError,
             ResultStatus.TimeLimitExceeded,
             ResultStatus.InternalServerError,
-          ].includes(status) && (
+          ].includes(status as any) && (
             <FaTimesCircle className="text-danger" size="1.5em" />
           )}
           {!status && <Spinner animation="border" variant="warning" />}

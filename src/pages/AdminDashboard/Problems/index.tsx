@@ -830,7 +830,7 @@ export default function ProblemsDashboard() {
       </Row>
 
       {/* Filters and Search */}
-      <Card className="border-0 shadow-sm mb-4">
+      <Card className="border-0 mb-4">
         <Card.Body>
           <ProblemsFilter
             filters={filters}
@@ -855,7 +855,7 @@ export default function ProblemsDashboard() {
       </Card>
 
       {/* Problems Table */}
-      <Card className="border-0 shadow-sm">
+      <Card className="border-0">
         <Card.Body className="p-0">
           <div className="table-responsive">
             <Table hover className="mb-0">

@@ -999,7 +999,7 @@ export default function EditProblemPage() {
       </div>
 
       {/* Tabs */}
-      <Card className="border-0 shadow-sm mb-4">
+      <Card className="border-0 mb-4">
         <Card.Body className="p-0">
           <Tabs
             activeKey={activeTab}

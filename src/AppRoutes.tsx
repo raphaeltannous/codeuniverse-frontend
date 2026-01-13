@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import DashboardLayout from "./layouts/AdminDashboard";
-import DashboardHome from "./pages/AdminDashboard/Home";
+import AdminDashboardHome from "./pages/AdminDashboard/Home";
 import LandingLayout from "./layouts/Landing";
 import LandingHome from "./pages/Landing/Home";
 import PlatformLayout from "./layouts/Platform";
@@ -91,7 +91,7 @@ const AppRoutes = createBrowserRouter(
       
       element: <DashboardLayout />,
       children: [
-        { index: true, element: <DashboardHome /> },
+        { index: true, element: <AdminDashboardHome /> },
         { path: "users", element: <UsersDashboard /> },
         {
           path: "courses",

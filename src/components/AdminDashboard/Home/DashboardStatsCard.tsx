@@ -1,16 +1,17 @@
 import { Card } from "react-bootstrap";
+import type { Icon } from "react-bootstrap-icons";
 
-export default function StatsCard({
+export default function DashboardStatsCard({
   title,
   value,
-  icon,
+  icon: IconComponent,
   subtitle,
   change,
   variant = 'primary'
 }: {
   title: string;
   value: string | number;
-  icon: React.ReactNode;
+  icon: Icon;
   subtitle?: string;
   change?: string;
   variant?: 'primary' | 'success' | 'info' | 'warning' | 'danger';
@@ -26,7 +27,7 @@ export default function StatsCard({
             <h2 className="mb-0">{value}</h2>
           </div>
           <div className={`avatar-title text-${variant} rounded`}>
-            {icon}
+            <IconComponent size={32} />
           </div>
         </div>
 

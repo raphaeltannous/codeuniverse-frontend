@@ -4,7 +4,6 @@ import {
   Row,
   Col,
   Card,
-  Spinner,
   Alert,
   Button,
   Badge,
@@ -23,12 +22,13 @@ import {
   PersonPlus,
   HourglassSplit,
 } from 'react-bootstrap-icons';
-import StatsCard from '~/components/AdminDashboard/Home/stats-card';
-import ActivityFeed from '~/components/AdminDashboard/Home/activity-feed';
-import SubmissionChart from '~/components/AdminDashboard/Home/submissions-chart';
+import DashboardStatsCard from '~/components/AdminDashboard/Home/DashboardStatsCard';
+import ActivityFeed from '~/components/AdminDashboard/Home/ActivityFeed';
+import SubmissionChart from '~/components/AdminDashboard/Home/SubmissionChart';
+import DashboardSkeleton from '~/components/AdminDashboard/Home/DashboardSkeleton';
 import { useDashboardStats } from '~/hooks/useDashboardStats';
 
-export default function DashboardHome() {
+export default function AdminDashboardHome() {
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('7d');
 
   const {
@@ -43,16 +43,7 @@ export default function DashboardHome() {
   } = useDashboardStats({ timeRange });
 
   if (statsLoading) {
-    return (
-      <Container className="py-5">
-        <Row className="justify-content-center">
-          <Col md={6} className="text-center">
-            <Spinner animation="border" variant="primary" />
-            <p className="mt-3 text-muted">Loading dashboard...</p>
-          </Col>
-        </Row>
-      </Container>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (statsError) {
@@ -136,37 +127,37 @@ export default function DashboardHome() {
 
       <Row className="g-3 mb-4">
         <Col md={3}>
-          <StatsCard
+          <DashboardStatsCard
             title="Total Users"
             value={stats.totalUsers.toLocaleString()}
-            icon={<People className="text-primary" size={24} />}
+            icon={People}
             change={`+${stats.totalUsersRegisteredLast7d.toLocaleString()} this week`}
             variant="primary"
           />
         </Col>
         <Col md={3}>
-          <StatsCard
+          <DashboardStatsCard
             title="Total Problems"
             value={stats.totalProblems.toLocaleString()}
-            icon={<FileCode className="text-success" size={24} />}
+            icon={FileCode}
             subtitle={`${stats.easyProblems} Easy • ${stats.mediumProblems} Medium • ${stats.hardProblems} Hard`}
             variant="success"
           />
         </Col>
         <Col md={3}>
-          <StatsCard
+          <DashboardStatsCard
             title="Total Submissions"
             value={stats.totalSubmissions.toLocaleString()}
-            icon={<CheckCircle className="text-info" size={24} />}
+            icon={CheckCircle}
             change={`+${submissionCount.toLocaleString()} last ${timeRange}`}
             variant="info"
           />
         </Col>
         <Col md={3}>
-          <StatsCard
+          <DashboardStatsCard
             title="Acceptance Rate"
             value={`${stats.acceptanceRate.toFixed(2)}%`}
-            icon={<GraphUp className="text-warning" size={24} />}
+            icon={GraphUp}
             subtitle={`${stats.acceptedSubmissions.toLocaleString()} accepted`}
             variant="warning"
           />
@@ -188,7 +179,6 @@ export default function DashboardHome() {
             <Card.Body>
               {trendsLoading ? (
                 <div className="text-center py-5">
-                  <Spinner animation="border" size="sm" />
                   <p className="mt-2 text-muted">Loading chart...</p>
                 </div>
               ) : submissionTrends && submissionTrends.length > 0 ? (
