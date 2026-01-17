@@ -30,7 +30,7 @@ interface UploadResponse {
   message: string;
 }
 
-export default function ThumbnailChangeModal({
+export default function CourseThumbnailChangeModal({
   show,
   onClose,
   courseSlug,

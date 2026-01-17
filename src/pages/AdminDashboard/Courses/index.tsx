@@ -1,31 +1,26 @@
-import { useState } from 'react';
+import { useState, Activity } from 'react';
 import {
   Container,
   Row,
   Col,
   Button,
-  Modal,
-  Form,
-  Alert,
-  Badge,
-  Card,
-  Spinner
+  Spinner,
 } from 'react-bootstrap';
 import {
-  Pencil,
-  Trash,
   Plus,
   Eye,
   EyeSlash,
   Book,
   ListTask,
-  FileEarmarkText,
-  Camera,
 } from 'react-bootstrap-icons';
-import CourseCard from '~/components/Shared/CourseCard';
 import StatsCard from '~/components/Shared/StatsCard';
+import CoursesList from '~/components/AdminDashboard/Courses/CoursesList';
+import { useNotification } from '~/hooks/useNotification';
+import CoursesSkeleton from '~/components/AdminDashboard/Courses/CoursesSkeleton';
+import CourseThumbnailChangeModal from '~/components/AdminDashboard/Courses/CourseThumbnailChangeModal';
+import CourseFormModal from '~/components/AdminDashboard/Courses/CourseFormModal';
+import CourseDeleteModal from '~/components/AdminDashboard/Courses/CourseDeleteModal';
 import type { Course, CourseFormData } from '~/types/course/course';
-import ThumbnailChangeModal from '~/components/AdminDashboard/Courses/change-thumbnail-modal';
 import { useAdminCourses } from '~/hooks/useAdminCourses';
 
 export default function DashboardCourses() {
@@ -50,7 +45,8 @@ export default function DashboardCourses() {
     thumbnail: string;
   } | null>(null);
 
-  // Use the hook
+  const notification = useNotification();
+
   const {
     courses,
     isLoading,
@@ -64,28 +60,28 @@ export default function DashboardCourses() {
     changeThumbnailMutation,
   } = useAdminCourses({
     onCreateSuccess: (message) => {
-      setSuccess(message);
+      notification.success(message);
       handleCloseModal();
     },
     onUpdateSuccess: (message) => {
-      setSuccess(message);
+      notification.success(message);
       handleCloseModal();
     },
     onDeleteSuccess: (message) => {
-      setSuccess(message);
+      notification.success(message);
       setShowDeleteModal(false);
       setCourseToDelete(null);
     },
     onTogglePublishSuccess: (message) => {
-      setSuccess(message);
+      notification.success(message);
     },
     onThumbnailSuccess: (message) => {
-      setSuccess(message);
+      notification.success(message);
       setShowThumbnailModal(false);
       setSelectedCourseForThumbnail(null);
     },
     onError: (message) => {
-      setError(message);
+      notification.error(message);
     },
   });
 
@@ -107,16 +103,14 @@ export default function DashboardCourses() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
 
     if (!formData.title.trim()) {
-      setError('Course title is required');
+      notification.error('Course title is required');
       return;
     }
 
     if (!formData.slug.trim()) {
-      setError('Course slug is required');
+      notification.error('Course slug is required');
       return;
     }
 
@@ -160,7 +154,6 @@ export default function DashboardCourses() {
       difficulty: 'Beginner',
       isPublished: false,
     });
-    setError('');
   };
 
   const togglePublish = (course: Course) => {
@@ -226,407 +219,115 @@ export default function DashboardCourses() {
       </div>
 
       {isError && (
-        <Alert variant="danger" className="mb-4">
-          <div className="d-flex justify-content-between align-items-center">
-            <div>
-              <strong>Error loading courses:</strong> {fetchError?.message || 'Unknown error'}
-            </div>
-            <Button
-              variant="outline-danger"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isLoading}
-            >
-              Retry
-            </Button>
+        <div className="alert alert-danger d-flex justify-content-between align-items-center mb-4" role="alert">
+          <div>
+            <strong>Error loading courses:</strong> {fetchError?.message || 'Unknown error'}
           </div>
-        </Alert>
-      )}
-
-      {success && (
-        <Alert variant="success" dismissible onClose={() => setSuccess('')} className="mb-4">
-          <div className="d-flex align-items-center">
-            <span className="me-2">✓</span>
-            <span>{success}</span>
-          </div>
-        </Alert>
-      )}
-
-      {error && (
-        <Alert variant="danger" dismissible onClose={() => setError('')} className="mb-4">
-          <div className="d-flex align-items-center">
-            <span className="me-2">⚠</span>
-            <span>{error}</span>
-          </div>
-        </Alert>
-      )}
-
-      {isLoading ? (
-        <div className="text-center py-5">
-          <Spinner animation="border" variant="primary" />
-          <p className="mt-3 text-muted">Loading courses...</p>
+          <Button
+            variant="outline-danger"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isLoading}
+          >
+            Retry
+          </Button>
         </div>
-      ) : (
-        <>
-          <Row className="mb-4">
-            <Col md={3} sm={6}>
-              <StatsCard
-                icon={Book}
-                iconColor="text-primary"
-                bgColorClass="bg-primary"
-                value={courses.length}
-                label="Total Courses"
-              />
-            </Col>
-            <Col md={3} sm={6}>
-              <StatsCard
-                icon={Eye}
-                iconColor="text-success"
-                bgColorClass="bg-success"
-                value={publishedCourses.length}
-                label="Published"
-              />
-            </Col>
-            <Col md={3} sm={6}>
-              <StatsCard
-                icon={EyeSlash}
-                iconColor="text-warning"
-                bgColorClass="bg-warning"
-                value={draftCourses.length}
-                label="Drafts"
-              />
-            </Col>
-            <Col md={3} sm={6}>
-              <StatsCard
-                icon={ListTask}
-                iconColor="text-info"
-                bgColorClass="bg-info"
-                value={totalLessons}
-                label="Total Lessons"
-              />
-            </Col>
-          </Row>
-
-
-          <ThumbnailChangeModal
-            show={showThumbnailModal}
-            onClose={() => {
-              setShowThumbnailModal(false);
-              setSelectedCourseForThumbnail(null);
-            }}
-            currentThumbnail={selectedCourseForThumbnail?.thumbnail || 'default.jpg'}
-            courseSlug={selectedCourseForThumbnail?.slug || ''}
-            courseTitle={selectedCourseForThumbnail?.title || ''}
-          />
-          <div className="mb-4">
-            <div className="border-bottom pb-2">
-              <div className="d-flex justify-content-between align-items-center">
-                <div className="btn-group" role="group">
-                  <Button
-                    variant={filter === 'all' ? 'primary' : 'outline-primary'}
-                    onClick={() => setFilter('all')}
-                    size="sm"
-                  >
-                    All Courses ({courses.length})
-                  </Button>
-                  <Button
-                    variant={filter === 'published' ? 'primary' : 'outline-primary'}
-                    onClick={() => setFilter('published')}
-                    size="sm"
-                  >
-                    Published ({publishedCourses.length})
-                  </Button>
-                  <Button
-                    variant={filter === 'draft' ? 'primary' : 'outline-primary'}
-                    onClick={() => setFilter('draft')}
-                    size="sm"
-                  >
-                    Drafts ({draftCourses.length})
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {filteredCourses.length === 0 ? (
-            <Card className="border-dashed border-2 text-center py-5">
-              <Card.Body>
-                <FileEarmarkText size={48} className="text-muted mb-3" />
-                <h5 className="mb-2">No courses found</h5>
-                <p className="text-muted mb-3">
-                  {filter === 'published'
-                    ? 'No published courses yet. Publish a course to see it here.'
-                    : filter === 'draft'
-                      ? 'No draft courses. Create a new course to get started.'
-                      : 'No courses available. Create your first course!'}
-                </p>
-                <Button
-                  variant="primary"
-                  onClick={() => setShowModal(true)}
-                  disabled={createMutation.isPending}
-                >
-                  <Plus size={18} className="me-2" />
-                  Create Your First Course
-                </Button>
-              </Card.Body>
-            </Card>
-          ) : (
-            <Row xs={1} md={2} lg={3} xl={4} className="g-4">
-              {filteredCourses.map((course: Course) => (
-                <Col key={course.id}>
-                  <div className="position-relative h-100">
-                    <CourseCard
-                      {...course}
-                      completionPercentage={0}
-                      buttonLink={`/dashboard/courses/${course.slug}`}
-                      buttonText="Edit Course"
-                    />
-                    <div className="position-absolute top-0 start-0 m-2">
-                      <div className="d-flex flex-column gap-1">
-                        <Button
-                          variant={course.isPublished ? "warning" : "success"}
-                          size="sm"
-                          className=""
-                          onClick={() => togglePublish(course)}
-                          disabled={togglePublishMutation.isPending}
-                          title={course.isPublished ? "Unpublish" : "Publish"}
-                        >
-                          {togglePublishMutation.variables?.slug === course.slug &&
-                            togglePublishMutation.isPending ? (
-                            <Spinner animation="border" size="sm" />
-                          ) : course.isPublished ? (
-                            <EyeSlash size={12} />
-                          ) : (
-                            <Eye size={12} />
-                          )}
-                        </Button>
-                        <Button
-                          variant="info"
-                          size="sm"
-                          className=""
-                          onClick={() => handleEdit(course)}
-                          disabled={updateMutation.isPending}
-                          title="Edit"
-                        >
-                          <Pencil size={12} />
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          className=""
-                          onClick={() => handleDelete(course.slug)}
-                          disabled={deleteMutation.isPending}
-                          title="Delete"
-                        >
-                          {deleteMutation.variables === course.slug &&
-                            deleteMutation.isPending ? (
-                            <Spinner animation="border" size="sm" />
-                          ) : (
-                            <Trash size={12} />
-                          )}
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className=""
-                          onClick={() => handleThumbnailChange(course)}
-                          disabled={changeThumbnailMutation.isPending}
-                          title="Change Thumbnail"
-                        >
-                          <Camera size={12} />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="position-absolute bottom-0 start-0 m-2">
-                      <Badge
-                        bg={course.isPublished ? "success" : "secondary"}
-                        className="px-2 py-1"
-                      >
-                        {course.isPublished ? "Published" : "Draft"}
-                      </Badge>
-                    </div>
-                  </div>
-                </Col>
-              ))}
-            </Row>
-          )}
-        </>
       )}
 
-      <Modal
+      <Row className="mb-4">
+        <Col md={3} sm={6}>
+          <StatsCard
+            icon={Book}
+            iconColor="text-primary"
+            bgColorClass="bg-primary"
+            value={courses.length}
+            label="Total Courses"
+            isLoading={isLoading}
+          />
+        </Col>
+        <Col md={3} sm={6}>
+          <StatsCard
+            icon={Eye}
+            iconColor="text-success"
+            bgColorClass="bg-success"
+            value={publishedCourses.length}
+            label="Published"
+            isLoading={isLoading}
+          />
+        </Col>
+        <Col md={3} sm={6}>
+          <StatsCard
+            icon={EyeSlash}
+            iconColor="text-warning"
+            bgColorClass="bg-warning"
+            value={draftCourses.length}
+            label="Drafts"
+            isLoading={isLoading}
+          />
+        </Col>
+        <Col md={3} sm={6}>
+          <StatsCard
+            icon={ListTask}
+            iconColor="text-info"
+            bgColorClass="bg-info"
+            value={totalLessons}
+            label="Total Lessons"
+            isLoading={isLoading}
+          />
+        </Col>
+      </Row>
+
+      <Activity mode={isLoading ? "visible" : "hidden"}>
+        <CoursesSkeleton />
+      </Activity> 
+      <Activity mode={isLoading ? "hidden" : "visible"}>
+        <CoursesList
+          filteredCourses={filteredCourses}
+          filter={filter}
+          courses={courses}
+          onFilterChange={(key) => setFilter(key as 'all' | 'published' | 'draft')}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onTogglePublish={togglePublish}
+          onThumbnailChange={handleThumbnailChange}
+          onCreateNew={() => setShowModal(true)}
+          togglePublishPending={togglePublishMutation.isPending}
+          togglePublishVariables={togglePublishMutation.variables}
+          updateMutationPending={updateMutation.isPending}
+          deleteMutationPending={deleteMutation.isPending}
+          deleteMutationVariables={deleteMutation.variables}
+          changeThumbnailMutationPending={changeThumbnailMutation.isPending}
+        />
+      </Activity>
+    
+      <CourseThumbnailChangeModal
+        show={showThumbnailModal}
+        onClose={() => {
+          setShowThumbnailModal(false);
+          setSelectedCourseForThumbnail(null);
+        }}
+        currentThumbnail={selectedCourseForThumbnail?.thumbnail || 'default.jpg'}
+        courseSlug={selectedCourseForThumbnail?.slug || ''}
+        courseTitle={selectedCourseForThumbnail?.title || ''}
+      />
+      <CourseFormModal
         show={showModal}
-        onHide={handleCloseModal}
-        size="lg"
-        centered
-        backdrop={createMutation.isPending || updateMutation.isPending ? 'static' : true}
-      >
-        <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title className="h4 fw-bold">
-            {editingCourse ? 'Edit Course' : 'Create New Course'}
-          </Modal.Title>
-        </Modal.Header>
-        <Form onSubmit={handleSubmit}>
-          <Modal.Body className="py-3">
-            <Row>
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">
-                    Course Title <span className="text-danger">*</span>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="e.g., Data Structures Fundamentals"
-                    className="py-2"
-                    disabled={createMutation.isPending || updateMutation.isPending}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Row className="mt-3">
-              <Col md={9}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">
-                    Slug <span className="text-danger">*</span>
-                  </Form.Label>
-                  <div className="input-group">
-                    <Form.Control
-                      type="text"
-                      name="slug"
-                      value={formData.slug}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="data-structures"
-                      className="py-2"
-                      disabled={createMutation.isPending || updateMutation.isPending}
-                    />
-                    <Button
-                      variant="outline-secondary"
-                      onClick={handleSlugGenerate}
-                      type="button"
-                      className="d-flex align-items-center"
-                      disabled={createMutation.isPending || updateMutation.isPending}
-                    >
-                      Generate
-                    </Button>
-                  </div>
-                </Form.Group>
-              </Col>
-
-              <Col md={3}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">Difficulty Level</Form.Label>
-                  <Form.Select
-                    name="difficulty"
-                    value={formData.difficulty}
-                    onChange={handleInputChange}
-                    className="py-2"
-                    disabled={createMutation.isPending || updateMutation.isPending}
-                  >
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                    <option value="Expert">Expert</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-
-            </Row>
-
-            <Form.Group className="mt-3">
-              <Form.Label className="fw-semibold">
-                Description <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
-                as="textarea"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows={4}
-                required
-                placeholder="Describe what students will learn in this course..."
-                className="py-2"
-                disabled={createMutation.isPending || updateMutation.isPending}
-              />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer className="border-0 pt-0">
-            <Button
-              variant="outline-secondary"
-              onClick={handleCloseModal}
-              className="px-4"
-              disabled={createMutation.isPending || updateMutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              className="px-4"
-              disabled={createMutation.isPending || updateMutation.isPending}
-            >
-              {createMutation.isPending || updateMutation.isPending ? (
-                <>
-                  <Spinner animation="border" size="sm" className="me-2" />
-                  {editingCourse ? 'Updating...' : 'Creating...'}
-                </>
-              ) : (
-                editingCourse ? 'Update Course' : 'Create Course'
-              )}
-            </Button>
-          </Modal.Footer>
-        </Form>
-      </Modal>
-
-      <Modal
+        isEditing={!!editingCourse}
+        formData={formData}
+        isLoading={createMutation.isPending || updateMutation.isPending}
+        error={error || undefined}
+        onClose={handleCloseModal}
+        onFormChange={handleInputChange}
+        onSlugGenerate={handleSlugGenerate}
+        onSubmit={handleSubmit}
+      />
+      <CourseDeleteModal
         show={showDeleteModal}
-        onHide={() => !deleteMutation.isPending && setShowDeleteModal(false)}
-        centered
-        backdrop={deleteMutation.isPending ? 'static' : true}
-      >
-        <Modal.Header closeButton className="border-0">
-          <Modal.Title className="h5 fw-bold text-danger">
-            Confirm Delete
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="py-4">
-          <div className="text-center mb-3">
-            <Trash size={48} className="text-danger mb-3" />
-            <h5 className="fw-bold">Are you sure?</h5>
-            <p className="text-muted">
-              This will permanently delete the course "{courseToDeleteData?.title}".
-              This action cannot be undone.
-            </p>
-          </div>
-        </Modal.Body>
-        <Modal.Footer className="border-0">
-          <Button
-            variant="outline-secondary"
-            onClick={() => setShowDeleteModal(false)}
-            disabled={deleteMutation.isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="danger"
-            onClick={confirmDelete}
-            disabled={deleteMutation.isPending}
-          >
-            {deleteMutation.isPending ? (
-              <>
-                <Spinner animation="border" size="sm" className="me-2" />
-                Deleting...
-              </>
-            ) : (
-              'Delete Course'
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        courseTitle={courseToDeleteData?.title || ''}
+        isPending={deleteMutation.isPending}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </Container>
   );
 }

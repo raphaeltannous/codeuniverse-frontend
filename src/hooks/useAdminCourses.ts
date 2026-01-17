@@ -1,8 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiFetch } from '~/utils/api';
+import { apiFetch, getErrorMessage } from '~/utils/api';
 import type { Course, CourseFormData } from '~/types/course/course';
+import type { SuccessResponse } from '~/types/api-success';
 
 const API_BASE = '/api/admin';
+
 
 interface UseAdminCoursesOptions {
   onCreateSuccess?: (message: string) => void;
@@ -43,13 +45,14 @@ export function useAdminCourses(options?: UseAdminCoursesOptions) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create course');
+        const errorMessage = await getErrorMessage(response);
+        throw new Error(errorMessage);
       }
       return response.json();
     },
-    onSuccess: (newCourse) => {
+    onSuccess: (response: SuccessResponse) => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
-      options?.onCreateSuccess?.(`Course "${newCourse.title}" created successfully!`);
+      options?.onCreateSuccess?.(response.message);
     },
     onError: (error: Error) => {
       options?.onError?.(error.message || 'Failed to create course');
@@ -68,13 +71,14 @@ export function useAdminCourses(options?: UseAdminCoursesOptions) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update course');
+        const errorMessage = await getErrorMessage(response);
+        throw new Error(errorMessage);
       }
       return response.json();
     },
-    onSuccess: (updatedCourse) => {
+    onSuccess: (response: SuccessResponse) => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
-      options?.onUpdateSuccess?.(`Course "${updatedCourse.title}" updated successfully!`);
+      options?.onUpdateSuccess?.(response.message);
     },
     onError: (error: Error) => {
       options?.onError?.(error.message || 'Failed to update course');
@@ -89,12 +93,14 @@ export function useAdminCourses(options?: UseAdminCoursesOptions) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete course');
+        const errorMessage = await getErrorMessage(response);
+        throw new Error(errorMessage);
       }
+      return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (response: SuccessResponse) => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
-      options?.onDeleteSuccess?.('Course deleted successfully!');
+      options?.onDeleteSuccess?.(response.message);
     },
     onError: (error: Error) => {
       options?.onError?.(error.message || 'Failed to delete course');
@@ -113,15 +119,14 @@ export function useAdminCourses(options?: UseAdminCoursesOptions) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to toggle publish status');
+        const errorMessage = await getErrorMessage(response);
+        throw new Error(errorMessage);
       }
       return response.json();
     },
-    onSuccess: (toggledCourse) => {
+    onSuccess: (response: SuccessResponse) => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
-      options?.onTogglePublishSuccess?.(
-        `Course "${toggledCourse.title}" ${toggledCourse.isPublished ? 'published' : 'unpublished'} successfully!`
-      );
+      options?.onTogglePublishSuccess?.(response.message);
     },
     onError: (error: Error) => {
       options?.onError?.(error.message || 'Failed to toggle publish status');
@@ -141,13 +146,14 @@ export function useAdminCourses(options?: UseAdminCoursesOptions) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update thumbnail');
+        const errorMessage = await getErrorMessage(response);
+        throw new Error(errorMessage);
       }
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (response: SuccessResponse) => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
-      options?.onThumbnailSuccess?.('Thumbnail updated successfully!');
+      options?.onThumbnailSuccess?.(response.message);
     },
     onError: (error: Error) => {
       options?.onError?.(error.message || 'Failed to update thumbnail');

@@ -18,3 +18,13 @@ export async function apiFetch(
 
   return response;
 }
+
+// Helper to extract error message from response
+export async function getErrorMessage(response: Response): Promise<string> {
+  try {
+    const data = await response.json();
+    return data.message || `Error: ${response.statusText}`;
+  } catch {
+    return `Error: ${response.statusText}`;
+  }
+}

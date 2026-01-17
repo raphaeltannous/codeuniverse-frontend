@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider, MutationCache, QueryCache } from "@ta
 import { UserProvider } from "./context/UserContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { NotificationProvider } from "./context/NotificationContext";
+import { NotificationContainer } from "./components/NotificationContainer";
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -45,7 +47,10 @@ function App() {
       <AuthProvider>
         <UserProvider>
           <ThemeProvider>
-            <RouterProvider router={AppRoutes} />
+            <NotificationProvider>
+              <RouterProvider router={AppRoutes} />
+              <NotificationContainer />
+            </NotificationProvider>
           </ThemeProvider>
         </UserProvider>
       </AuthProvider>

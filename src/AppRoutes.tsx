@@ -19,6 +19,7 @@ import PlatformAccountsLogout from "./pages/Platform/Accounts/Logout";
 import CoursesList from "./pages/Platform/Courses/CoursesList";
 import PlatformCourses from "./pages/Platform/Courses";
 import UserProfilePage from "./pages/Platform/Profile";
+import SubscriptionPage from "./pages/Platform/Subscription";
 import DashboardCourses from "./pages/AdminDashboard/Courses";
 import LessonsDashboard from "./pages/AdminDashboard/Lessons";
 import CourseLessonsPagee from "./pages/Platform/Courses/Lessons";
@@ -79,6 +80,9 @@ const AppRoutes = createBrowserRouter(
         },
         {
           path: "/profile",  element: <UserProfilePage />
+        },
+        {
+          path: "/subscription", element: <SubscriptionPage />
         },
         {
           path: "/users/:username", element: <UserProfilePage />
