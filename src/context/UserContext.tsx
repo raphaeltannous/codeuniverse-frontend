@@ -9,7 +9,7 @@ type User = {
   isVerified: boolean;
   isActive: boolean;
   role: string;
-  isPremium: boolean;
+  premiumStatus: string;
 }
 
 type UserContextType = {

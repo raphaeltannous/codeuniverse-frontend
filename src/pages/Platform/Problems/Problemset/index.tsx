@@ -55,10 +55,6 @@ export default function PlatformProblemsProblemset() {
 
 
   const handleProblemClick = (problem: Problem) => {
-    if (problem.isPremium && user && !user.isPremium && user.role !== 'admin') {
-      navigate('/premium');
-      return;
-    }
     navigate(`/problems/${problem.slug}`);
   };
 

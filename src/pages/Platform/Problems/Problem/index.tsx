@@ -7,8 +7,41 @@ import ProblemNotes from "./notes";
 import DifficultyBadge from "~/components/Shared/DifficultyBadge";
 import ProblemSkeleton from "~/components/Platform/Problem/ProblemSkeleton";
 import { useProblem } from "~/hooks/useProblem";
+import PremiumOnly from "~/components/Shared/PremiumOnly";
+import { useUser } from "~/context/UserContext";
 
 export default function PlatformProblemsProblem() {
+  const { problemSlug } = useParams();
+  const { problem, isLoading } = useProblem(problemSlug || '');
+  const { user } = useUser();
+
+  // Show premium banner if problem is premium and user is not premium/admin
+  const shouldShowPremiumBanner = 
+    problem?.isPremium && 
+    user?.premiumStatus !== 'premium' && 
+    user?.premiumStatus !== 'canceled' &&
+    user?.role !== 'admin';
+
+  if (isLoading) {
+    return (
+      <Container className="problem-page-width mt-4">
+        <ProblemSkeleton />
+      </Container>
+    );
+  }
+
+  if (shouldShowPremiumBanner) {
+    return (
+      <PremiumOnly message="Unlock premium coding problems! Upgrade to access advanced challenges, detailed solutions, and practice materials.">
+        <div />
+      </PremiumOnly>
+    );
+  }
+
+  return <ProblemContent />;
+}
+
+function ProblemContent() {
   const { problemSlug } = useParams();
   const [activeTab, setActiveTab] = useState('editor');
   const { problem, isLoading, isError, error } = useProblem(problemSlug || '');

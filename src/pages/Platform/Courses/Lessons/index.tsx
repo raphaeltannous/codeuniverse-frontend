@@ -27,10 +27,36 @@ import { useAuth } from '~/context/AuthContext';
 import VideoPlayer from '~/components/Shared/VideoPlayer';
 import CourseLessonsSkeleton from '~/components/Platform/Courses/CourseLessonsSkeleton';
 import { useCourseLessons } from '~/hooks/useCourseLessons';
+import PremiumOnly from '~/components/Shared/PremiumOnly';
+import { useUser } from '~/context/UserContext';
 
 type ProgressResponse = Record<string, boolean>;
 
 export default function CourseLessonsPage() {
+  const { user, isLoading: isLoadingUser } = useUser();
+
+  // Show premium banner if user is not premium/canceled or admin
+  const shouldShowPremiumBanner = 
+    !isLoadingUser &&
+    user?.premiumStatus !== 'premium' && 
+    user?.role !== 'admin';
+
+  if (isLoadingUser) {
+    return <CourseLessonsSkeleton />;
+  }
+
+  if (shouldShowPremiumBanner) {
+    return (
+      <PremiumOnly message="Unlock all courses and lessons with Premium! Get full access to video tutorials, hands-on exercises, and more.">
+        <div />
+      </PremiumOnly>
+    );
+  }
+
+  return <CourseLessonsContent />;
+}
+
+function CourseLessonsContent() {
   const { auth } = useAuth();
   const { courseSlug } = useParams<{ courseSlug: string }>();
   const navigate = useNavigate();
