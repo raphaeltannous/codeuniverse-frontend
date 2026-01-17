@@ -56,7 +56,6 @@ export default function SubscriptionPage() {
     isLoadingSubscription,
     isErrorSubscription,
     clientSecretMutation,
-    cancelMutation,
     updatePaymentMutation,
   } = useSubscription();
   console.log(PRICING_PLANS)
@@ -110,19 +109,6 @@ export default function SubscriptionPage() {
     setSelectedPlan(null);
   };
 
-  const handleCancel = () => {
-    if (window.confirm('Are you sure you want to cancel your subscription?')) {
-      cancelMutation.mutate(undefined, {
-        onSuccess: (response) => {
-          notification.success(response.message || 'Subscription cancelled successfully');
-        },
-        onError: (error: Error) => {
-          notification.error(error.message);
-        },
-      });
-    }
-  };
-
   const handleUpdatePayment = () => {
     updatePaymentMutation.mutate(undefined, {
       onSuccess: (response) => {
@@ -147,57 +133,42 @@ export default function SubscriptionPage() {
           </div>
 
           {isLoadingSubscription && (
-            <Alert variant="info" className="text-center">
+            <div className="text-center mb-4">
               <Spinner animation="border" size="sm" className="me-2" />
-              Loading your subscription...
-            </Alert>
+              <span className="text-muted">Loading your subscription...</span>
+            </div>
           )}
 
           {isErrorSubscription && (
-            <Alert variant="warning" className="mb-4">
-              Unable to load subscription details. Please try again later.
-            </Alert>
+            <div className="text-center mb-4">
+              <span className="text-warning">Unable to load subscription details. Please try again later.</span>
+            </div>
           )}
 
           {subscription && (
-            <Alert variant="success" className="mb-4">
-              <strong>Current Plan:</strong> {subscription.status === 'premium' ? 'Premium' : 'Free'}
+            <div className="text-center mb-4">
+              <h3 className="fw-bold mb-3">
+                Current Plan: <span className={`text-${subscription.status === 'premium' ? 'success' : 'warning'}`}>
+                  {subscription.status === 'premium' ? 'Premium' : 'Free'}
+                </span>
+              </h3>
               {subscription.status !== 'free' && (
-                <div className="mt-2">
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={handleCancel}
-                    disabled={cancelMutation.isPending}
-                    className="me-2"
-                  >
-                    {cancelMutation.isPending ? (
-                      <>
-                        <Spinner animation="border" size="sm" className="me-2" />
-                        Cancelling...
-                      </>
-                    ) : (
-                      'Cancel Subscription'
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline-primary"
-                    size="sm"
-                    onClick={handleUpdatePayment}
-                    disabled={updatePaymentMutation.isPending}
-                  >
-                    {updatePaymentMutation.isPending ? (
-                      <>
-                        <Spinner animation="border" size="sm" className="me-2" />
-                        Updating...
-                      </>
-                    ) : (
-                      'Update Payment Method'
-                    )}
-                  </Button>
-                </div>
+                <Button
+                  variant="primary"
+                  onClick={handleUpdatePayment}
+                  disabled={updatePaymentMutation.isPending}
+                >
+                  {updatePaymentMutation.isPending ? (
+                    <>
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Updating...
+                    </>
+                  ) : (
+                    'Update Subscription'
+                  )}
+                </Button>
               )}
-            </Alert>
+            </div>
           )}
         </Col>
       </Row>

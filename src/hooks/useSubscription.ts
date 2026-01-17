@@ -42,25 +42,6 @@ export function useSubscription() {
     },
   });
 
-  // Cancel subscription
-  const cancelMutation = useMutation<SuccessResponse, Error>({
-    mutationFn: async () => {
-      const response = await apiFetch(`${API_BASE}/cancel`, {
-        method: 'POST',
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to cancel subscription');
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscription'] });
-    },
-  });
-
   // Update payment method
   const updatePaymentMutation = useMutation<UpdatePaymentResponse, Error>({
     mutationFn: async () => {
@@ -91,7 +72,6 @@ export function useSubscription() {
     refetchSubscription: subscriptionQuery.refetch,
 
     clientSecretMutation,
-    cancelMutation,
     updatePaymentMutation,
   };
 }
