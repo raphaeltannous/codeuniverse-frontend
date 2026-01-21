@@ -33,19 +33,26 @@ import { useUser } from '~/context/UserContext';
 type ProgressResponse = Record<string, boolean>;
 
 export default function CourseLessonsPage() {
-  const { user, isLoading: isLoadingUser } = useUser();
+  const { courseSlug } = useParams<{ courseSlug: string }>();
+  const { auth } = useAuth();
+  
+  const {
+    isLoading,
+    isError,
+    error,
+  } = useCourseLessons({
+    courseSlug: courseSlug || '',
+    enabled: !!courseSlug && !!auth.isAuthenticated,
+  });
 
-  // Show premium banner if user is not premium/canceled or admin
-  const shouldShowPremiumBanner = 
-    !isLoadingUser &&
-    user?.premiumStatus !== 'premium' && 
-    user?.role !== 'admin';
+  // Show premium banner if API returns 403 Forbidden
+  const isForbidden = isError && (error as any)?.status === 403;
 
-  if (isLoadingUser) {
+  if (isLoading) {
     return <CourseLessonsSkeleton />;
   }
 
-  if (shouldShowPremiumBanner) {
+  if (isForbidden) {
     return (
       <PremiumOnly message="Unlock all courses and lessons with Premium! Get full access to video tutorials, hands-on exercises, and more.">
         <div />

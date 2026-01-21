@@ -19,12 +19,23 @@ export function useCourseLessons({ courseSlug, enabled = true }: UseCourseLesson
       const response = await apiFetch(`/api/courses/${courseSlug}`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch lessons');
+        const error = new Error('Failed to fetch lessons');
+        // Attach the status code to the error for 403 detection
+        (error as any).status = response.status;
+        throw error;
       }
       return response.json();
     },
     enabled: enabled && !!courseSlug,
     staleTime: 1000 * 60 * 5,
+    retry: (failureCount, error) => {
+      // Don't retry on 403 Forbidden errors
+      if ((error as any)?.status === 403) {
+        return false;
+      }
+      // Retry other errors up to 3 times
+      return failureCount < 3;
+    },
   });
 
   // Fetch user progress for this course
