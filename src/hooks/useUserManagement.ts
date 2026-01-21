@@ -13,7 +13,7 @@ interface User {
   role: "user" | "admin";
   createdAt: string;
   updatedAt: string;
-  avatarUrl?: string | null;
+  avatarUrl: string | null;
 }
 
 interface UpdateUserData {
