@@ -12,9 +12,20 @@ export function useProblem(problemSlug: string) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw data as APIError;
+        const apiError = data as APIError;
+        // Attach the status code to the error for 403 detection
+        (apiError as any).status = res.status;
+        throw apiError;
       }
       return data as Problem;
+    },
+    retry: (failureCount, error) => {
+      // Don't retry on 403 Forbidden errors
+      if ((error as any)?.status === 403) {
+        return false;
+      }
+      // Retry other errors up to 3 times
+      return failureCount < 3;
     }
   });
 

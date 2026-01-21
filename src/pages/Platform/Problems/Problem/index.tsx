@@ -12,15 +12,10 @@ import { useUser } from "~/context/UserContext";
 
 export default function PlatformProblemsProblem() {
   const { problemSlug } = useParams();
-  const { problem, isLoading } = useProblem(problemSlug || '');
-  const { user } = useUser();
+  const { problem, isLoading, isError, error } = useProblem(problemSlug || '');
 
-  // Show premium banner if problem is premium and user is not premium/admin
-  const shouldShowPremiumBanner = 
-    problem?.isPremium && 
-    user?.premiumStatus !== 'premium' && 
-    user?.premiumStatus !== 'canceled' &&
-    user?.role !== 'admin';
+  // Show premium banner if API returns 403 Forbidden
+  const isForbidden = isError && (error as any)?.status === 403;
 
   if (isLoading) {
     return (
@@ -30,7 +25,7 @@ export default function PlatformProblemsProblem() {
     );
   }
 
-  if (shouldShowPremiumBanner) {
+  if (isForbidden) {
     return (
       <PremiumOnly message="Unlock premium coding problems! Upgrade to access advanced challenges, detailed solutions, and practice materials.">
         <div />
