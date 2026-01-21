@@ -55,6 +55,7 @@ function ProblemContent() {
   const { problemSlug } = useParams();
   const [activeTab, setActiveTab] = useState('editor');
   const { problem, isLoading, isError, error } = useProblem(problemSlug || '');
+  const { auth } = useAuth();
 
   if (!problemSlug) {
     return <div>Problem not found</div>;
@@ -110,21 +111,23 @@ function ProblemContent() {
       >
         <Tab eventKey="editor" title="Editor">
           <Activity mode={activeTab === "editor" ? "visible" : "hidden"}>
-            <ProblemEditor problem={problem} />
+            <ProblemEditor problem={problem} isAuthenticated={auth.isAuthenticated} />
           </Activity>
         </Tab>
-        {problem.codeSnippets?.length !== 0 && (
+        {auth.isAuthenticated && problem.codeSnippets?.length !== 0 && (
           <Tab eventKey="submissions" title="Submissions">
             <Activity mode={activeTab === "submissions" ? "visible" : "hidden"}>
               <ProblemSubmissions problem={problem} />
             </Activity>
           </Tab>
         )}
-        <Tab eventKey="notes" title="Notes">
-          <Activity mode={activeTab === "notes" ? "visible" : "hidden"}>
-            <ProblemNotes problem={problem} />
-          </Activity>
-        </Tab>
+        {auth.isAuthenticated && (
+          <Tab eventKey="notes" title="Notes">
+            <Activity mode={activeTab === "notes" ? "visible" : "hidden"}>
+              <ProblemNotes problem={problem} />
+            </Activity>
+          </Tab>
+        )}
       </Tabs>
     </Container>
   )

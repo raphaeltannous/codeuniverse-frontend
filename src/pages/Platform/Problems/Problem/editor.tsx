@@ -13,7 +13,6 @@ import {
 } from "react-bootstrap";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import CodeEditor from "~/components/Shared/CodeEditor";
-import { useAuth } from "~/context/AuthContext";
 import { useRunProblem } from "~/hooks/useRunProblem";
 import { useSubmitProblem } from "~/hooks/useSubmitProblem";
 import type { Problem } from "~/types/problem/problem";
@@ -23,9 +22,10 @@ import { ChevronDown, ChevronUp } from "react-bootstrap-icons";
 
 interface ProblemEditorProps {
   problem: Problem;
+  isAuthenticated?: boolean;
 }
 
-export default function ProblemEditor({ problem }: ProblemEditorProps) {
+export default function ProblemEditor({ problem, isAuthenticated = true }: ProblemEditorProps) {
   const problemSlug = problem.slug;
   const [language, setLanguage] = useState(
     problem.codeSnippets?.[0]?.languageSlug || "go",
@@ -98,11 +98,21 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
               />
             </Card.Body>
 
+            {!isAuthenticated && (
+              <div className="border-top border-info bg-info-subtle p-3">
+                <h6 className="mb-2 fw-bold">Login Required</h6>
+                <p className="mb-0">
+                  You need to be logged in to run or submit your code.
+                </p>
+              </div>
+            )}
+
             <Card.Footer className="d-flex justify-content-end gap-2">
               <Button
                 variant="primary"
                 onClick={handleRun}
                 disabled={
+                  !isAuthenticated ||
                   runMutation.isPending ||
                   submitMutation.isPending ||
                   showRunChecking ||
@@ -115,6 +125,7 @@ export default function ProblemEditor({ problem }: ProblemEditorProps) {
                 variant="success"
                 onClick={handleSubmit}
                 disabled={
+                  !isAuthenticated ||
                   runMutation.isPending ||
                   submitMutation.isPending ||
                   showRunChecking ||
