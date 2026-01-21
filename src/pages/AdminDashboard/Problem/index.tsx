@@ -67,13 +67,17 @@ export default function EditProblemPage() {
     showTestcaseModal,
     setShowTestcaseModal,
     editingHint,
+    setEditingHint,
     editingTestcase,
+    setEditingTestcase,
     
     // Forms
     formData,
     setFormData,
     hintForm,
+    setHintForm,
     testcaseForm,
+    setTestcaseForm,
     setLimitsConfig,
     
     // Code snippet state
@@ -121,12 +125,14 @@ export default function EditProblemPage() {
 
   // Hint handlers
   const handleAddHint = () => {
-    hintForm.hint = "";
+    setEditingHint(null);
+    setHintForm({ hint: "" });
     setShowHintModal(true);
   };
 
   const handleEditHint = (hint: any) => {
-    hintForm.hint = hint.hint;
+    setEditingHint(hint);
+    setHintForm({ hint: hint.hint });
     setShowHintModal(true);
   };
 
@@ -137,7 +143,7 @@ export default function EditProblemPage() {
   };
 
   const handleHintFormChange = (value: string | undefined) => {
-    hintForm.hint = value || "";
+    setHintForm({ hint: value || "" });
   };
 
   const handleSubmitHint = () => {
@@ -201,35 +207,36 @@ export default function EditProblemPage() {
 
   // Testcase handlers
   const handleAddTestcase = () => {
-    testcaseForm.input = "";
-    testcaseForm.expected = "";
-    testcaseForm.isPublic = false;
+    setEditingTestcase(null);
+    setTestcaseForm({ input: "", expected: "", isPublic: false });
     setShowTestcaseModal(true);
   };
 
   const handleAddTestcaseWithTemplate = (templateTestcase: any) => {
-    testcaseForm.input =
-      typeof templateTestcase.input === "string"
+    setEditingTestcase(null);
+    setTestcaseForm({
+      input: typeof templateTestcase.input === "string"
         ? templateTestcase.input
-        : JSON.stringify(templateTestcase.input, null, 2);
-    testcaseForm.expected =
-      typeof templateTestcase.expected === "string"
+        : JSON.stringify(templateTestcase.input, null, 2),
+      expected: typeof templateTestcase.expected === "string"
         ? templateTestcase.expected
-        : JSON.stringify(templateTestcase.expected, null, 2);
-    testcaseForm.isPublic = templateTestcase.isPublic;
+        : JSON.stringify(templateTestcase.expected, null, 2),
+      isPublic: templateTestcase.isPublic
+    });
     setShowTestcaseModal(true);
   };
 
   const handleEditTestcase = (testcase: any) => {
-    testcaseForm.input =
-      typeof testcase.input === "string"
+    setEditingTestcase(testcase);
+    setTestcaseForm({
+      input: typeof testcase.input === "string"
         ? testcase.input
-        : JSON.stringify(testcase.input, null, 2);
-    testcaseForm.expected =
-      typeof testcase.expected === "string"
+        : JSON.stringify(testcase.input, null, 2),
+      expected: typeof testcase.expected === "string"
         ? testcase.expected
-        : JSON.stringify(testcase.expected, null, 2);
-    testcaseForm.isPublic = testcase.isPublic;
+        : JSON.stringify(testcase.expected, null, 2),
+      isPublic: testcase.isPublic
+    });
     setShowTestcaseModal(true);
   };
 
@@ -240,7 +247,7 @@ export default function EditProblemPage() {
   };
 
   const handleTestcaseFormChange = (field: keyof typeof testcaseForm, value: any) => {
-    testcaseForm[field] = value;
+    setTestcaseForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmitTestcase = () => {
@@ -1146,7 +1153,10 @@ export default function EditProblemPage() {
       {/* Hint Modal with Markdown Editor */}
       <Modal
         show={showHintModal}
-        onHide={() => setShowHintModal(false)}
+        onHide={() => {
+          setShowHintModal(false);
+          setEditingHint(null);
+        }}
         size="lg"
         centered
       >
@@ -1171,7 +1181,10 @@ export default function EditProblemPage() {
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowHintModal(false)}>
+          <Button variant="secondary" onClick={() => {
+            setShowHintModal(false);
+            setEditingHint(null);
+          }}>
             Cancel
           </Button>
           <Button
@@ -1195,7 +1208,10 @@ export default function EditProblemPage() {
       {/* Testcase Modal */}
       <Modal
         show={showTestcaseModal}
-        onHide={() => setShowTestcaseModal(false)}
+        onHide={() => {
+          setShowTestcaseModal(false);
+          setEditingTestcase(null);
+        }}
         size="lg"
         centered
       >
@@ -1265,7 +1281,10 @@ export default function EditProblemPage() {
         <Modal.Footer>
           <Button
             variant="secondary"
-            onClick={() => setShowTestcaseModal(false)}
+            onClick={() => {
+              setShowTestcaseModal(false);
+              setEditingTestcase(null);
+            }}
           >
             Cancel
           </Button>
