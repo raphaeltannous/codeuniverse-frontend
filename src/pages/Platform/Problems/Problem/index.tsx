@@ -1,6 +1,6 @@
-import { Activity, useState } from "react";
+import { Activity, useState, useEffect } from "react";
 import { Col, Container, Row, Tab, Tabs } from "react-bootstrap";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import ProblemEditor from "./editor";
 import ProblemSubmissions from "./submissions";
 import ProblemNotes from "./notes";
@@ -8,14 +8,23 @@ import DifficultyBadge from "~/components/Shared/DifficultyBadge";
 import ProblemSkeleton from "~/components/Platform/Problem/ProblemSkeleton";
 import { useProblem } from "~/hooks/useProblem";
 import PremiumOnly from "~/components/Shared/PremiumOnly";
-import { useUser } from "~/context/UserContext";
+import { useAuth } from "~/context/AuthContext";
 
 export default function PlatformProblemsProblem() {
   const { problemSlug } = useParams();
   const { problem, isLoading, isError, error } = useProblem(problemSlug || '');
+  const { auth } = useAuth();
+  const navigate = useNavigate();
 
   // Show premium banner if API returns 403 Forbidden
   const isForbidden = isError && (error as any)?.status === 403;
+
+  // Redirect to login if problem is premium (403) and user is not authenticated
+  useEffect(() => {
+    if (isForbidden && !auth.isAuthenticated) {
+      navigate('/accounts/login', { replace: true });
+    }
+  }, [isForbidden, auth.isAuthenticated, navigate]);
 
   if (isLoading) {
     return (
@@ -25,6 +34,12 @@ export default function PlatformProblemsProblem() {
     );
   }
 
+  // If problem is premium and user is not authenticated, don't show anything (will redirect)
+  if (isForbidden && !auth.isAuthenticated) {
+    return null;
+  }
+
+  // If problem is premium and user is authenticated, show premium banner
   if (isForbidden) {
     return (
       <PremiumOnly message="Unlock premium coding problems! Upgrade to access advanced challenges, detailed solutions, and practice materials.">

@@ -28,13 +28,20 @@ import VideoPlayer from '~/components/Shared/VideoPlayer';
 import CourseLessonsSkeleton from '~/components/Platform/Courses/CourseLessonsSkeleton';
 import { useCourseLessons } from '~/hooks/useCourseLessons';
 import PremiumOnly from '~/components/Shared/PremiumOnly';
-import { useUser } from '~/context/UserContext';
 
 type ProgressResponse = Record<string, boolean>;
 
 export default function CourseLessonsPage() {
   const { courseSlug } = useParams<{ courseSlug: string }>();
   const { auth } = useAuth();
+  const navigate = useNavigate();
+  
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!auth.isAuthenticated) {
+      navigate('/accounts/login', { replace: true });
+    }
+  }, [auth.isAuthenticated, navigate]);
   
   const {
     isLoading,
@@ -47,6 +54,10 @@ export default function CourseLessonsPage() {
 
   // Show premium banner if API returns 403 Forbidden
   const isForbidden = isError && (error as any)?.status === 403;
+
+  if (!auth.isAuthenticated) {
+    return null; // Will redirect via useEffect
+  }
 
   if (isLoading) {
     return <CourseLessonsSkeleton />;
@@ -439,7 +450,7 @@ function CourseLessonsContent() {
                 </div>
               </div>
 
-              <div className="d-flex justify-content-between mt-4 pt-3 border-top">
+              <div className="d-flex justify-content-between my-4 pt-3 border-top">
                 <Button
                   variant="outline-primary"
                   onClick={() => {
@@ -461,7 +472,7 @@ function CourseLessonsContent() {
                   Previous Lesson
                 </Button>
 
-                <div className="text-center d-none d-md-block">
+                <div className="text-center d-none d-md-flex align-items-center">
                   <span className="text-muted">
                     Lesson {currentLesson.lessonNumber} of {lessonsData.lessons.length}
                   </span>
