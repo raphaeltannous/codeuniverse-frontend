@@ -93,8 +93,9 @@ export default function PlatformHeaderComponent() {
                       />
                     </Dropdown.Toggle>
 
-                    <Dropdown.Menu>
+                    <Dropdown.Menu className="text-center" style={{ position: 'absolute', right: 'auto', left: '50%', transform: 'translateX(-50%)', minWidth: 'auto' }}>
                       <Dropdown.Item as={Link} to="/profile">Profile</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/subscription">Subscription</Dropdown.Item>
                       <Dropdown.Divider />
                       <Dropdown.Item as={Link} to="/accounts/logout">Logout</Dropdown.Item>
                     </Dropdown.Menu>
