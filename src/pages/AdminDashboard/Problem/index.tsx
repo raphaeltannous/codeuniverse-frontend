@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import {
   Container,
@@ -16,18 +15,13 @@ import {
   Modal,
   Dropdown,
 } from "react-bootstrap";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Save,
   Plus,
   Trash,
-  Code,
-  Lock,
-  Globe,
   CheckCircle,
   XCircle,
-  Award,
   Pencil,
   Eye,
   EyeSlash,
@@ -35,633 +29,81 @@ import {
   Copy,
   Clock,
 } from "react-bootstrap-icons";
-import { useAuth } from "~/context/AuthContext";
 import MDEditor from "@uiw/react-md-editor";
 import CodeEditor from "~/components/Shared/CodeEditor";
-import { apiFetch } from "~/utils/api";
-
-// Interfaces
-interface ProblemBasic {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  difficulty: Difficulty;
-  isPremium: boolean;
-  isPublic: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type Difficulty =
-  | "Easy"
-  | "Medium"
-  | "Hard"
-  | "Beginner"
-  | "Intermediate"
-  | "Advanced"
-  | "Expert";
-
-interface Hint {
-  id: string;
-  problemId: string;
-  hint: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface ProblemCode {
-  id?: string;
-  codeSnippet: string;
-  checker: string;
-  driver: string;
-  isPublic: boolean;
-  languageName: string;
-  languageSlug: string;
-}
-
-interface ProblemTestcase {
-  id: number;
-  input: any;
-  expected: any;
-  isPublic: boolean;
-}
-
-interface ProblemCodeConfig {
-  timeLimit: number;
-  memoryLimit: number;
-}
-
-interface Language {
-  languageName: string;
-  languageSlug: string;
-}
-
-interface Problem extends ProblemBasic {
-  hints: Hint[];
-  codeSnippets: ProblemCode[];
-  testcases: ProblemTestcase[];
-}
-
-interface ProblemFormData {
-  title: string;
-  slug: string;
-  description: string;
-  difficulty: Difficulty;
-  isPremium: boolean;
-  isPublic: boolean;
-}
+import { useAdminProblem, type Difficulty } from "~/hooks/useAdminProblem";
 
 export default function EditProblemPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { auth } = useAuth();
-  const queryClient = useQueryClient();
 
-  const [actionSuccess, setActionSuccess] = useState("");
-  const [actionError, setActionError] = useState("");
-  const [activeTab, setActiveTab] = useState("basic");
-
-  // Modal states
-  const [showHintModal, setShowHintModal] = useState(false);
-  const [showTestcaseModal, setShowTestcaseModal] = useState(false);
-  const [editingHint, setEditingHint] = useState<Hint | null>(null);
-  const [editingTestcase, setEditingTestcase] =
-    useState<ProblemTestcase | null>(null);
-
-  // Form states
-  const [hintForm, setHintForm] = useState({ hint: "" });
-  const [testcaseForm, setTestcaseForm] = useState({
-    input: "",
-    expected: "",
-    isPublic: false,
-  });
-
-  // Basic problem form
-  const [formData, setFormData] = useState<ProblemFormData>({
-    title: "",
-    slug: "",
-    description: "",
-    difficulty: "Easy",
-    isPremium: false,
-    isPublic: true,
-  });
-
-  // Limits config
-  const [limitsConfig, setLimitsConfig] = useState<ProblemCodeConfig>({
-    timeLimit: 1000,
-    memoryLimit: 256,
-  });
-
-  // Testcases
-  const [testcases, setTestcases] = useState<ProblemTestcase[]>([]);
-
-  // Selected language for code snippets tab
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
-  // Editing state for code snippet
-  const [editingCodeSnippet, setEditingCodeSnippet] =
-    useState<ProblemCode | null>(null);
-  // Form for editing code snippet directly
-  const [codeSnippetEditForm, setCodeSnippetEditForm] = useState<{
-    codeSnippet: string;
-    driver: string;
-    checker: string;
-    isPublic: boolean;
-  }>({
-    codeSnippet: "",
-    driver: "",
-    checker: "",
-    isPublic: false,
-  });
-
-  // Fetch basic problem data
   const {
-    data: problem,
-    isLoading: isLoadingProblem,
-    isError: isProblemError,
-    error: problemError,
-  } = useQuery<Problem>({
-    queryKey: ["admin-problem", slug],
-    queryFn: async () => {
-      const response = await apiFetch(`/api/admin/problems/${slug}`);
+    // Data
+    problem,
+    hints,
+    codeSnippets,
+    testcases,
+    limitsConfig,
+    supportedLanguages,
+    currentCodeSnippet,
+    recentTestcases,
+    
+    // Loading states
+    isLoading,
+    isProblemError,
+    problemError,
+    
+    // UI State
+    activeTab,
+    setActiveTab,
+    actionSuccess,
+    setActionSuccess,
+    actionError,
+    setActionError,
+    
+    // Modals
+    showHintModal,
+    setShowHintModal,
+    showTestcaseModal,
+    setShowTestcaseModal,
+    editingHint,
+    editingTestcase,
+    
+    // Forms
+    formData,
+    setFormData,
+    hintForm,
+    testcaseForm,
+    setLimitsConfig,
+    
+    // Code snippet state
+    selectedLanguage,
+    setSelectedLanguage,
+    editingCodeSnippet,
+    setEditingCodeSnippet,
+    codeSnippetEditForm,
+    setCodeSnippetEditForm,
+    
+    // Mutations
+    updateProblemMutation,
+    createHintMutation,
+    updateHintMutation,
+    deleteHintMutation,
+    updateCodeSnippetMutation,
+    createTestcaseMutation,
+    updateTestcaseMutation,
+    deleteTestcaseMutation,
+    updateLimitsConfigMutation,
+  } = useAdminProblem(slug || "");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch problem");
-      }
-      return response.json();
-    },
-    enabled: !!auth.isAuthenticated && !!slug,
-  });
-
-  // Fetch hints separately
-  const {
-    data: hints = [],
-    isLoading: isLoadingHints,
-    refetch: refetchHints,
-  } = useQuery<Hint[]>({
-    queryKey: ["admin-problem-hints", slug],
-    queryFn: async () => {
-      const response = await apiFetch(`/api/admin/problems/${slug}/hints`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch hints");
-      }
-      return response.json();
-    },
-    enabled: !!auth.isAuthenticated && !!slug,
-  });
-
-  // Fetch code snippets separately
-  const {
-    data: codeSnippets = [],
-    isLoading: isLoadingCodeSnippets,
-    refetch: refetchCodeSnippets,
-  } = useQuery<ProblemCode[]>({
-    queryKey: ["admin-problem-code-snippets", slug],
-    queryFn: async () => {
-      const response = await apiFetch(
-        `/api/admin/problems/${slug}/code-snippets`
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch code snippets");
-      }
-      return response.json();
-    },
-    enabled: !!auth.isAuthenticated && !!slug,
-  });
-
-  // Fetch testcases separately
-  const {
-    data: fetchedTestcases = [],
-    isLoading: isLoadingTestcases,
-    refetch: refetchTestcases,
-  } = useQuery<ProblemTestcase[]>({
-    queryKey: ["admin-problem-testcases", slug],
-    queryFn: async () => {
-      const response = await apiFetch(`/api/admin/problems/${slug}/testcases`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch test cases");
-      }
-      return response.json();
-    },
-    enabled: !!auth.isAuthenticated && !!slug,
-  });
-
-  // Fetch limits config separately
-  const {
-    data: fetchedLimitsConfig,
-    isLoading: isLoadingLimits,
-    refetch: refetchLimits,
-  } = useQuery<ProblemCodeConfig>({
-    queryKey: ["admin-problem-limits", slug],
-    queryFn: async () => {
-      const response = await apiFetch(`/api/admin/problems/${slug}/config`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch limits config");
-      }
-      return response.json();
-    },
-    enabled: !!auth.isAuthenticated && !!slug,
-  });
-
-  // Fetch supported languages (not used for creating snippets anymore)
-  const { data: supportedLanguages = [], isLoading: isLoadingLanguages } =
-    useQuery<Language[]>({
-      queryKey: ["supported-languages"],
-      queryFn: async () => {
-        const response = await apiFetch("/api/admin/supported-languages");
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch supported languages");
-        }
-        return (await response.json()) as Language[];
-      },
-      enabled: !!auth.isAuthenticated,
-    });
-
-  // Use effect to set form data when problem loads
-  useEffect(() => {
-    if (problem) {
-      setFormData({
-        title: problem.title,
-        slug: problem.slug,
-        description: problem.description,
-        difficulty: problem.difficulty,
-        isPremium: problem.isPremium,
-        isPublic: problem.isPublic,
-      });
-    }
-  }, [problem]);
-
-  // Use effect to set testcases
-  useEffect(() => {
-    if (fetchedTestcases) {
-      setTestcases(fetchedTestcases);
-    }
-  }, [fetchedTestcases]);
-
-  // Use effect to set limits config
-  useEffect(() => {
-    if (fetchedLimitsConfig) {
-      setLimitsConfig(fetchedLimitsConfig);
-    }
-  }, [fetchedLimitsConfig]);
-
-  // Use effect to set default selected language when code snippets load
-  useEffect(() => {
-    if (codeSnippets.length > 0 && !selectedLanguage) {
-      setSelectedLanguage(codeSnippets[0].languageSlug);
-    }
-  }, [codeSnippets, selectedLanguage]);
-
-  // Use effect to reset editing state when selected language changes
-  useEffect(() => {
-    if (selectedLanguage) {
-      setEditingCodeSnippet(null);
-      const snippet = codeSnippets.find(
-        (s) => s.languageSlug === selectedLanguage,
-      );
-      if (snippet) {
-        setCodeSnippetEditForm({
-          codeSnippet: snippet.codeSnippet,
-          driver: snippet.driver,
-          checker: snippet.checker,
-          isPublic: snippet.isPublic,
-        });
-      }
-    }
-  }, [selectedLanguage, codeSnippets]);
-
-  // Get current selected code snippet
-  const currentCodeSnippet = codeSnippets.find(
-    (snippet) => snippet.languageSlug === selectedLanguage,
-  );
-
-  // Get recent 3 testcases for templates (assuming higher IDs are more recent)
-  const recentTestcases = [...testcases]
-    .sort((a, b) => b.id - a.id) // Sort by ID descending (higher ID = more recent)
-    .slice(0, 3); // Take only first 3
-
-  // Update problem mutation
-  const updateProblemMutation = useMutation({
-    mutationFn: async (data: ProblemFormData) => {
-      const response = await apiFetch(`/api/admin/problems/${slug}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to update problem");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-problem", slug] });
-      queryClient.invalidateQueries({ queryKey: ["admin-problems"] });
-      setActionSuccess("Problem updated successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
-    },
-    onError: (error) => {
-      setActionError(error.message || "Failed to update problem");
-      setTimeout(() => setActionError(""), 5000);
-    },
-  });
-
-  // Create hint mutation
-  const createHintMutation = useMutation({
-    mutationFn: async (hint: string) => {
-      const response = await apiFetch(`/api/admin/problems/${slug}/hints`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ hint }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to create hint");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["admin-problem-hints", slug],
-      });
-      setShowHintModal(false);
-      setHintForm({ hint: "" });
-      setEditingHint(null);
-      setActionSuccess("Hint added successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
-    },
-    onError: (error) => {
-      setActionError(error.message || "Failed to create hint");
-      setTimeout(() => setActionError(""), 5000);
-    },
-  });
-
-  // Update hint mutation
-  const updateHintMutation = useMutation({
-    mutationFn: async ({ hintId, hint }: { hintId: string; hint: string }) => {
-      const response = await apiFetch(
-        `/api/admin/problems/${slug}/hints/${hintId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ hint }),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to update hint");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["admin-problem-hints", slug],
-      });
-      setShowHintModal(false);
-      setHintForm({ hint: "" });
-      setEditingHint(null);
-      setActionSuccess("Hint updated successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
-    },
-    onError: (error) => {
-      setActionError(error.message || "Failed to update hint");
-      setTimeout(() => setActionError(""), 5000);
-    },
-  });
-
-  // Delete hint mutation
-  const deleteHintMutation = useMutation({
-    mutationFn: async (hintId: string) => {
-      const response = await apiFetch(
-        `/api/admin/problems/${slug}/hints/${hintId}`,
-        {
-          method: "DELETE",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete hint");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["admin-problem-hints", slug],
-      });
-      setActionSuccess("Hint deleted successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
-    },
-    onError: (error) => {
-      setActionError(error.message || "Failed to delete hint");
-      setTimeout(() => setActionError(""), 5000);
-    },
-  });
-
-  // Update code snippet mutation
-  const updateCodeSnippetMutation = useMutation({
-    mutationFn: async ({
-      languageSlug,
-      data,
-    }: {
-      languageSlug: string;
-      data: ProblemCode;
-    }) => {
-      const response = await apiFetch(
-        `/api/admin/problems/${slug}/code-snippets/${languageSlug}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to update code snippet");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["admin-problem-code-snippets", slug],
-      });
-      setEditingCodeSnippet(null);
-      setActionSuccess("Code snippet updated successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
-    },
-    onError: (error) => {
-      setActionError(error.message || "Failed to update code snippet");
-      setTimeout(() => setActionError(""), 5000);
-    },
-  });
-
-  // Create testcase mutation (sends individual testcase)
-  const createTestcaseMutation = useMutation({
-    mutationFn: async (data: Omit<ProblemTestcase, "id">) => {
-      const response = await apiFetch(`/api/admin/problems/${slug}/testcases`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to create test case");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["admin-problem-testcases", slug],
-      });
-      setShowTestcaseModal(false);
-      setTestcaseForm({
-        input: "",
-        expected: "",
-        isPublic: false,
-      });
-      setEditingTestcase(null);
-      setActionSuccess("Test case added successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
-    },
-    onError: (error) => {
-      setActionError(error.message || "Failed to create test case");
-      setTimeout(() => setActionError(""), 5000);
-    },
-  });
-
-  // Update testcase mutation (updates individual testcase)
-  const updateTestcaseMutation = useMutation({
-    mutationFn: async ({
-      testcaseId,
-      data,
-    }: {
-      testcaseId: number;
-      data: Omit<ProblemTestcase, "id">;
-    }) => {
-      const response = await apiFetch(
-        `/api/admin/problems/${slug}/testcases/${testcaseId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to update test case");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["admin-problem-testcases", slug],
-      });
-      setShowTestcaseModal(false);
-      setTestcaseForm({
-        input: "",
-        expected: "",
-        isPublic: false,
-      });
-      setEditingTestcase(null);
-      setActionSuccess("Test case updated successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
-    },
-    onError: (error) => {
-      setActionError(error.message || "Failed to update test case");
-      setTimeout(() => setActionError(""), 5000);
-    },
-  });
-
-  // Delete testcase mutation
-  const deleteTestcaseMutation = useMutation({
-    mutationFn: async (testcaseId: number) => {
-      const response = await apiFetch(
-        `/api/admin/problems/${slug}/testcases/${testcaseId}`,
-        {
-          method: "DELETE",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete test case");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["admin-problem-testcases", slug],
-      });
-      setActionSuccess("Test case deleted successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
-    },
-    onError: (error) => {
-      setActionError(error.message || "Failed to delete test case");
-      setTimeout(() => setActionError(""), 5000);
-    },
-  });
-
-  // Update limits config mutation
-  const updateLimitsConfigMutation = useMutation({
-    mutationFn: async (data: ProblemCodeConfig) => {
-      const response = await apiFetch(`/api/admin/problems/${slug}/config`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to update limits");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["admin-problem-limits", slug],
-      });
-      setActionSuccess("Limits updated successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
-    },
-    onError: (error) => {
-      setActionError(error.message || "Failed to update limits");
-      setTimeout(() => setActionError(""), 5000);
-    },
-  });
-
+  // Handler functions
   const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
@@ -679,14 +121,12 @@ export default function EditProblemPage() {
 
   // Hint handlers
   const handleAddHint = () => {
-    setEditingHint(null);
-    setHintForm({ hint: "" });
+    hintForm.hint = "";
     setShowHintModal(true);
   };
 
-  const handleEditHint = (hint: Hint) => {
-    setEditingHint(hint);
-    setHintForm({ hint: hint.hint });
+  const handleEditHint = (hint: any) => {
+    hintForm.hint = hint.hint;
     setShowHintModal(true);
   };
 
@@ -697,7 +137,7 @@ export default function EditProblemPage() {
   };
 
   const handleHintFormChange = (value: string | undefined) => {
-    setHintForm({ hint: value || "" });
+    hintForm.hint = value || "";
   };
 
   const handleSubmitHint = () => {
@@ -707,10 +147,7 @@ export default function EditProblemPage() {
     }
 
     if (editingHint) {
-      updateHintMutation.mutate({
-        hintId: editingHint.id,
-        hint: hintForm.hint,
-      });
+      updateHintMutation.mutate({ hintId: editingHint.id, hint: hintForm.hint });
     } else {
       createHintMutation.mutate(hintForm.hint);
     }
@@ -735,10 +172,7 @@ export default function EditProblemPage() {
     }
   };
 
-  const handleCodeSnippetEditFormChange = (
-    field: keyof typeof codeSnippetEditForm,
-    value: any,
-  ) => {
+  const handleCodeSnippetEditFormChange = (field: keyof typeof codeSnippetEditForm, value: any) => {
     setCodeSnippetEditForm((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -746,14 +180,14 @@ export default function EditProblemPage() {
     if (!currentCodeSnippet) return;
 
     const selectedLang = supportedLanguages.find(
-      (lang) => lang.languageSlug === currentCodeSnippet.languageSlug,
+      (lang) => lang.languageSlug === currentCodeSnippet.languageSlug
     );
     if (!selectedLang) {
       setActionError("Invalid language selected");
       return;
     }
 
-    const data: ProblemCode = {
+    const data = {
       codeSnippet: codeSnippetEditForm.codeSnippet,
       checker: codeSnippetEditForm.checker,
       driver: codeSnippetEditForm.driver,
@@ -762,52 +196,40 @@ export default function EditProblemPage() {
       languageSlug: currentCodeSnippet.languageSlug,
     };
 
-    updateCodeSnippetMutation.mutate({
-      languageSlug: currentCodeSnippet.languageSlug,
-      data,
-    });
+    updateCodeSnippetMutation.mutate({ languageSlug: currentCodeSnippet.languageSlug, data });
   };
 
   // Testcase handlers
   const handleAddTestcase = () => {
-    setEditingTestcase(null);
-    setTestcaseForm({
-      input: "",
-      expected: "",
-      isPublic: false,
-    });
+    testcaseForm.input = "";
+    testcaseForm.expected = "";
+    testcaseForm.isPublic = false;
     setShowTestcaseModal(true);
   };
 
-  const handleAddTestcaseWithTemplate = (templateTestcase: ProblemTestcase) => {
-    setEditingTestcase(null);
-    setTestcaseForm({
-      input:
-        typeof templateTestcase.input === "string"
-          ? templateTestcase.input
-          : JSON.stringify(templateTestcase.input, null, 2),
-      expected:
-        typeof templateTestcase.expected === "string"
-          ? templateTestcase.expected
-          : JSON.stringify(templateTestcase.expected, null, 2),
-      isPublic: templateTestcase.isPublic,
-    });
+  const handleAddTestcaseWithTemplate = (templateTestcase: any) => {
+    testcaseForm.input =
+      typeof templateTestcase.input === "string"
+        ? templateTestcase.input
+        : JSON.stringify(templateTestcase.input, null, 2);
+    testcaseForm.expected =
+      typeof templateTestcase.expected === "string"
+        ? templateTestcase.expected
+        : JSON.stringify(templateTestcase.expected, null, 2);
+    testcaseForm.isPublic = templateTestcase.isPublic;
     setShowTestcaseModal(true);
   };
 
-  const handleEditTestcase = (testcase: ProblemTestcase) => {
-    setEditingTestcase(testcase);
-    setTestcaseForm({
-      input:
-        typeof testcase.input === "string"
-          ? testcase.input
-          : JSON.stringify(testcase.input, null, 2),
-      expected:
-        typeof testcase.expected === "string"
-          ? testcase.expected
-          : JSON.stringify(testcase.expected, null, 2),
-      isPublic: testcase.isPublic,
-    });
+  const handleEditTestcase = (testcase: any) => {
+    testcaseForm.input =
+      typeof testcase.input === "string"
+        ? testcase.input
+        : JSON.stringify(testcase.input, null, 2);
+    testcaseForm.expected =
+      typeof testcase.expected === "string"
+        ? testcase.expected
+        : JSON.stringify(testcase.expected, null, 2);
+    testcaseForm.isPublic = testcase.isPublic;
     setShowTestcaseModal(true);
   };
 
@@ -817,11 +239,8 @@ export default function EditProblemPage() {
     }
   };
 
-  const handleTestcaseFormChange = (
-    field: keyof typeof testcaseForm,
-    value: any,
-  ) => {
-    setTestcaseForm((prev) => ({ ...prev, [field]: value }));
+  const handleTestcaseFormChange = (field: keyof typeof testcaseForm, value: any) => {
+    testcaseForm[field] = value;
   };
 
   const handleSubmitTestcase = () => {
@@ -864,10 +283,7 @@ export default function EditProblemPage() {
   };
 
   // Limits handlers
-  const handleLimitsChange = (
-    field: keyof typeof limitsConfig,
-    value: number,
-  ) => {
+  const handleLimitsChange = (field: keyof typeof limitsConfig, value: number) => {
     setLimitsConfig((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -911,14 +327,6 @@ export default function EditProblemPage() {
     "Advanced",
     "Expert",
   ];
-
-  const isLoading =
-    isLoadingProblem ||
-    isLoadingHints ||
-    isLoadingCodeSnippets ||
-    isLoadingTestcases ||
-    isLoadingLimits ||
-    isLoadingLanguages;
 
   if (isLoading) {
     return (
@@ -1216,7 +624,7 @@ export default function EditProblemPage() {
                                 </Button>
                               </div>
                             </div>
-                            <div className="mb-2" data-color-mode="light">
+                            <div className="mb-2">
                               <MDEditor.Markdown source={hint.hint} />
                             </div>
                             <small className="text-muted">
@@ -1748,7 +1156,7 @@ export default function EditProblemPage() {
         <Modal.Body>
           <Form.Group>
             <Form.Label>Hint Text (Markdown supported)</Form.Label>
-            <div data-color-mode="light">
+            <div>
               <MDEditor
                 value={hintForm.hint}
                 onChange={handleHintFormChange}
