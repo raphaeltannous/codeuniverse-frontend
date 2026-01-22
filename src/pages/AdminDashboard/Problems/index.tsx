@@ -33,6 +33,9 @@ import CodeEditor from '~/components/Shared/CodeEditor';
 import { apiFetch } from '~/utils/api';
 import ProblemsFilter from '~/components/Shared/ProblemFilter';
 import StatsCard from '~/components/Shared/StatsCard';
+import DifficultyBadge from '~/components/Shared/DifficultyBadge';
+import VisibilityBadge from '~/components/Shared/VisibilityBadge';
+import PremiumBadge from '~/components/Shared/PremiumBadge';
 import { Link } from 'react-router';
 import type { Filters } from '~/types/problem/problemset';
 
@@ -652,53 +655,6 @@ export default function ProblemsDashboard() {
     setPage(1);
   };
 
-  const getDifficultyBadge = (difficulty: Difficulty) => {
-    const difficultyColors = {
-      'Beginner': 'success',
-      'Easy': 'success',
-      'Medium': 'warning',
-      'Intermediate': 'warning',
-      'Hard': 'danger',
-      'Advanced': 'danger',
-      'Expert': 'dark',
-    };
-
-    return (
-      <Badge bg={difficultyColors[difficulty] || 'secondary'} className="px-2 py-1">
-        <Award size={12} className="me-1" />
-        {difficulty}
-      </Badge>
-    );
-  };
-
-  const getVisibilityBadge = (isPublic: boolean) => {
-    return isPublic ? (
-      <Badge bg="info" className="px-2 py-1">
-        <Globe size={12} className="me-1" />
-        Public
-      </Badge>
-    ) : (
-      <Badge bg="secondary" className="px-2 py-1">
-        <Lock size={12} className="me-1" />
-        Private
-      </Badge>
-    );
-  };
-
-  const getPremiumBadge = (isPremium: boolean) => {
-    return isPremium ? (
-      <Badge bg="warning" className="px-2 py-1">
-        <Lock size={12} className="me-1" />
-        Premium
-      </Badge>
-    ) : (
-      <Badge bg="success" className="px-2 py-1">
-        <Globe size={12} className="me-1" />
-        Free
-      </Badge>
-    );
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -900,12 +856,12 @@ export default function ProblemsDashboard() {
                         </div>
                       </td>
                       <td>
-                        {getDifficultyBadge(problem.difficulty)}
+                        <DifficultyBadge difficulty={problem.difficulty} />
                       </td>
                       <td>
                         <div className="d-flex flex-column gap-1">
-                          {getVisibilityBadge(problem.isPublic)}
-                          {getPremiumBadge(problem.isPremium)}
+                          <VisibilityBadge isPublic={problem.isPublic} />
+                          <PremiumBadge isPremium={problem.isPremium} />
                         </div>
                       </td>
                       <td>

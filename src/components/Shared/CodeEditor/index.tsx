@@ -6,6 +6,9 @@ interface CodeEditorProps {
   language?: string;
   onCodeChange: (newCode: string) => void;
   readonly: boolean;
+  resizable?: boolean;
+  minHeight?: string;
+  maxHeight?: string;
 }
 
 const languageMap: Record<string, string> = {
@@ -24,6 +27,9 @@ export default function CodeEditor({
   language = "plaintext",
   onCodeChange,
   readonly,
+  resizable = false,
+  minHeight = "300px",
+  maxHeight = "1000px",
 }: CodeEditorProps) {
   const handleChange: OnChange = (value) => {
     onCodeChange(value || "");
@@ -31,19 +37,29 @@ export default function CodeEditor({
   const { theme } = useTheme();
 
   return (
-    <Editor
-      height="100%"
-      language={languageMap[language] || "plaintext"}
-      value={code}
-      onChange={handleChange}
-      theme={theme === "light" ? "vs-light" : "vs-dark"}
-      options={{
-        minimap: { enabled: false },
-        wordWrap: "on",
-        readOnly: readonly,
-        automaticLayout: true,
-        scrollBeyondLastLine: false,
+    <div
+      style={{
+        height: "100%",
+        resize: resizable ? "vertical" : "none",
+        overflow: "auto",
+        minHeight: resizable ? minHeight : undefined,
+        maxHeight: resizable ? maxHeight : undefined,
       }}
-    />
+    >
+      <Editor
+        height="100%"
+        language={languageMap[language] || "plaintext"}
+        value={code}
+        onChange={handleChange}
+        theme={theme === "light" ? "vs-light" : "vs-dark"}
+        options={{
+          minimap: { enabled: false },
+          wordWrap: "on",
+          readOnly: readonly,
+          automaticLayout: true,
+          scrollBeyondLastLine: false,
+        }}
+      />
+    </div>
   );
 }

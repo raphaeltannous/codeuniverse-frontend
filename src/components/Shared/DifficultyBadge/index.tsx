@@ -21,7 +21,7 @@ export default function DifficultyBadge({
 
   return (
     <Badge
-      className={`${colors[difficulty]}`}
+      className={`${colors[difficulty]} d-inline-flex align-items-center`}
     >
       {difficulty}
     </Badge>

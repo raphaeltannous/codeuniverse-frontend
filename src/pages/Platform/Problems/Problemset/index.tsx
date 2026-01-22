@@ -23,6 +23,7 @@ import { useProblemset } from '~/hooks/useProblemset';
 import type { Problem } from '~/types/problem/problem';
 import DifficultyBadge from '~/components/Shared/DifficultyBadge';
 import PremiumBadge from '~/components/Shared/PremiumBadge';
+import StatusBadge from '~/components/Shared/StatusBadge';
 
 export default function PlatformProblemsProblemset() {
   const { user } = useUser();
@@ -58,19 +59,6 @@ export default function PlatformProblemsProblemset() {
     navigate(`/problems/${problem.slug}`);
   };
 
-
-  // Status badge component
-  const getStatusBadge = (slug: string) => {
-    if (solvedSlugs.has(slug)) {
-      return (
-        <Badge bg="success" className="px-2 py-1">
-          <CheckCircle size={12} className="me-1" />
-          Solved
-        </Badge>
-      );
-    }
-    return null;
-  };
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -219,10 +207,10 @@ export default function PlatformProblemsProblemset() {
                         <DifficultyBadge difficulty={problem.difficulty} />
                       </td>
                       <td>
-                        <PremiumBadge status={problem.isPremium ? 'premium' : 'free'} />
+                        <PremiumBadge isPremium={problem.isPremium}/>
                       </td>
                       <td>
-                        {getStatusBadge(problem.slug)}
+                        <StatusBadge isSolved={solvedSlugs.has(problem.slug)} />
                         {!solvedSlugs.has(problem.slug) && user && (
                           <span className="text-muted small">
                             Not solved

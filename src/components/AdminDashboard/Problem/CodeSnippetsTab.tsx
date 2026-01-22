@@ -1,17 +1,17 @@
+import { useState } from "react";
 import {
-  Row,
-  Col,
   Card,
   Button,
   Alert,
   Form,
   Badge,
   Spinner,
+  Dropdown,
+  Tabs,
+  Tab,
 } from "react-bootstrap";
 import {
   Pencil,
-  Eye,
-  EyeSlash,
   Check,
 } from "react-bootstrap-icons";
 import CodeEditor from "~/components/Shared/CodeEditor";
@@ -65,6 +65,8 @@ export default function CodeSnippetsTab({
   handleSaveCodeSnippet,
   updateCodeSnippetMutationPending,
 }: CodeSnippetsTabProps) {
+  const [activeCodeTab, setActiveCodeTab] = useState("snippet");
+
   return (
     <div className="p-3">
       <div className="mb-3">
@@ -82,39 +84,49 @@ export default function CodeSnippetsTab({
         </Alert>
       ) : (
         <div>
-          {/* Beautiful Language Selector - Tabs Style */}
+          {/* Language Selector - Dropdown */}
           <div className="mb-4">
-            <div className="border rounded">
-              <div className="p-3 border-bottom bg-light">
-                <h6 className="fw-semibold mb-0">Select Language</h6>
-              </div>
-              <div className="p-3">
-                <div className="d-flex flex-wrap gap-2">
+            <Form.Group>
+              <Form.Label className="fw-semibold">Select Language</Form.Label>
+              <Dropdown>
+                <Dropdown.Toggle variant="outline-primary" id="language-dropdown" className="w-100 d-flex justify-content-between align-items-center">
+                  <span className="d-flex align-items-center gap-2">
+                    {currentCodeSnippet?.languageName || "Select a language"}
+                    {currentCodeSnippet?.isPublic ? (
+                      <Badge bg="success" className="d-flex align-items-center gap-1">
+                        Public
+                      </Badge>
+                    ) : currentCodeSnippet ? (
+                      <Badge bg="secondary" className="d-flex align-items-center gap-1">
+                        Private
+                      </Badge>
+                    ) : null}
+                  </span>
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="w-100">
                   {codeSnippets.map((snippet) => (
-                    <Button
+                    <Dropdown.Item
                       key={snippet.languageSlug}
-                      variant={
-                        selectedLanguage === snippet.languageSlug
-                          ? "primary"
-                          : "outline-secondary"
-                      }
                       onClick={() => setSelectedLanguage(snippet.languageSlug)}
-                      className="d-flex align-items-center gap-2 position-relative"
+                      active={selectedLanguage === snippet.languageSlug}
                     >
-                      <span>{snippet.languageName}</span>
-                      {snippet.isPublic ? (
-                        <Eye size={14} />
-                      ) : (
-                        <EyeSlash size={14} />
-                      )}
-                      {selectedLanguage === snippet.languageSlug && (
-                        <Check size={14} className="ms-1" />
-                      )}
-                    </Button>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span>{snippet.languageName}</span>
+                        {snippet.isPublic ? (
+                          <Badge bg="success" className="d-flex align-items-center gap-1">
+                            Public
+                          </Badge>
+                        ) : (
+                          <Badge bg="secondary" className="d-flex align-items-center gap-1">
+                            Private
+                          </Badge>
+                        )}
+                      </div>
+                    </Dropdown.Item>
                   ))}
-                </div>
-              </div>
-            </div>
+                </Dropdown.Menu>
+              </Dropdown>
+            </Form.Group>
           </div>
 
           {/* Single Card for Current Language with Direct Editing */}
@@ -131,7 +143,6 @@ export default function CodeSnippetsTab({
                         bg="success"
                         className="d-flex align-items-center gap-1"
                       >
-                        <Eye size={12} />
                         Public
                       </Badge>
                     ) : (
@@ -139,7 +150,6 @@ export default function CodeSnippetsTab({
                         bg="secondary"
                         className="d-flex align-items-center gap-1"
                       >
-                        <EyeSlash size={12} />
                         Private
                       </Badge>
                     )}
@@ -186,88 +196,104 @@ export default function CodeSnippetsTab({
                   </div>
                 </div>
               </Card.Header>
-              <Card.Body>
-                <Row className="g-3">
-                  {/* Public/Private Toggle */}
-                  <Col md={12}>
-                    <Form.Check
-                      type="switch"
-                      label="Make this language public (visible to users)"
-                      checked={codeSnippetEditForm.isPublic}
-                      onChange={(e) =>
-                        handleCodeSnippetEditFormChange(
-                          "isPublic",
-                          e.target.checked
-                        )
-                      }
-                      disabled={!editingCodeSnippet}
-                    />
-                  </Col>
+              <Card.Body className="p-0">
+                {/* Public/Private Toggle */}
+                <div className="p-3">
+                  <Form.Check
+                    type="switch"
+                    label="Make this language public (visible to users)"
+                    checked={codeSnippetEditForm.isPublic}
+                    onChange={(e) =>
+                      handleCodeSnippetEditFormChange(
+                        "isPublic",
+                        e.target.checked
+                      )
+                    }
+                    disabled={!editingCodeSnippet}
+                  />
+                </div>
 
-                  <Col md={12}>
-                    <Form.Label className="fw-semibold">
-                      Code Snippet (shown to user)
-                    </Form.Label>
-                    <div
-                      style={{
-                        height: "400px",
-                        border: "1px solid #dee2e6",
-                        borderRadius: "0.375rem",
-                      }}
-                    >
-                      <CodeEditor
-                        code={codeSnippetEditForm.codeSnippet}
-                        language={currentCodeSnippet.languageSlug}
-                        onCodeChange={(value) =>
-                          handleCodeSnippetEditFormChange("codeSnippet", value)
-                        }
-                        readonly={!editingCodeSnippet}
-                      />
+                {/* Tabs for Code Sections */}
+                <Tabs
+                  activeKey={activeCodeTab}
+                  onSelect={(k) => setActiveCodeTab(k || "snippet")}
+                  fill
+                >
+                  <Tab eventKey="snippet" title="Code Snippet">
+                    <div className="">
+                      <pre
+                        className="rounded-bottom m-0"
+                        style={{
+                          height: "500px",
+                          resize: "vertical",
+                          overflow: "auto",
+                          minHeight: "300px",
+                          maxHeight: "1000px",
+                        }}
+                      >
+                        <CodeEditor
+                          code={codeSnippetEditForm.codeSnippet}
+                          language={currentCodeSnippet.languageSlug}
+                          onCodeChange={(value) =>
+                            handleCodeSnippetEditFormChange("codeSnippet", value)
+                          }
+                          readonly={!editingCodeSnippet}
+                          resizable={false}
+                        />
+                      </pre>
                     </div>
-                  </Col>
+                  </Tab>
 
-                  <Col md={12}>
-                    <Form.Label className="fw-semibold">Driver Code</Form.Label>
-                    <div
-                      style={{
-                        height: "400px",
-                        border: "1px solid #dee2e6",
-                        borderRadius: "0.375rem",
-                      }}
-                    >
-                      <CodeEditor
-                        code={codeSnippetEditForm.driver}
-                        language={currentCodeSnippet.languageSlug}
-                        onCodeChange={(value) =>
-                          handleCodeSnippetEditFormChange("driver", value)
-                        }
-                        readonly={!editingCodeSnippet}
-                      />
+                  <Tab eventKey="driver" title="Driver Code">
+                    <div className="">
+                      <pre
+                        className="rounded-bottom m-0"
+                        style={{
+                          height: "500px",
+                          resize: "vertical",
+                          overflow: "auto",
+                          minHeight: "300px",
+                          maxHeight: "1000px",
+                        }}
+                      >
+                        <CodeEditor
+                          code={codeSnippetEditForm.driver}
+                          language={currentCodeSnippet.languageSlug}
+                          onCodeChange={(value) =>
+                            handleCodeSnippetEditFormChange("driver", value)
+                          }
+                          readonly={!editingCodeSnippet}
+                          resizable={false}
+                        />
+                      </pre>
                     </div>
-                  </Col>
+                  </Tab>
 
-                  <Col md={12}>
-                    <Form.Label className="fw-semibold">
-                      Checker Code
-                    </Form.Label>
-                    <div
-                      style={{
-                        height: "400px",
-                        border: "1px solid #dee2e6",
-                        borderRadius: "0.375rem",
-                      }}
-                    >
-                      <CodeEditor
-                        code={codeSnippetEditForm.checker}
-                        language={currentCodeSnippet.languageSlug}
-                        onCodeChange={(value) =>
-                          handleCodeSnippetEditFormChange("checker", value)
-                        }
-                        readonly={!editingCodeSnippet}
-                      />
+                  <Tab eventKey="checker" title="Checker Code">
+                    <div className="">
+                      <pre
+                        className="rounded-bottom m-0"
+                        style={{
+                          height: "500px",
+                          resize: "vertical",
+                          overflow: "auto",
+                          minHeight: "300px",
+                          maxHeight: "1000px",
+                        }}
+                      >
+                        <CodeEditor
+                          code={codeSnippetEditForm.checker}
+                          language={currentCodeSnippet.languageSlug}
+                          onCodeChange={(value) =>
+                            handleCodeSnippetEditFormChange("checker", value)
+                          }
+                          readonly={!editingCodeSnippet}
+                          resizable={false}
+                        />
+                      </pre>
                     </div>
-                  </Col>
-                </Row>
+                  </Tab>
+                </Tabs>
               </Card.Body>
             </Card>
           )}

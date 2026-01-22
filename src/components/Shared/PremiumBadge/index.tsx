@@ -1,22 +1,24 @@
 import { Badge } from "react-bootstrap";
+import { Lock, Globe } from "react-bootstrap-icons";
 
 interface PremiumBadgeProps {
-  status: 'premium' | 'free';
+  isPremium: boolean;
+  className?: string;
 }
 
 export default function PremiumBadge({
-  status,
+  isPremium,
+  className = "",
 }: PremiumBadgeProps) {
-  const colors: Record<string, string> = {
-    premium: "bg-warning text-dark",
-    free: "bg-secondary text-white",    
-  };
-
-  return (
-    <Badge
-      className={`${colors[status]}`}
-    >
-      {status === 'premium' ? 'Premium' : 'Free'}
+  return isPremium ? (
+    <Badge bg="warning" className={`px-2 py-1 text-dark d-inline-flex align-items-center ${className}`}>
+      <Lock size={12} className="me-1" />
+      Premium
+    </Badge>
+  ) : (
+    <Badge bg="success" className={`px-2 py-1 d-inline-flex align-items-center ${className}`}>
+      <Globe size={12} className="me-1" />
+      Free
     </Badge>
   );
-};
+}
