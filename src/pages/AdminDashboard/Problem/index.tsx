@@ -1,35 +1,29 @@
 import { useParams, useNavigate } from "react-router";
 import {
   Container,
-  Row,
-  Col,
   Card,
   Button,
   Spinner,
   Alert,
   Form,
-  InputGroup,
-  Badge,
   Tabs,
   Tab,
   Modal,
+  Row,
+  Col,
 } from "react-bootstrap";
 import {
   ArrowLeft,
-  Save,
-  Plus,
-  Trash,
   CheckCircle,
   XCircle,
-  Pencil,
-  Eye,
-  EyeSlash,
-  Check,
 } from "react-bootstrap-icons";
 import MDEditor from "@uiw/react-md-editor";
 import CodeEditor from "~/components/Shared/CodeEditor";
 import { useAdminProblem, type Difficulty } from "~/hooks/useAdminProblem";
 import TestCasesTab from "~/components/AdminDashboard/Problem/TestCasesTab";
+import CodeSnippetsTab from "~/components/AdminDashboard/Problem/CodeSnippetsTab";
+import HintsTab from "~/components/AdminDashboard/Problem/HintsTab";
+import BasicInfoTab from "~/components/AdminDashboard/Problem/BasicInfoTab";
 
 export default function EditProblemPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -105,7 +99,11 @@ export default function EditProblemPage() {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+      [name]: name === "difficulty" 
+        ? (value as Difficulty)
+        : type === "checkbox" 
+        ? (e.target as HTMLInputElement).checked 
+        : value,
     }));
   };
 
@@ -421,459 +419,49 @@ export default function EditProblemPage() {
             fill
           >
             <Tab eventKey="basic" title="Basic Info">
-              <div className="p-3">
-                <Form>
-                  <Row className="g-3">
-                    <Col md={8}>
-                      <Form.Group>
-                        <Form.Label className="fw-semibold">
-                          Problem Title <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="title"
-                          value={formData.title}
-                          onChange={handleInputChange}
-                          required
-                          placeholder="e.g., Two Sum"
-                          className="py-2"
-                        />
-                      </Form.Group>
-                    </Col>
-
-                    <Col md={4}>
-                      <Form.Group>
-                        <Form.Label className="fw-semibold">
-                          Slug <span className="text-danger">*</span>
-                        </Form.Label>
-                        <InputGroup>
-                          <Form.Control
-                            type="text"
-                            name="slug"
-                            value={formData.slug}
-                            onChange={handleInputChange}
-                            required
-                            placeholder="two-sum"
-                            className="py-2"
-                          />
-                          <Button
-                            variant="outline-secondary"
-                            onClick={handleSlugGenerate}
-                            type="button"
-                          >
-                            Generate
-                          </Button>
-                        </InputGroup>
-                      </Form.Group>
-                    </Col>
-
-                    <Col md={6}>
-                      <Form.Group>
-                        <Form.Label className="fw-semibold">
-                          Difficulty <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Form.Select
-                          name="difficulty"
-                          value={formData.difficulty}
-                          onChange={handleInputChange}
-                          required
-                        >
-                          {difficultyOptions.map((diff) => (
-                            <option key={diff} value={diff}>
-                              {diff}
-                            </option>
-                          ))}
-                        </Form.Select>
-                      </Form.Group>
-                    </Col>
-
-                    <Col md={6}>
-                      <Form.Group>
-                        <Form.Label className="fw-semibold">
-                          Access Settings
-                        </Form.Label>
-                        <div className="d-flex gap-4">
-                          <Form.Check
-                            type="switch"
-                            id="isPublic"
-                            label="Public"
-                            checked={formData.isPublic}
-                            onChange={(e) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                isPublic: e.target.checked,
-                              }))
-                            }
-                          />
-                          <Form.Check
-                            type="switch"
-                            id="isPremium"
-                            label="Premium"
-                            checked={formData.isPremium}
-                            onChange={(e) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                isPremium: e.target.checked,
-                              }))
-                            }
-                          />
-                        </div>
-                      </Form.Group>
-                    </Col>
-
-                    <Col md={12}>
-                      <Form.Group>
-                        <Form.Label className="fw-semibold">
-                          Description <span className="text-danger">*</span>
-                        </Form.Label>
-                        <div>
-                          <MDEditor
-                            value={formData.description}
-                            onChange={handleDescriptionChange}
-                            height={400}
-                            preview="edit"
-                            visibleDragbar={false}
-                          />
-                        </div>
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  {/* Save/Cancel buttons */}
-                  <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-                    <Button
-                      variant="outline-secondary"
-                      className="px-4"
-                      onClick={() => navigate("/dashboard/problems")}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="primary"
-                      type="button"
-                      onClick={handleSaveClick}
-                      disabled={updateProblemMutation.isPending}
-                      className="px-4"
-                    >
-                      {updateProblemMutation.isPending ? (
-                        <>
-                          <Spinner
-                            animation="border"
-                            size="sm"
-                            className="me-2"
-                          />
-                          Saving Changes...
-                        </>
-                      ) : (
-                        <>
-                          <Save size={18} className="me-2" />
-                          Save Changes
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </Form>
-              </div>
+              <BasicInfoTab
+                formData={formData}
+                setFormData={setFormData as any}
+                difficultyOptions={difficultyOptions}
+                handleInputChange={handleInputChange}
+                handleSlugGenerate={handleSlugGenerate}
+                handleDescriptionChange={handleDescriptionChange}
+                handleSaveClick={handleSaveClick}
+                updateProblemMutationPending={updateProblemMutation.isPending}
+                onCancel={() => navigate("/dashboard/problems")}
+              />
             </Tab>
 
             <Tab eventKey="hints" title={`Hints (${hints.length})`}>
-              <div className="p-3">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <div>
-                    <h6 className="fw-semibold mb-0">Problem Hints</h6>
-                    <p className="text-muted small mb-0">
-                      Add helpful hints for users (Markdown supported)
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline-primary"
-                    size="sm"
-                    onClick={handleAddHint}
-                    type="button"
-                    disabled={createHintMutation.isPending}
-                  >
-                    <Plus size={14} /> Add Hint
-                  </Button>
-                </div>
-
-                {hints.length === 0 ? (
-                  <Alert variant="info">
-                    No hints added. Hints are optional but can help users solve
-                    the problem.
-                  </Alert>
-                ) : (
-                  <Row>
-                    {hints?.map((hint) => (
-                      <Col md={6} key={hint.id} className="mb-3">
-                        <Card>
-                          <Card.Body>
-                            <div className="d-flex justify-content-between align-items-start mb-2">
-                              <div className="fw-semibold">
-                                Hint #{hints.indexOf(hint) + 1}
-                              </div>
-                              <div className="d-flex gap-1">
-                                <Button
-                                  variant="outline-info"
-                                  size="sm"
-                                  onClick={() => handleEditHint(hint)}
-                                  disabled={updateHintMutation.isPending}
-                                >
-                                  <Pencil size={12} />
-                                </Button>
-                                <Button
-                                  variant="outline-danger"
-                                  size="sm"
-                                  onClick={() => handleDeleteHint(hint.id)}
-                                  disabled={deleteHintMutation.isPending}
-                                >
-                                  <Trash size={12} />
-                                </Button>
-                              </div>
-                            </div>
-                            <div className="mb-2">
-                              <MDEditor.Markdown source={hint.hint} />
-                            </div>
-                            <small className="text-muted">
-                              Created:{" "}
-                              {new Date(hint.createdAt).toLocaleDateString()}
-                            </small>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
-                )}
-              </div>
+              <HintsTab
+                hints={hints}
+                handleAddHint={handleAddHint}
+                handleEditHint={handleEditHint}
+                handleDeleteHint={handleDeleteHint}
+                createHintMutationPending={createHintMutation.isPending}
+                updateHintMutationPending={updateHintMutation.isPending}
+                deleteHintMutationPending={deleteHintMutation.isPending}
+              />
             </Tab>
 
             <Tab
               eventKey="code"
               title={`Code Snippets (${codeSnippets.length})`}
             >
-              <div className="p-3">
-                <div className="mb-3">
-                  <h6 className="fw-semibold mb-0">Code Snippets</h6>
-                  <p className="text-muted small mb-0">
-                    Languages are automatically created by the backend. Edit to
-                    make them public or update code.
-                  </p>
-                </div>
-
-                {codeSnippets.length === 0 ? (
-                  <Alert variant="info">
-                    No code snippets available. The backend will automatically
-                    create language entries.
-                  </Alert>
-                ) : (
-                  <div>
-                    {/* Beautiful Language Selector - Tabs Style */}
-                    <div className="mb-4">
-                      <div className="border rounded">
-                        <div className="p-3 border-bottom bg-light">
-                          <h6 className="fw-semibold mb-0">Select Language</h6>
-                        </div>
-                        <div className="p-3">
-                          <div className="d-flex flex-wrap gap-2">
-                            {codeSnippets.map((snippet) => (
-                              <Button
-                                key={snippet.languageSlug}
-                                variant={
-                                  selectedLanguage === snippet.languageSlug
-                                    ? "primary"
-                                    : "outline-secondary"
-                                }
-                                onClick={() =>
-                                  setSelectedLanguage(snippet.languageSlug)
-                                }
-                                className="d-flex align-items-center gap-2 position-relative"
-                              >
-                                <span>{snippet.languageName}</span>
-                                {snippet.isPublic ? (
-                                  <Eye size={14} />
-                                ) : (
-                                  <EyeSlash size={14} />
-                                )}
-                                {selectedLanguage === snippet.languageSlug && (
-                                  <Check size={14} className="ms-1" />
-                                )}
-                              </Button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Single Card for Current Language with Direct Editing */}
-                    {currentCodeSnippet && (
-                      <Card className="mb-4">
-                        <Card.Header>
-                          <div className="d-flex justify-content-between align-items-center">
-                            <div className="d-flex align-items-center gap-2">
-                              <div className="fw-semibold">
-                                {currentCodeSnippet.languageName} Code Snippet
-                              </div>
-                              {currentCodeSnippet.isPublic ? (
-                                <Badge
-                                  bg="success"
-                                  className="d-flex align-items-center gap-1"
-                                >
-                                  <Eye size={12} />
-                                  Public
-                                </Badge>
-                              ) : (
-                                <Badge
-                                  bg="secondary"
-                                  className="d-flex align-items-center gap-1"
-                                >
-                                  <EyeSlash size={12} />
-                                  Private
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="d-flex gap-2">
-                              {editingCodeSnippet ? (
-                                <>
-                                  <Button
-                                    variant="outline-secondary"
-                                    size="sm"
-                                    onClick={handleCancelEditCodeSnippet}
-                                    disabled={
-                                      updateCodeSnippetMutation.isPending
-                                    }
-                                    className="d-flex align-items-center gap-2"
-                                  >
-                                    Cancel
-                                  </Button>
-                                  <Button
-                                    variant="success"
-                                    size="sm"
-                                    onClick={handleSaveCodeSnippet}
-                                    disabled={
-                                      updateCodeSnippetMutation.isPending
-                                    }
-                                    className="d-flex align-items-center gap-2"
-                                  >
-                                    {updateCodeSnippetMutation.isPending ? (
-                                      <Spinner animation="border" size="sm" />
-                                    ) : (
-                                      <>
-                                        <Check size={14} /> Save
-                                      </>
-                                    )}
-                                  </Button>
-                                </>
-                              ) : (
-                                <Button
-                                  variant="outline-info"
-                                  size="sm"
-                                  onClick={handleStartEditCodeSnippet}
-                                  disabled={updateCodeSnippetMutation.isPending}
-                                  className="d-flex align-items-center gap-2"
-                                >
-                                  <Pencil size={14} /> Edit
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        </Card.Header>
-                        <Card.Body>
-                          <Row className="g-3">
-                            {/* Public/Private Toggle */}
-                            <Col md={12}>
-                              <Form.Check
-                                type="switch"
-                                label="Make this language public (visible to users)"
-                                checked={codeSnippetEditForm.isPublic}
-                                onChange={(e) =>
-                                  handleCodeSnippetEditFormChange(
-                                    "isPublic",
-                                    e.target.checked,
-                                  )
-                                }
-                                disabled={!editingCodeSnippet}
-                              />
-                            </Col>
-
-                            <Col md={12}>
-                              <Form.Label className="fw-semibold">
-                                Code Snippet (shown to user)
-                              </Form.Label>
-                              <div
-                                style={{
-                                  height: "400px",
-                                  border: "1px solid #dee2e6",
-                                  borderRadius: "0.375rem",
-                                }}
-                              >
-                                <CodeEditor
-                                  code={codeSnippetEditForm.codeSnippet}
-                                  language={currentCodeSnippet.languageSlug}
-                                  onCodeChange={(value) =>
-                                    handleCodeSnippetEditFormChange(
-                                      "codeSnippet",
-                                      value,
-                                    )
-                                  }
-                                  readonly={!editingCodeSnippet}
-                                />
-                              </div>
-                            </Col>
-
-                            <Col md={12}>
-                              <Form.Label className="fw-semibold">
-                                Driver Code
-                              </Form.Label>
-                              <div
-                                style={{
-                                  height: "400px",
-                                  border: "1px solid #dee2e6",
-                                  borderRadius: "0.375rem",
-                                }}
-                              >
-                                <CodeEditor
-                                  code={codeSnippetEditForm.driver}
-                                  language={currentCodeSnippet.languageSlug}
-                                  onCodeChange={(value) =>
-                                    handleCodeSnippetEditFormChange(
-                                      "driver",
-                                      value,
-                                    )
-                                  }
-                                  readonly={!editingCodeSnippet}
-                                />
-                              </div>
-                            </Col>
-
-                            <Col md={12}>
-                              <Form.Label className="fw-semibold">
-                                Checker Code
-                              </Form.Label>
-                              <div
-                                style={{
-                                  height: "400px",
-                                  border: "1px solid #dee2e6",
-                                  borderRadius: "0.375rem",
-                                }}
-                              >
-                                <CodeEditor
-                                  code={codeSnippetEditForm.checker}
-                                  language={currentCodeSnippet.languageSlug}
-                                  onCodeChange={(value) =>
-                                    handleCodeSnippetEditFormChange(
-                                      "checker",
-                                      value,
-                                    )
-                                  }
-                                  readonly={!editingCodeSnippet}
-                                />
-                              </div>
-                            </Col>
-                          </Row>
-                        </Card.Body>
-                      </Card>
-                    )}
-                  </div>
-                )}
-              </div>
+              <CodeSnippetsTab
+                codeSnippets={codeSnippets}
+                supportedLanguages={supportedLanguages}
+                currentCodeSnippet={currentCodeSnippet || null}
+                selectedLanguage={selectedLanguage}
+                setSelectedLanguage={setSelectedLanguage}
+                editingCodeSnippet={editingCodeSnippet}
+                codeSnippetEditForm={codeSnippetEditForm}
+                handleStartEditCodeSnippet={handleStartEditCodeSnippet}
+                handleCancelEditCodeSnippet={handleCancelEditCodeSnippet}
+                handleCodeSnippetEditFormChange={handleCodeSnippetEditFormChange}
+                handleSaveCodeSnippet={handleSaveCodeSnippet}
+                updateCodeSnippetMutationPending={updateCodeSnippetMutation.isPending}
+              />
             </Tab>
 
             <Tab
