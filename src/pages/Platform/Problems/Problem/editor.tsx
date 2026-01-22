@@ -18,7 +18,7 @@ import { useSubmitProblem } from "~/hooks/useSubmitProblem";
 import type { Problem } from "~/types/problem/problem";
 import { ResultStatus } from "~/types/problem/status";
 import type { FailedTestcase } from "~/types/problem/testcase";
-import { ChevronDown, ChevronUp } from "react-bootstrap-icons";
+import { ChevronDown, ChevronUp, Fire } from "react-bootstrap-icons";
 
 interface ProblemEditorProps {
   problem: Problem;
@@ -31,6 +31,7 @@ export default function ProblemEditor({ problem, isAuthenticated = true }: Probl
     problem.codeSnippets?.[0]?.languageSlug || "go",
   );
   const [code, setCode] = useState(problem.codeSnippets?.[0]?.code || "");
+  const [expandedHints, setExpandedHints] = useState<Set<number>>(new Set());
 
   const { runMutation, runStatusQuery, runId, isCompleted } = useRunProblem(
     problemSlug,
@@ -53,6 +54,18 @@ export default function ProblemEditor({ problem, isAuthenticated = true }: Probl
     setCode(snippet?.code || "");
   };
 
+  const toggleHint = (index: number) => {
+    setExpandedHints(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  };
+
   if (!problem) return <>Problem not found</>;
 
   const showRunChecking = !!runId && !isCompleted(runStatusQuery.data?.status ?? ResultStatus.Pending);
@@ -67,6 +80,40 @@ export default function ProblemEditor({ problem, isAuthenticated = true }: Probl
   return (
     <div>
       <MDEditor.Markdown source={problem.description} className="mb-3" />
+
+      {problem.hints && problem.hints.length > 0 && problem.hints.some(hint => hint.trim() !== '') && (
+        <div className="mb-3">
+          {problem.hints
+            .filter(hint => hint.trim() !== '')
+            .map((hint, index) => (
+              <div 
+                key={index} 
+                className="border border-info bg-info-subtle rounded mb-2"
+              >
+                <div 
+                  className="d-flex justify-content-between align-items-center p-2" 
+                  onClick={() => toggleHint(index)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="d-flex align-items-center gap-2">
+                    <Fire size={16} className="text-info" />
+                    <strong className="text-info">Hint {index + 1}</strong>
+                  </div>
+                  {expandedHints.has(index) ? (
+                    <ChevronUp size={16} className="text-info" />
+                  ) : (
+                    <ChevronDown size={16} className="text-info" />
+                  )}
+                </div>
+                {expandedHints.has(index) && (
+                  <div className="px-3 pb-2">
+                    <MDEditor.Markdown source={hint} />
+                  </div>
+                )}
+              </div>
+            ))}
+        </div>
+      )}
 
       {problem.codeSnippets?.length ? (
         <>
@@ -89,13 +136,27 @@ export default function ProblemEditor({ problem, isAuthenticated = true }: Probl
               </Form.Select>
             </Card.Header>
 
-            <Card.Body className="p-0 code-editor-height">
-              <CodeEditor
-                code={code}
-                language={language}
-                onCodeChange={setCode}
-                readonly={false}
-              />
+            <Card.Body className="p-0">
+              <pre
+                className="m-0"
+                style={{
+                  height: "400px",
+                  resize: "vertical",
+                  overflow: "auto",
+                  minHeight: "400px",
+                  maxHeight: "1000px",
+                }}
+              >
+                <CodeEditor
+                  code={code}
+                  language={language}
+                  onCodeChange={setCode}
+                  readonly={false}
+                  resizable={true}
+                  minHeight="400px"
+                  maxHeight="1000px"
+                />
+              </pre>
             </Card.Body>
 
             {!isAuthenticated && (
@@ -210,8 +271,8 @@ function StatusRow({
             ResultStatus.TimeLimitExceeded,
             ResultStatus.InternalServerError,
           ].includes(status as any) && (
-            <FaTimesCircle className="text-danger" size="1.5em" />
-          )}
+              <FaTimesCircle className="text-danger" size="1.5em" />
+            )}
           {!status && <Spinner animation="border" variant="warning" />}
         </Col>
       </Row>
