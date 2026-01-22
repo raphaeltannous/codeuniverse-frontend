@@ -322,13 +322,9 @@ export default function EditProblemPage() {
   };
 
   const difficultyOptions: Difficulty[] = [
-    "Beginner",
     "Easy",
     "Medium",
-    "Intermediate",
     "Hard",
-    "Advanced",
-    "Expert",
   ];
 
   if (isLoading) {
