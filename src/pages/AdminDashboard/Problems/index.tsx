@@ -9,7 +9,6 @@ import {
   Alert,
   Form,
   InputGroup,
-  Badge,
   Table,
   Modal,
   Pagination,
@@ -25,7 +24,6 @@ import {
   CheckCircle,
   XCircle,
   ListTask,
-  Award,
 } from 'react-bootstrap-icons';
 import { useAuth } from '~/context/AuthContext';
 import MDEditor from '@uiw/react-md-editor';
@@ -524,28 +522,6 @@ export default function ProblemsDashboard() {
       };
       createProblemMutation.mutate(basicData);
     }
-  };
-
-  const handleEdit = (problem: Problem) => {
-    setEditingProblem(problem);
-    setFormData({
-      title: problem.title,
-      slug: problem.slug,
-      description: problem.description,
-      difficulty: problem.difficulty,
-      isPremium: problem.isPremium,
-      isPublic: problem.isPublic,
-      hints: problem.hints.map(h => h.hint),
-      codeSnippets: problem.codeSnippets.map(cs => ({
-        languageName: cs.languageName,
-        languageSlug: cs.languageSlug,
-        codeSnippet: cs.codeSnippet,
-        driverCode: cs.driverCode,
-        testerCode: cs.testerCode
-      })),
-      testcases: problem.testcases,
-    });
-    setShowModal(true);
   };
 
   const handleDelete = (slug: string) => {
