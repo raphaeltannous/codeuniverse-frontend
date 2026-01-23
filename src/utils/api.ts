@@ -16,6 +16,10 @@ export async function apiFetch(
     throw new Error("401: Unauthorized");
   }
 
+  if (response.status === 404) {
+    throw new Error("404: Not Found");
+  }
+
   return response;
 }
 

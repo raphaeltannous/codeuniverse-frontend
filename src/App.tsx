@@ -16,6 +16,10 @@ const queryClient = new QueryClient({
         queryClient.clear();
         window.location.href = "/accounts/login";
       }
+      if (error instanceof Error && error.message.includes("404")) {
+        // Redirect to 404 page
+        window.location.href = "/404";
+      }
     },
   }),
   mutationCache: new MutationCache({
@@ -26,13 +30,17 @@ const queryClient = new QueryClient({
         queryClient.clear();
         window.location.href = "/accounts/login";
       }
+      if (error instanceof Error && error.message.includes("404")) {
+        // Redirect to 404 page
+        window.location.href = "/404";
+      }
     },
   }),
   defaultOptions: {
     queries: {
       retry: (failureCount, error) => {
-        // Don't retry on 401 errors
-        if (error instanceof Error && error.message.includes("401")) {
+        // Don't retry on 401 or 404 errors
+        if (error instanceof Error && (error.message.includes("401") || error.message.includes("404"))) {
           return false;
         }
         return failureCount < 2;

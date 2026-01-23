@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import DashboardLayout from "./layouts/AdminDashboard";
 import AdminDashboardHome from "./pages/AdminDashboard/Home";
 import LandingLayout from "./layouts/Landing";
@@ -26,6 +26,7 @@ import CourseLessonsPagee from "./pages/Platform/Courses/Lessons";
 import UsersDashboard from "./pages/AdminDashboard/Users";
 import ProblemsDashboard from "./pages/AdminDashboard/Problems";
 import EditProblemPage from "./pages/AdminDashboard/Problem";
+import NotFoundPage from "./pages/Platform/NotFound";
 
 const AppRoutes = createBrowserRouter(
   [
@@ -87,6 +88,9 @@ const AppRoutes = createBrowserRouter(
         {
           path: "/users/:username", element: <UserProfilePage />
         },
+        {
+          path: "/404", element: <NotFoundPage />
+        },
       ]
     },
 
@@ -117,7 +121,7 @@ const AppRoutes = createBrowserRouter(
 
     {
       path: "*",
-      element: <div>Not Found</div>,
+      element: <Navigate to="/404" replace />,
     },
   ]
 )

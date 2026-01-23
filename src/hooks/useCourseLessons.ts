@@ -29,10 +29,17 @@ export function useCourseLessons({ courseSlug, enabled = true }: UseCourseLesson
     enabled: enabled && !!courseSlug,
     staleTime: 1000 * 60 * 5,
     retry: (failureCount, error) => {
-      // Don't retry on 403 Forbidden errors
-      if ((error as any)?.status === 403) {
+      // Don't retry on 401, 403, or 404 errors
+      const status = (error as any)?.status;
+      if (status === 401 || status === 403 || status === 404) {
         return false;
       }
+      
+      // Also check error message from apiFetch
+      if (error instanceof Error && (error.message.includes("401") || error.message.includes("403") || error.message.includes("404"))) {
+        return false;
+      }
+
       // Retry other errors up to 3 times
       return failureCount < 3;
     },
