@@ -1,34 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
 import { Activity, useEffect } from "react";
 import { Container, Spinner } from "react-bootstrap";
 import { useNavigate, useSearchParams } from "react-router";
-import { apiFetch } from "~/utils/api";
-
-interface VerificationForm {
-  token: string;
-}
+import { useEmailVerification } from "~/hooks/useEmailVerification";
 
 export default function PlatformAccountsEmailVerification() {
   const navigate = useNavigate();
-
-  const emailVerificationMutation = useMutation({
-    mutationFn: async (body: VerificationForm) => {
-      const res = await apiFetch("/api/auth/signup/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) throw new Error("Verification Failed.");
-      return res.text();
-    },
-
-    onSuccess: () => {
-      setTimeout(() => {
-        navigate("/accounts/login");
-      }, 2000);
-    }
-  });
+  const { verificationMutation } = useEmailVerification();
 
   const [params] = useSearchParams();
   const token = params.get("token") || "";
@@ -37,31 +14,46 @@ export default function PlatformAccountsEmailVerification() {
     if (!token) {
       navigate("/accounts/login");
     } else {
-      const verificationForm: VerificationForm = {
-        token: token,
-      }
-      emailVerificationMutation.mutate(verificationForm)
+      verificationMutation.mutate(
+        { token },
+        {
+          onSuccess: () => {
+            setTimeout(() => {
+              navigate("/accounts/login");
+            }, 2000);
+          },
+        }
+      );
     }
   }, [token, navigate]);
 
   return (
     <Container className="center-content-between-header-footer">
-      <Activity mode={emailVerificationMutation.isPending ? "visible" : "hidden"}>
-        <div className="text-center text-warning">
-          <h1>Verifying your email</h1>
-          <Spinner animation="border" variant="warning" />
-        </div>
-      </Activity>
-      <Activity mode={emailVerificationMutation.isError ? "visible" : "hidden"}>
-        <div className="text-danger">
-          Failed to validate email.
-        </div>
-      </Activity>
-      <Activity mode={emailVerificationMutation.isSuccess ? "visible" : "hidden"}>
-        <div className="text-success">
-          Email Verification Success. Redirecting...
-        </div>
-      </Activity>
+      <div className="text-center" style={{ maxWidth: "500px", margin: "0 auto" }}>
+        <Activity mode={verificationMutation.isPending ? "visible" : "hidden"}>
+          <div>
+            <Spinner animation="border" variant="primary" style={{ width: "3rem", height: "3rem" }} className="mb-3" />
+            <h2 className="mb-3">Verifying Your Email</h2>
+            <p className="text-muted">Please wait while we verify your email address...</p>
+          </div>
+        </Activity>
+        <Activity mode={verificationMutation.isError ? "visible" : "hidden"}>
+          <div>
+            <div className="text-danger mb-3" style={{ fontSize: "4rem" }}>✗</div>
+            <h2 className="mb-3 text-danger">Verification Failed</h2>
+            <p className="text-muted">
+              {verificationMutation.error?.message || "Failed to validate email. The verification link may have expired or is invalid."}
+            </p>
+          </div>
+        </Activity>
+        <Activity mode={verificationMutation.isSuccess ? "visible" : "hidden"}>
+          <div>
+            <div className="text-success mb-3" style={{ fontSize: "4rem" }}>✓</div>
+            <h2 className="mb-3 text-success">Email Verified!</h2>
+            <p className="text-muted">Your email has been successfully verified. Redirecting to login...</p>
+          </div>
+        </Activity>
+      </div>
     </Container>
   );
 }

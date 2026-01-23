@@ -4,6 +4,7 @@ import DashboardSkeleton from "~/components/AdminDashboard/Home/DashboardSkeleto
 import UnauthorizedPage from "~/pages/AdminDashboard/Unauthorized";
 import { useUser } from "~/context/UserContext";
 import { Activity } from "react";
+import VerificationBanner from "~/components/Platform/VerificationBanner";
 
 export default function DashboardLayout() {
   const { user, isLoading } = useUser();
@@ -15,6 +16,8 @@ export default function DashboardLayout() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <AdminDashboardHeaderComponent />
+      <VerificationBanner />
+    
 
       <main className="flex-grow-1">
         <Activity mode={isLoading ? "visible" : "hidden"}>
