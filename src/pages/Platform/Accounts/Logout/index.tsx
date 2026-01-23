@@ -19,8 +19,6 @@ export default function PlatformAccountsLogout() {
       },
       onError: () => {
         notification.error('Logout failed');
-        logout();
-        navigate("/accounts/login", { replace: true });
       },
     });
   }, []);

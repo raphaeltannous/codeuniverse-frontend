@@ -23,9 +23,10 @@ import { ChevronDown, ChevronUp, Fire } from "react-bootstrap-icons";
 interface ProblemEditorProps {
   problem: Problem;
   isAuthenticated?: boolean;
+  isVerified?: boolean;
 }
 
-export default function ProblemEditor({ problem, isAuthenticated = true }: ProblemEditorProps) {
+export default function ProblemEditor({ problem, isAuthenticated = true, isVerified = true }: ProblemEditorProps) {
   const problemSlug = problem.slug;
   const [language, setLanguage] = useState(
     problem.codeSnippets?.[0]?.languageSlug || "go",
@@ -168,12 +169,22 @@ export default function ProblemEditor({ problem, isAuthenticated = true }: Probl
               </div>
             )}
 
+            {isAuthenticated && !isVerified && (
+              <div className="border-top border-warning bg-warning-subtle p-3">
+                <h6 className="mb-2 fw-bold">Email Verification Required</h6>
+                <p className="mb-0">
+                  You need to verify your email address to run or submit your code.
+                </p>
+              </div>
+            )}
+
             <Card.Footer className="d-flex justify-content-end gap-2">
               <Button
                 variant="primary"
                 onClick={handleRun}
                 disabled={
                   !isAuthenticated ||
+                  !isVerified ||
                   runMutation.isPending ||
                   submitMutation.isPending ||
                   showRunChecking ||
@@ -187,6 +198,7 @@ export default function ProblemEditor({ problem, isAuthenticated = true }: Probl
                 onClick={handleSubmit}
                 disabled={
                   !isAuthenticated ||
+                  !isVerified ||
                   runMutation.isPending ||
                   submitMutation.isPending ||
                   showRunChecking ||

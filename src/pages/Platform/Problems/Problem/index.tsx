@@ -9,10 +9,11 @@ import ProblemSkeleton from "~/components/Platform/Problem/ProblemSkeleton";
 import { useProblem } from "~/hooks/useProblem";
 import PremiumOnly from "~/components/Shared/PremiumOnly";
 import { useAuth } from "~/context/AuthContext";
+import { useUser } from "~/context/UserContext";
 
 export default function PlatformProblemsProblem() {
   const { problemSlug } = useParams();
-  const { problem, isLoading, isError, error } = useProblem(problemSlug || '');
+  const { isLoading, isError, error } = useProblem(problemSlug || '');
   const { auth } = useAuth();
   const navigate = useNavigate();
 
@@ -56,6 +57,7 @@ function ProblemContent() {
   const [activeTab, setActiveTab] = useState('editor');
   const { problem, isLoading, isError, error } = useProblem(problemSlug || '');
   const { auth } = useAuth();
+  const { user } = useUser();
 
   if (!problemSlug) {
     return <div>Problem not found</div>;
@@ -111,7 +113,7 @@ function ProblemContent() {
       >
         <Tab eventKey="editor" title="Editor">
           <Activity mode={activeTab === "editor" ? "visible" : "hidden"}>
-            <ProblemEditor problem={problem} isAuthenticated={auth.isAuthenticated} />
+            <ProblemEditor problem={problem} isAuthenticated={auth.isAuthenticated} isVerified={user?.isVerified ?? false} />
           </Activity>
         </Tab>
         {auth.isAuthenticated && problem.codeSnippets?.length !== 0 && (
