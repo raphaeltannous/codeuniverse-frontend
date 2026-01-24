@@ -19,6 +19,7 @@ import {
   ChevronRight,
 } from "react-bootstrap-icons";
 import CodeEditor from "~/components/Shared/CodeEditor";
+import EditTestCaseModal from "~/components/AdminDashboard/Problem/EditTestCaseModal";
 
 interface Testcase {
   id: number;
@@ -44,6 +45,17 @@ interface TestCasesTabProps {
   handleLimitsChange: (field: keyof LimitsConfig, value: number) => void;
   handleSaveLimits: () => void;
   updateLimitsConfigMutationPending: boolean;
+  showTestcaseModal: boolean;
+  setShowTestcaseModal: (show: boolean) => void;
+  editingTestcase: Testcase | null;
+  setEditingTestcase: (testcase: Testcase | null) => void;
+  testcaseForm: {
+    input: string;
+    expected: string;
+    isPublic: boolean;
+  };
+  handleSubmitTestcase: (data: { input: any; expected: any; isPublic: boolean }) => void;
+  isTestcaseSubmitting: boolean;
 }
 
 export default function TestCasesTab({
@@ -57,6 +69,13 @@ export default function TestCasesTab({
   handleLimitsChange,
   handleSaveLimits,
   updateLimitsConfigMutationPending,
+  showTestcaseModal,
+  setShowTestcaseModal,
+  editingTestcase,
+  setEditingTestcase,
+  testcaseForm,
+  handleSubmitTestcase,
+  isTestcaseSubmitting,
 }: TestCasesTabProps) {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -381,6 +400,18 @@ export default function TestCasesTab({
           )}
         </div>
       )}
+
+      <EditTestCaseModal
+        show={showTestcaseModal}
+        onHide={() => {
+          setShowTestcaseModal(false);
+          setEditingTestcase(null);
+        }}
+        editingTestcase={editingTestcase}
+        initialValues={!editingTestcase ? testcaseForm : undefined}
+        onSubmit={handleSubmitTestcase}
+        isSubmitting={isTestcaseSubmitting}
+      />
     </div>
   );
 }

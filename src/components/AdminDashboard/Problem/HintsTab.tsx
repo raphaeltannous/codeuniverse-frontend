@@ -11,12 +11,8 @@ import {
   Pencil,
 } from "react-bootstrap-icons";
 import MDEditor from "@uiw/react-md-editor";
-
-interface Hint {
-  id: string;
-  hint: string;
-  createdAt: string;
-}
+import EditHintModal from "~/components/AdminDashboard/Problem/EditHintModal";
+import type { Hint } from "~/components/AdminDashboard/Problem/EditHintModal";
 
 interface HintsTabProps {
   hints: Hint[];
@@ -26,6 +22,12 @@ interface HintsTabProps {
   createHintMutationPending: boolean;
   updateHintMutationPending: boolean;
   deleteHintMutationPending: boolean;
+  showHintModal: boolean;
+  setShowHintModal: (show: boolean) => void;
+  editingHint: Hint | null;
+  setEditingHint: (hint: Hint | null) => void;
+  handleSubmitHint: (hint: string) => void;
+  isHintSubmitting: boolean;
 }
 
 export default function HintsTab({
@@ -36,6 +38,12 @@ export default function HintsTab({
   createHintMutationPending,
   updateHintMutationPending,
   deleteHintMutationPending,
+  showHintModal,
+  setShowHintModal,
+  editingHint,
+  setEditingHint,
+  handleSubmitHint,
+  isHintSubmitting,
 }: HintsTabProps) {
   return (
     <div className="p-3">
@@ -103,6 +111,17 @@ export default function HintsTab({
           ))}
         </Row>
       )}
+
+      <EditHintModal
+        show={showHintModal}
+        onHide={() => {
+          setShowHintModal(false);
+          setEditingHint(null);
+        }}
+        editingHint={editingHint}
+        onSubmit={handleSubmitHint}
+        isSubmitting={isHintSubmitting}
+      />
     </div>
   );
 }

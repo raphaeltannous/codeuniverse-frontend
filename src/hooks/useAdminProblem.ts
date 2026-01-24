@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "~/context/AuthContext";
 import { apiFetch } from "~/utils/api";
+import { useNotification } from "~/hooks/useNotification";
 
 // Interfaces
 interface ProblemBasic {
@@ -78,9 +79,8 @@ interface ProblemFormData {
 export function useAdminProblem(slug: string) {
   const { auth } = useAuth();
   const queryClient = useQueryClient();
+  const notification = useNotification();
 
-  const [actionSuccess, setActionSuccess] = useState("");
-  const [actionError, setActionError] = useState("");
   const [activeTab, setActiveTab] = useState("basic");
 
   // Modal states
@@ -293,12 +293,10 @@ export function useAdminProblem(slug: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-problem", slug] });
       queryClient.invalidateQueries({ queryKey: ["admin-problems"] });
-      setActionSuccess("Problem updated successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
+      notification.success("Problem updated successfully");
     },
     onError: (error: Error) => {
-      setActionError(error.message || "Failed to update problem");
-      setTimeout(() => setActionError(""), 5000);
+      notification.error(error.message || "Failed to update problem");
     },
   });
 
@@ -320,12 +318,10 @@ export function useAdminProblem(slug: string) {
       setShowHintModal(false);
       setHintForm({ hint: "" });
       setEditingHint(null);
-      setActionSuccess("Hint added successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
+      notification.success("Hint added successfully");
     },
     onError: (error: Error) => {
-      setActionError(error.message || "Failed to create hint");
-      setTimeout(() => setActionError(""), 5000);
+      notification.error(error.message || "Failed to create hint");
     },
   });
 
@@ -347,12 +343,10 @@ export function useAdminProblem(slug: string) {
       setShowHintModal(false);
       setHintForm({ hint: "" });
       setEditingHint(null);
-      setActionSuccess("Hint updated successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
+      notification.success("Hint updated successfully");
     },
     onError: (error: Error) => {
-      setActionError(error.message || "Failed to update hint");
-      setTimeout(() => setActionError(""), 5000);
+      notification.error(error.message || "Failed to update hint");
     },
   });
 
@@ -368,12 +362,10 @@ export function useAdminProblem(slug: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-problem-hints", slug] });
-      setActionSuccess("Hint deleted successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
+      notification.success("Hint deleted successfully");
     },
     onError: (error: Error) => {
-      setActionError(error.message || "Failed to delete hint");
-      setTimeout(() => setActionError(""), 5000);
+      notification.error(error.message || "Failed to delete hint");
     },
   });
 
@@ -396,12 +388,10 @@ export function useAdminProblem(slug: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-problem-code-snippets", slug] });
       setEditingCodeSnippet(null);
-      setActionSuccess("Code snippet updated successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
+      notification.success("Code snippet updated successfully");
     },
     onError: (error: Error) => {
-      setActionError(error.message || "Failed to update code snippet");
-      setTimeout(() => setActionError(""), 5000);
+      notification.error(error.message || "Failed to update code snippet");
     },
   });
 
@@ -423,12 +413,10 @@ export function useAdminProblem(slug: string) {
       setShowTestcaseModal(false);
       setTestcaseForm({ input: "", expected: "", isPublic: false });
       setEditingTestcase(null);
-      setActionSuccess("Test case added successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
+      notification.success("Test case added successfully");
     },
     onError: (error: Error) => {
-      setActionError(error.message || "Failed to create test case");
-      setTimeout(() => setActionError(""), 5000);
+      notification.error(error.message || "Failed to create test case");
     },
   });
 
@@ -459,12 +447,10 @@ export function useAdminProblem(slug: string) {
       setShowTestcaseModal(false);
       setTestcaseForm({ input: "", expected: "", isPublic: false });
       setEditingTestcase(null);
-      setActionSuccess("Test case updated successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
+      notification.success("Test case updated successfully");
     },
     onError: (error: Error) => {
-      setActionError(error.message || "Failed to update test case");
-      setTimeout(() => setActionError(""), 5000);
+      notification.error(error.message || "Failed to update test case");
     },
   });
 
@@ -481,12 +467,10 @@ export function useAdminProblem(slug: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-problem-testcases", slug] });
-      setActionSuccess("Test case deleted successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
+      notification.success("Test case deleted successfully");
     },
     onError: (error: Error) => {
-      setActionError(error.message || "Failed to delete test case");
-      setTimeout(() => setActionError(""), 5000);
+      notification.error(error.message || "Failed to delete test case");
     },
   });
 
@@ -505,12 +489,10 @@ export function useAdminProblem(slug: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-problem-limits", slug] });
-      setActionSuccess("Limits updated successfully");
-      setTimeout(() => setActionSuccess(""), 3000);
+      notification.success("Limits updated successfully");
     },
     onError: (error: Error) => {
-      setActionError(error.message || "Failed to update limits");
-      setTimeout(() => setActionError(""), 5000);
+      notification.error(error.message || "Failed to update limits");
     },
   });
 
@@ -551,10 +533,6 @@ export function useAdminProblem(slug: string) {
     // UI State
     activeTab,
     setActiveTab,
-    actionSuccess,
-    setActionSuccess,
-    actionError,
-    setActionError,
     
     // Modals
     showHintModal,

@@ -3,23 +3,15 @@ import {
   Container,
   Card,
   Button,
-  Spinner,
   Alert,
-  Form,
   Tabs,
   Tab,
-  Modal,
-  Row,
-  Col,
 } from "react-bootstrap";
 import {
   ArrowLeft,
-  CheckCircle,
-  XCircle,
 } from "react-bootstrap-icons";
-import MDEditor from "@uiw/react-md-editor";
-import CodeEditor from "~/components/Shared/CodeEditor";
 import { useAdminProblem, type Difficulty } from "~/hooks/useAdminProblem";
+import { useNotification } from "~/hooks/useNotification";
 import TestCasesTab from "~/components/AdminDashboard/Problem/TestCasesTab";
 import CodeSnippetsTab from "~/components/AdminDashboard/Problem/CodeSnippetsTab";
 import HintsTab from "~/components/AdminDashboard/Problem/HintsTab";
@@ -29,6 +21,7 @@ import ProblemEditSkeleton from "~/components/AdminDashboard/Problem/ProblemEdit
 export default function EditProblemPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const notification = useNotification();
 
   const {
     // Data
@@ -49,10 +42,6 @@ export default function EditProblemPage() {
     // UI State
     activeTab,
     setActiveTab,
-    actionSuccess,
-    setActionSuccess,
-    actionError,
-    setActionError,
     
     // Modals
     showHintModal,
@@ -67,7 +56,6 @@ export default function EditProblemPage() {
     // Forms
     formData,
     setFormData,
-    hintForm,
     setHintForm,
     testcaseForm,
     setTestcaseForm,
@@ -139,20 +127,11 @@ export default function EditProblemPage() {
     }
   };
 
-  const handleHintFormChange = (value: string | undefined) => {
-    setHintForm({ hint: value || "" });
-  };
-
-  const handleSubmitHint = () => {
-    if (!hintForm.hint.trim()) {
-      setActionError("Hint text is required");
-      return;
-    }
-
+  const handleSubmitHint = (hint: string) => {
     if (editingHint) {
-      updateHintMutation.mutate({ hintId: editingHint.id, hint: hintForm.hint });
+      updateHintMutation.mutate({ hintId: editingHint.id, hint });
     } else {
-      createHintMutation.mutate(hintForm.hint);
+      createHintMutation.mutate(hint);
     }
   };
 
@@ -186,7 +165,7 @@ export default function EditProblemPage() {
       (lang) => lang.languageSlug === currentCodeSnippet.languageSlug
     );
     if (!selectedLang) {
-      setActionError("Invalid language selected");
+      notification.error("Invalid language selected");
       return;
     }
 
@@ -243,42 +222,7 @@ export default function EditProblemPage() {
     }
   };
 
-  const handleTestcaseFormChange = (field: keyof typeof testcaseForm, value: any) => {
-    setTestcaseForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmitTestcase = () => {
-    if (!testcaseForm.input.trim()) {
-      setActionError("Input is required");
-      return;
-    }
-
-    if (!testcaseForm.expected.trim()) {
-      setActionError("Expected output is required");
-      return;
-    }
-
-    let inputData: any;
-    let expectedData: any;
-
-    try {
-      inputData = JSON.parse(testcaseForm.input);
-    } catch {
-      inputData = testcaseForm.input;
-    }
-
-    try {
-      expectedData = JSON.parse(testcaseForm.expected);
-    } catch {
-      expectedData = testcaseForm.expected;
-    }
-
-    const data = {
-      input: inputData,
-      expected: expectedData,
-      isPublic: testcaseForm.isPublic,
-    };
-
+  const handleSubmitTestcase = (data: { input: any; expected: any; isPublic: boolean }) => {
     if (editingTestcase) {
       updateTestcaseMutation.mutate({ testcaseId: editingTestcase.id, data });
     } else {
@@ -297,25 +241,23 @@ export default function EditProblemPage() {
 
   // Handle save button click
   const handleSaveClick = () => {
-    setActionError("");
-
     if (!formData.title.trim()) {
-      setActionError("Problem title is required");
+      notification.error("Problem title is required");
       return;
     }
 
     if (!formData.slug.trim()) {
-      setActionError("Problem slug is required");
+      notification.error("Problem slug is required");
       return;
     }
 
     if (!formData.description.trim()) {
-      setActionError("Problem description is required");
+      notification.error("Problem description is required");
       return;
     }
 
     if (!formData.difficulty.trim()) {
-      setActionError("Problem difficulty is required");
+      notification.error("Problem difficulty is required");
       return;
     }
 
@@ -357,31 +299,6 @@ export default function EditProblemPage() {
 
   return (
     <Container fluid className="py-4">
-      {/* Success/Error Alerts */}
-      {actionSuccess && (
-        <Alert
-          variant="success"
-          dismissible
-          onClose={() => setActionSuccess("")}
-          className="mb-4"
-        >
-          <CheckCircle size={18} className="me-2" />
-          {actionSuccess}
-        </Alert>
-      )}
-
-      {actionError && (
-        <Alert
-          variant="danger"
-          dismissible
-          onClose={() => setActionError("")}
-          className="mb-4"
-        >
-          <XCircle size={18} className="me-2" />
-          {actionError}
-        </Alert>
-      )}
-
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2>
@@ -431,6 +348,15 @@ export default function EditProblemPage() {
                 createHintMutationPending={createHintMutation.isPending}
                 updateHintMutationPending={updateHintMutation.isPending}
                 deleteHintMutationPending={deleteHintMutation.isPending}
+                showHintModal={showHintModal}
+                setShowHintModal={setShowHintModal}
+                editingHint={editingHint}
+                setEditingHint={setEditingHint}
+                handleSubmitHint={handleSubmitHint}
+                isHintSubmitting={
+                  createHintMutation.isPending ||
+                  updateHintMutation.isPending
+                }
               />
             </Tab>
 
@@ -470,169 +396,21 @@ export default function EditProblemPage() {
                 handleLimitsChange={handleLimitsChange}
                 handleSaveLimits={handleSaveLimits}
                 updateLimitsConfigMutationPending={updateLimitsConfigMutation.isPending}
+                showTestcaseModal={showTestcaseModal}
+                setShowTestcaseModal={setShowTestcaseModal}
+                editingTestcase={editingTestcase}
+                setEditingTestcase={setEditingTestcase}
+                testcaseForm={testcaseForm}
+                handleSubmitTestcase={handleSubmitTestcase}
+                isTestcaseSubmitting={
+                  createTestcaseMutation.isPending ||
+                  updateTestcaseMutation.isPending
+                }
               />
             </Tab>
           </Tabs>
         </Card.Body>
       </Card>
-
-      {/* Hint Modal with Markdown Editor */}
-      <Modal
-        show={showHintModal}
-        onHide={() => {
-          setShowHintModal(false);
-          setEditingHint(null);
-        }}
-        size="lg"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{editingHint ? "Edit Hint" : "Add Hint"}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group>
-            <Form.Label>Hint Text (Markdown supported)</Form.Label>
-            <div>
-              <MDEditor
-                value={hintForm.hint}
-                onChange={handleHintFormChange}
-                height={300}
-                preview="edit"
-                visibleDragbar={false}
-              />
-            </div>
-            <small className="text-muted">
-              You can use Markdown for formatting, code blocks, lists, etc.
-            </small>
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => {
-            setShowHintModal(false);
-            setEditingHint(null);
-          }}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleSubmitHint}
-            disabled={
-              createHintMutation.isPending || updateHintMutation.isPending
-            }
-          >
-            {createHintMutation.isPending || updateHintMutation.isPending ? (
-              <Spinner animation="border" size="sm" />
-            ) : editingHint ? (
-              "Update Hint"
-            ) : (
-              "Add Hint"
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Testcase Modal */}
-      <Modal
-        show={showTestcaseModal}
-        onHide={() => {
-          setShowTestcaseModal(false);
-          setEditingTestcase(null);
-        }}
-        size="lg"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {editingTestcase ? "Edit Test Case" : "Add Test Case"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Row className="g-3">
-            <Col md={12}>
-              <Form.Check
-                type="switch"
-                label="Public (visible to users)"
-                checked={testcaseForm.isPublic}
-                onChange={(e) =>
-                  handleTestcaseFormChange("isPublic", e.target.checked)
-                }
-              />
-            </Col>
-
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label>Input (JSON)</Form.Label>
-                <div
-                  style={{
-                    height: "200px",
-                    border: "1px solid #dee2e6",
-                    borderRadius: "0.375rem",
-                  }}
-                >
-                  <CodeEditor
-                    code={testcaseForm.input}
-                    language="json"
-                    onCodeChange={(value) =>
-                      handleTestcaseFormChange("input", value)
-                    }
-                    readonly={false}
-                  />
-                </div>
-              </Form.Group>
-            </Col>
-
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label>Expected Output (JSON)</Form.Label>
-                <div
-                  style={{
-                    height: "200px",
-                    border: "1px solid #dee2e6",
-                    borderRadius: "0.375rem",
-                  }}
-                >
-                  <CodeEditor
-                    code={testcaseForm.expected}
-                    language="json"
-                    onCodeChange={(value) =>
-                      handleTestcaseFormChange("expected", value)
-                    }
-                    readonly={false}
-                  />
-                </div>
-              </Form.Group>
-            </Col>
-          </Row>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setShowTestcaseModal(false);
-              setEditingTestcase(null);
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleSubmitTestcase}
-            disabled={
-              createTestcaseMutation.isPending ||
-              updateTestcaseMutation.isPending
-            }
-          >
-            {createTestcaseMutation.isPending ||
-            updateTestcaseMutation.isPending ? (
-              <Spinner animation="border" size="sm" />
-            ) : editingTestcase ? (
-              "Update Test Case"
-            ) : (
-              "Add Test Case"
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </Container>
   );
 }
