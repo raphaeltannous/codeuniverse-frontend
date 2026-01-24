@@ -162,6 +162,7 @@ export default function UsersDashboard() {
             bgColorClass="bg-primary"
             value={total}
             label="Total Users"
+            isLoading={isLoading}
           />
         </Col>
         <Col md={3} sm={6}>
@@ -171,6 +172,7 @@ export default function UsersDashboard() {
             bgColorClass="bg-success"
             value={activeUsers}
             label="Active Users"
+            isLoading={isLoading}
           />
         </Col>
         <Col md={3} sm={6}>
@@ -180,6 +182,7 @@ export default function UsersDashboard() {
             bgColorClass="bg-danger"
             value={adminUsers}
             label="Administrators"
+            isLoading={isLoading}
           />
         </Col>
         <Col md={3} sm={6}>
@@ -189,6 +192,7 @@ export default function UsersDashboard() {
             bgColorClass="bg-info"
             value={verifiedUsers}
             label="Verified Users"
+            isLoading={isLoading}
           />
         </Col>
       </Row>
