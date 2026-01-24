@@ -155,7 +155,6 @@ export function useAdminProblem(slug: string) {
   const {
     data: hints = [],
     isLoading: isLoadingHints,
-    refetch: refetchHints,
   } = useQuery<Hint[]>({
     queryKey: ["admin-problem-hints", slug],
     queryFn: async () => {
@@ -172,7 +171,6 @@ export function useAdminProblem(slug: string) {
   const {
     data: codeSnippets = [],
     isLoading: isLoadingCodeSnippets,
-    refetch: refetchCodeSnippets,
   } = useQuery<ProblemCode[]>({
     queryKey: ["admin-problem-code-snippets", slug],
     queryFn: async () => {
@@ -189,7 +187,6 @@ export function useAdminProblem(slug: string) {
   const {
     data: fetchedTestcases = [],
     isLoading: isLoadingTestcases,
-    refetch: refetchTestcases,
   } = useQuery<ProblemTestcase[]>({
     queryKey: ["admin-problem-testcases", slug],
     queryFn: async () => {
@@ -206,7 +203,6 @@ export function useAdminProblem(slug: string) {
   const {
     data: fetchedLimitsConfig,
     isLoading: isLoadingLimits,
-    refetch: refetchLimits,
   } = useQuery<ProblemCodeConfig>({
     queryKey: ["admin-problem-limits", slug],
     queryFn: async () => {

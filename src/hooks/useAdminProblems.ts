@@ -132,8 +132,9 @@ export function useAdminProblems({
   } = useQuery<ProblemsResponse>({
     queryKey: ['admin-problems', page, filters, showOnlyPremium, visibilityFilter],
     queryFn: async () => {
+      const offset = (page - 1) * limit;
       const params = new URLSearchParams({
-        page: page.toString(),
+        offset: offset.toString(),
         limit: limit.toString(),
       });
 

@@ -34,6 +34,7 @@ import DifficultyBadge from '~/components/Shared/DifficultyBadge';
 import VisibilityBadge from '~/components/Shared/VisibilityBadge';
 import PremiumBadge from '~/components/Shared/PremiumBadge';
 import ProblemsListSkeleton from '~/components/AdminDashboard/Problems/ProblemsListSkeleton';
+import CreateProblemModal from '~/components/AdminDashboard/Problems/CreateProblemModal';
 import type { Filters } from '~/types/problem/problemset';
 
 export default function ProblemsDashboard() {
@@ -63,6 +64,7 @@ export default function ProblemsDashboard() {
 
   // State for problem creation/editing
   const [showModal, setShowModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProblem, setEditingProblem] = useState<Problem | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [problemToDelete, setProblemToDelete] = useState<string | null>(null);
@@ -117,8 +119,7 @@ export default function ProblemsDashboard() {
     showOnlyPremium: appliedShowOnlyPremium,
     visibilityFilter: appliedVisibilityFilter,
     onCreateSuccess: () => {
-      setShowModal(false);
-      resetForm();
+      setShowCreateModal(false);
     },
     onUpdateSuccess: () => {
       setShowModal(false);
@@ -127,6 +128,10 @@ export default function ProblemsDashboard() {
     onDeleteSuccess: () => {
       setShowDeleteModal(false);
       setProblemToDelete(null);
+      // Navigate back to previous page if we deleted the last problem on a non-first page
+      if (page > 1 && problems.length === 1) {
+        setPage(page - 1);
+      }
     },
   });
 
@@ -463,7 +468,7 @@ export default function ProblemsDashboard() {
         </div>
         <Button
           variant="primary"
-          onClick={() => setShowModal(true)}
+          onClick={() => setShowCreateModal(true)}
           disabled={createProblemMutation.isPending || updateProblemMutation.isPending}
           className="d-flex align-items-center gap-2"
         >
@@ -570,7 +575,7 @@ export default function ProblemsDashboard() {
                       </p>
                       <Button
                         variant="primary"
-                        onClick={() => setShowModal(true)}
+                        onClick={() => setShowCreateModal(true)}
                         className="mt-3"
                       >
                         <Plus size={18} className="me-2" />
@@ -678,22 +683,30 @@ export default function ProblemsDashboard() {
         )}
       </Card>
 
-      {/* Create/Edit Problem Modal */}
+      {/* Create Problem Modal */}
+      <CreateProblemModal
+        show={showCreateModal}
+        onHide={() => setShowCreateModal(false)}
+        onSubmit={(data) => createProblemMutation.mutate(data)}
+        isCreating={createProblemMutation.isPending}
+      />
+
+      {/* Edit Problem Modal */}
       <Modal
-        show={showModal}
+        show={showModal && editingProblem !== null}
         onHide={handleCloseModal}
-        size={editingProblem ? "xl" : "lg"}
+        size="xl"
         centered
         fullscreen="lg-down"
-        backdrop={createProblemMutation.isPending || updateProblemMutation.isPending ? 'static' : true}
+        backdrop={updateProblemMutation.isPending ? 'static' : true}
       >
         <Modal.Header closeButton>
           <Modal.Title className="h4 fw-bold">
-            {editingProblem ? 'Edit Problem' : 'Create New Problem'}
+            Edit Problem
           </Modal.Title>
         </Modal.Header>
 
-        {editingProblem ? (
+        {editingProblem && (
           // EDIT MODE: Show tabs with all sections
           <>
             {/* Form Tabs */}
@@ -1177,145 +1190,6 @@ export default function ProblemsDashboard() {
               </Modal.Footer>
             </Form>
           </>
-        ) : (
-          // CREATE MODE: Simple form with only basic info
-          <Form onSubmit={handleSubmit}>
-            <Modal.Body>
-              <Alert variant="info" className="mb-4">
-                <p className="mb-0">
-                  Create a basic problem first. You can add hints, code snippets, and test cases later when editing.
-                </p>
-              </Alert>
-
-              <Row className="g-3">
-                <Col md={8}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold">
-                      Problem Title <span className="text-danger">*</span>
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="e.g., Two Sum"
-                      className="py-2"
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col md={4}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold">
-                      Slug <span className="text-danger">*</span>
-                    </Form.Label>
-                    <InputGroup>
-                      <Form.Control
-                        type="text"
-                        name="slug"
-                        value={formData.slug}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="two-sum"
-                        className="py-2"
-                      />
-                      <Button
-                        variant="outline-secondary"
-                        onClick={handleSlugGenerate}
-                        type="button"
-                      >
-                        Generate
-                      </Button>
-                    </InputGroup>
-                  </Form.Group>
-                </Col>
-
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold">
-                      Difficulty <span className="text-danger">*</span>
-                    </Form.Label>
-                    <Form.Select
-                      name="difficulty"
-                      value={formData.difficulty}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      {difficultyOptions.map(diff => (
-                        <option key={diff} value={diff}>{diff}</option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold">Access Settings</Form.Label>
-                    <div className="d-flex gap-4">
-                      <Form.Check
-                        type="switch"
-                        id="isPublic"
-                        label="Public"
-                        checked={formData.isPublic}
-                        onChange={(e) => setFormData(prev => ({ ...prev, isPublic: e.target.checked }))}
-                      />
-                      <Form.Check
-                        type="switch"
-                        id="isPremium"
-                        label="Premium"
-                        checked={formData.isPremium}
-                        onChange={(e) => setFormData(prev => ({ ...prev, isPremium: e.target.checked }))}
-                      />
-                    </div>
-                  </Form.Group>
-                </Col>
-
-                <Col md={12}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold">
-                      Description <span className="text-danger">*</span>
-                    </Form.Label>
-                    <div data-color-mode="light">
-                      <MDEditor
-                        value={formData.description}
-                        onChange={handleDescriptionChange}
-                        height={300}
-                        preview="edit"
-                        visibleDragbar={false}
-                      />
-                    </div>
-                  </Form.Group>
-                </Col>
-              </Row>
-            </Modal.Body>
-
-            <Modal.Footer>
-              <Button
-                variant="outline-secondary"
-                onClick={handleCloseModal}
-                className="px-4"
-                disabled={createProblemMutation.isPending || updateProblemMutation.isPending}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                type="submit"
-                className="px-4"
-                disabled={createProblemMutation.isPending || updateProblemMutation.isPending}
-              >
-                {createProblemMutation.isPending ? (
-                  <>
-                    <Spinner animation="border" size="sm" className="me-2" />
-                    Creating...
-                  </>
-                ) : (
-                  'Create Problem'
-                )}
-              </Button>
-            </Modal.Footer>
-          </Form>
         )}
       </Modal>
 
