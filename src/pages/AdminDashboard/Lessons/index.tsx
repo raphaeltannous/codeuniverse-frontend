@@ -11,10 +11,8 @@ import {
   Alert,
   Form,
   InputGroup,
-  Modal
 } from 'react-bootstrap';
 import {
-  ArrowLeft,
   Plus,
   Pencil,
   Trash,
@@ -25,10 +23,12 @@ import {
   Upload,
   FileEarmarkPlay
 } from 'react-bootstrap-icons';
-import { Link, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import type { Lesson, LessonFormData } from '~/types/course/lesson';
-import VideoUploadModal from '~/components/AdminDashboard/Lessons/video-upload-modal';
-import VideoPlayer from '~/components/Shared/VideoPlayer';
+import VideoUploadModal from '~/components/AdminDashboard/Lessons/VideoUploadModal';
+import LessonFormModal from '~/components/AdminDashboard/Lessons/LessonFormModal';
+import DeleteLessonModal from '~/components/AdminDashboard/Lessons/DeleteLessonModal';
+import VideoPlayerModal from '~/components/AdminDashboard/Lessons/VideoPlayerModal';
 import { useAdminLessons } from '~/hooks/useAdminLessons';
 
 export default function LessonsDashboard() {
@@ -41,7 +41,7 @@ export default function LessonsDashboard() {
   const [lessonToDelete, setLessonToDelete] = useState<string | null>(null);
   const [selectedLessonForVideo, setSelectedLessonForVideo] = useState<Lesson | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortOrder] = useState<'asc' | 'desc'>('asc');
   const [showVideoPlayerModal, setShowVideoPlayerModal] = useState(false);
   const [selectedVideoPlayerLesson, setSelectedVideoPlayerLesson] = useState<Lesson | null>(null);
 
@@ -152,20 +152,6 @@ export default function LessonsDashboard() {
     }
     return b.lessonNumber - a.lessonNumber;
   });
-
-  if (!courseSlug) {
-    return (
-      <Container fluid className="py-4">
-        <Alert variant="warning">
-          No course selected. Please go back and select a course.
-        </Alert>
-        <Button as={Link} to="/dashboard/courses" variant="primary">
-          <ArrowLeft className="me-2" />
-          Back to Courses
-        </Button>
-      </Container>
-    );
-  }
 
   return (
     <Container fluid className="py-4">
@@ -405,141 +391,22 @@ export default function LessonsDashboard() {
         </Card.Body>
       </Card>
 
-      <Modal
+      <LessonFormModal
         show={showModal}
         onHide={handleCloseModal}
-        size="lg"
-        centered
-        backdrop={createMutation.isPending || updateMutation.isPending ? 'static' : true}
-      >
-        <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title className="h4 fw-bold">
-            {editingLesson ? 'Edit Lesson' : 'Add New Lesson'}
-          </Modal.Title>
-        </Modal.Header>
-        <Form onSubmit={handleSubmit}>
-          <Modal.Body className="py-3">
-            <Row>
-              <Col md={8}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold">
-                    Lesson Title <span className="text-danger">*</span>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="e.g., Introduction to Arrays"
-                    disabled={createMutation.isPending || updateMutation.isPending}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold">
-                    Lesson Number <span className="text-danger">*</span>
-                  </Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="lessonNumber"
-                    value={formData.lessonNumber}
-                    onChange={handleInputChange}
-                    required
-                    min="1"
-                    disabled={createMutation.isPending || updateMutation.isPending}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
+        editingLesson={editingLesson}
+        formData={formData}
+        onInputChange={handleInputChange}
+        onSubmit={handleSubmit}
+        isLoading={createMutation.isPending || updateMutation.isPending}
+      />
 
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">
-                Description <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
-                as="textarea"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows={3}
-                required
-                placeholder="Brief description of the lesson content..."
-                disabled={createMutation.isPending || updateMutation.isPending}
-              />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer className="border-0 pt-0">
-            <Button
-              variant="outline-secondary"
-              onClick={handleCloseModal}
-              disabled={createMutation.isPending || updateMutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              disabled={createMutation.isPending || updateMutation.isPending}
-            >
-              {createMutation.isPending || updateMutation.isPending ? (
-                <>
-                  <Spinner animation="border" size="sm" className="me-2" />
-                  {editingLesson ? 'Updating...' : 'Creating...'}
-                </>
-              ) : (
-                editingLesson ? 'Update Lesson' : 'Create Lesson'
-              )}
-            </Button>
-          </Modal.Footer>
-        </Form>
-      </Modal>
-
-      <Modal
+      <DeleteLessonModal
         show={showDeleteModal}
-        onHide={() => !deleteMutation.isPending && setShowDeleteModal(false)}
-        centered
-        backdrop={deleteMutation.isPending ? 'static' : true}
-      >
-        <Modal.Header closeButton={!deleteMutation.isPending} className="border-0">
-          <Modal.Title className="h5 fw-bold text-danger">
-            Confirm Delete
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="py-4">
-          <div className="text-center mb-3">
-            <Trash size={48} className="text-danger mb-3" />
-            <h5 className="fw-bold">Are you sure?</h5>
-            <p className="text-muted">
-              This will permanently delete the lesson. This action cannot be undone.
-            </p>
-          </div>
-        </Modal.Body>
-        <Modal.Footer className="border-0">
-          <Button
-            variant="outline-secondary"
-            onClick={() => setShowDeleteModal(false)}
-            disabled={deleteMutation.isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="danger"
-            onClick={confirmDelete}
-            disabled={deleteMutation.isPending}
-          >
-            {deleteMutation.isPending ? (
-              <>
-                <Spinner animation="border" size="sm" className="me-2" />
-                Deleting...
-              </>
-            ) : (
-              'Delete Lesson'
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        isDeleting={deleteMutation.isPending}
+      />
 
       {selectedLessonForVideo && (
         <VideoUploadModal
@@ -550,29 +417,17 @@ export default function LessonsDashboard() {
           }}
           lessonId={selectedLessonForVideo.id}
           lessonTitle={selectedLessonForVideo.title}
-          courseSlug={courseSlug}
+          courseSlug={courseSlug || ``}
           currentVideoUrl={selectedLessonForVideo.videoUrl == "default.mp4" ? undefined : selectedLessonForVideo.videoUrl}
           currentDuration={selectedLessonForVideo.durationSeconds}
         />
       )}
 
-      <Modal
+      <VideoPlayerModal
         show={showVideoPlayerModal}
         onHide={() => setShowVideoPlayerModal(false)}
-        size="xl"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{selectedVideoPlayerLesson?.title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="p-0">
-          {selectedVideoPlayerLesson && (
-            <VideoPlayer
-              videoUrl={`/api/static/lessons/${selectedVideoPlayerLesson.videoUrl}`}
-            />
-          )}
-        </Modal.Body>
-      </Modal>
+        lesson={selectedVideoPlayerLesson}
+      />
     </Container>
   );
 }

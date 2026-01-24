@@ -22,9 +22,9 @@ export function NotificationContainer() {
           bg={notification.type}
         >
           <Toast.Header closeButton={true}>
-            <div className="d-flex align-items-center gap-2">
+            <div className="d-flex align-items-center gap-2 w-100">
               {getIcon(notification.type)}
-              <strong>{getTitle(notification.type)}</strong>
+              <strong className="me-auto">{getTitle(notification.type)}</strong>
             </div>
           </Toast.Header>
           <Toast.Body className={notification.type === 'danger' ? 'text-white' : ''}>

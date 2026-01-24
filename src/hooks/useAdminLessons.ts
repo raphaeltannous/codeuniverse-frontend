@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNotification } from './useNotification';
 import { apiFetch } from '~/utils/api';
 import type { Lesson, LessonFormData } from '~/types/course/lesson';
 
@@ -25,6 +26,7 @@ export function useAdminLessons({
   onError,
 }: UseAdminLessonsOptions) {
   const queryClient = useQueryClient();
+  const notification = useNotification();
 
   // Fetch lessons
   const lessonsQuery = useQuery<LessonsResponse>({
@@ -52,16 +54,18 @@ export function useAdminLessons({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create lesson');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to create lesson');
       }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lessons', courseSlug] });
+      notification.success('Lesson created successfully', 3000);
       onCreateSuccess?.();
     },
     onError: (error: Error) => {
-      console.error('Error creating lesson:', error);
+      notification.error(error.message || 'Failed to create lesson', 5000);
       onError?.(error);
     },
   });
@@ -78,16 +82,18 @@ export function useAdminLessons({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update lesson');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to update lesson');
       }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lessons', courseSlug] });
+      notification.success('Lesson updated successfully', 3000);
       onUpdateSuccess?.();
     },
     onError: (error: Error) => {
-      console.error('Error updating lesson:', error);
+      notification.error(error.message || 'Failed to update lesson', 5000);
       onError?.(error);
     },
   });
@@ -100,15 +106,17 @@ export function useAdminLessons({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete lesson');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to delete lesson');
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lessons', courseSlug] });
+      notification.success('Lesson deleted successfully', 3000);
       onDeleteSuccess?.();
     },
     onError: (error: Error) => {
-      console.error('Error deleting lesson:', error);
+      notification.error(error.message || 'Failed to delete lesson', 5000);
       onError?.(error);
     },
   });

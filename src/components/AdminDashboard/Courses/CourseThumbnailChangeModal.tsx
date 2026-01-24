@@ -151,7 +151,7 @@ export default function CourseThumbnailChangeModal({
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-4">
             <div
-              className="rounded border-0 p-4 text-center mb-3"
+              className="rounded border p-5 text-center mb-3"
               style={{
                 cursor: 'pointer',
               }}

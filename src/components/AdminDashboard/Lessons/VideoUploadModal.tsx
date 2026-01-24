@@ -4,7 +4,6 @@ import {
   Button,
   Form,
   Spinner,
-  Alert,
   ProgressBar,
   Badge,
   Row,
@@ -12,18 +11,14 @@ import {
 } from 'react-bootstrap';
 import {
   Upload,
-  Play,
-  Trash,
   FileEarmarkPlay,
   Clock,
-  CheckCircle,
-  Hourglass,
   X,
   Eye
 } from 'react-bootstrap-icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '~/context/AuthContext';
 import { apiFetch } from "~/utils/api";
+import { useNotification } from '~/hooks/useNotification';
 
 interface VideoUploadModalProps {
   show: boolean;
@@ -32,7 +27,6 @@ interface VideoUploadModalProps {
   lessonTitle: string;
   courseSlug: string;
   currentVideoUrl?: string;
-  currentDuration?: number;
 }
 
 interface VideoUploadResponse {
@@ -71,11 +65,10 @@ export default function VideoUploadModal({
   lessonId,
   lessonTitle,
   courseSlug,
-  currentVideoUrl,
-  currentDuration = 0
+  currentVideoUrl
 }: VideoUploadModalProps) {
-  const { auth } = useAuth();
   const queryClient = useQueryClient();
+  const notification = useNotification();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
 
@@ -84,8 +77,6 @@ export default function VideoUploadModal({
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [isGettingDuration, setIsGettingDuration] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadError, setUploadError] = useState<string>('');
-  const [uploadSuccess, setUploadSuccess] = useState<string>('');
   const [showPreview, setShowPreview] = useState(false);
 
   const uploadVideoMutation = useMutation<VideoUploadResponse, APIError, FormData>({
@@ -119,17 +110,17 @@ export default function VideoUploadModal({
         };
       });
 
-      setUploadSuccess(data.message || 'Video uploaded successfully!');
+      // Invalidate to refetch fresh data
+      queryClient.invalidateQueries({ queryKey: ['lessons', courseSlug] });
+
+      notification.success(data.message || 'Video uploaded successfully!', 3000);
       setSelectedFile(null);
       setVideoDuration(0);
       setUploadProgress(0);
-
-      setTimeout(() => {
-        handleClose();
-      }, 2000);
+      handleClose();
     },
     onError: (error) => {
-      setUploadError(error.message || 'Failed to upload video');
+      notification.error(error.message || 'Failed to upload video', 5000);
       setUploadProgress(0);
     },
   });
@@ -157,8 +148,6 @@ export default function VideoUploadModal({
     setVideoPreviewUrl(null);
     setIsGettingDuration(false);
     setUploadProgress(0);
-    setUploadError('');
-    setUploadSuccess('');
     setShowPreview(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -180,18 +169,16 @@ export default function VideoUploadModal({
     const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
 
     if (!validTypes.includes(file.type) && !hasValidExtension) {
-      setUploadError('Please select a valid MP4 video file (.mp4)');
+      notification.error('Please select a valid MP4 video file (.mp4)', 5000);
       return;
     }
 
     if (file.size > 500 * 1024 * 1024) {
-      setUploadError('Video size must be less than 500MB');
+      notification.error('Video size must be less than 500MB', 5000);
       return;
     }
 
     setSelectedFile(file);
-    setUploadError('');
-    setUploadSuccess('');
     setIsGettingDuration(true);
 
     // Create preview URL
@@ -203,7 +190,7 @@ export default function VideoUploadModal({
       setVideoDuration(duration);
     } catch (error) {
       console.error('Error getting video duration:', error);
-      setUploadError('Could not read video duration. Please try another file.');
+      notification.error('Could not read video duration. Please try another file.', 5000);
       setSelectedFile(null);
       if (videoPreviewUrl) {
         URL.revokeObjectURL(previewUrl);
@@ -220,12 +207,12 @@ export default function VideoUploadModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
-      setUploadError('Please select a video file.');
+      notification.error('Please select a video file.', 5000);
       return;
     }
 
     if (videoDuration === 0) {
-      setUploadError('Could not read video duration. Please select a different file.');
+      notification.error('Could not read video duration. Please select a different file.', 5000);
       return;
     }
 
@@ -247,36 +234,6 @@ export default function VideoUploadModal({
     await uploadVideoMutation.mutateAsync(formData);
     clearInterval(progressInterval);
     setUploadProgress(100);
-  };
-
-  const handleRemoveVideo = async () => {
-    const res = await apiFetch(`/api/admin/courses/${courseSlug}/lessons/${lessonId}/video`, {
-      method: 'DELETE',
-    });
-
-    if (res.ok) {
-      queryClient.setQueryData(['lessons', courseSlug], (old: any) => {
-        if (!old?.lessons) return old;
-        return {
-          ...old,
-          lessons: old.lessons.map((lesson: any) =>
-            lesson.id === lessonId
-              ? {
-                  ...lesson,
-                  videoUrl: '',
-                  durationSeconds: 0
-                }
-              : lesson
-          )
-        };
-      });
-
-      queryClient.invalidateQueries({ queryKey: ['lessons', courseSlug] });
-      handleClose();
-    } else {
-      const data = await res.json();
-      setUploadError(data.message || 'Failed to remove video');
-    }
   };
 
   const formatDuration = (seconds: number) => {
@@ -307,133 +264,93 @@ export default function VideoUploadModal({
       size="lg"
       backdrop={uploadVideoMutation.isPending || isGettingDuration ? 'static' : true}
     >
-      <Modal.Header closeButton={!uploadVideoMutation.isPending} className="border-0">
-        <Modal.Title className="d-flex align-items-center gap-2">
-          <FileEarmarkPlay size={24} />
-          {currentVideoUrl ? 'Replace Lesson Video' : 'Upload Lesson Video'}
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <div className="mb-4">
-          <h6 className="fw-medium mb-2">Lesson Information</h6>
-          <div className="d-flex align-items-center justify-content-between">
-            <div>
-              <Badge bg="info" className="px-3 py-2">
-                {lessonTitle}
-              </Badge>
-            </div>
-            <div className="d-flex align-items-center gap-2">
-              <Clock size={18} className="text-muted" />
-              <span className="fw-medium">{formatDuration(currentDuration)}</span>
-            </div>
+      <Modal.Header closeButton={!uploadVideoMutation.isPending} className="border-0 pb-2">
+        <div className="d-flex align-items-center gap-3 w-100">
+          <div className="border-0 p-2 rounded">
+            <FileEarmarkPlay size={24} className="text-primary" />
+          </div>
+          <div>
+            <Modal.Title className="mb-1 h5">
+              {currentVideoUrl ? 'Replace Video' : 'Upload Video'}
+            </Modal.Title>
+            <p className="text-muted mb-0 small">{lessonTitle}</p>
           </div>
         </div>
-
-        {currentVideoUrl && (
-          <div className="mb-4">
-            <h6 className="fw-medium mb-2">Current Video</h6>
-            <div className="d-flex align-items-center justify-content-between p-3 rounded">
-              <div className="d-flex align-items-center gap-3">
-                <Play size={24} className="text-primary" />
-                <div>
-                  <p className="mb-0 fw-medium">{currentVideoUrl.split('/').pop()}</p>
-                  <small className="text-muted">{formatDuration(currentDuration)}</small>
-                </div>
-              </div>
-              <Button
-                variant="outline-danger"
-                size="sm"
-                onClick={handleRemoveVideo}
-                disabled={uploadVideoMutation.isPending || isGettingDuration}
-              >
-                <Trash size={14} />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {uploadError && (
-          <Alert variant="danger" dismissible onClose={() => setUploadError('')}>
-            {uploadError}
-          </Alert>
-        )}
-
-        {uploadSuccess && (
-          <Alert variant="success" className="mb-0">
-            <div className="d-flex align-items-center">
-              <CheckCircle size={20} className="me-2" />
-              <span>{uploadSuccess}</span>
-            </div>
-          </Alert>
-        )}
-
-        {!uploadSuccess && (
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-4">
-              <Form.Label className="fw-medium">
-                {currentVideoUrl ? 'Select New Video' : 'Select Video'}
-                <span className="text-muted ms-2">(MP4 only)</span>
+      </Modal.Header>
+      
+      <Modal.Body className="pt-3">
+        <Form onSubmit={handleSubmit}>
+            {/* Upload Area */}
+            <div className="mb-4">
+              <Form.Label className="fw-semibold mb-3">
+                Video File <span className="text-muted fw-normal">(MP4 only, max 500MB)</span>
               </Form.Label>
 
               <div
-                className="border rounded p-5 text-center mb-3 position-relative"
+                className={`border-2 rounded-3 p-4 text-center position-relative transition-all ${
+                  selectedFile 
+                    ? 'border-primary' 
+                    : 'border-dashed'
+                }`}
                 style={{
-                  cursor: 'pointer',
+                  cursor: uploadVideoMutation.isPending || isGettingDuration ? 'not-allowed' : 'pointer',
                   borderStyle: selectedFile ? 'solid' : 'dashed',
-                  backgroundColor: selectedFile ? '#f8f9fa' : 'transparent',
-                  opacity: isGettingDuration ? 0.6 : 1
+                  opacity: isGettingDuration ? 0.7 : 1,
+                  transition: 'all 0.3s ease'
                 }}
                 onClick={() => !uploadVideoMutation.isPending && !isGettingDuration && fileInputRef.current?.click()}
               >
                 {selectedFile ? (
-                  <div className="text-center">
-                    <FileEarmarkPlay size={48} className="text-primary mb-3" />
-                    <p className="mb-1 fw-medium">{selectedFile.name}</p>
-                    <p className="text-muted mb-1">
+                  <div>
+                    <div className="mb-3">
+                      <div className="border rounded-circle d-inline-flex p-3 mb-3">
+                        <FileEarmarkPlay size={32} className="text-primary" />
+                      </div>
+                    </div>
+                    <h6 className="fw-semibold mb-2">{selectedFile.name}</h6>
+                    <p className="text-muted small mb-2">
                       {formatFileSize(selectedFile.size)}
                     </p>
+                    
                     {isGettingDuration ? (
-                      <div className="d-flex align-items-center justify-content-center gap-2 mt-2">
-                        <Spinner animation="border" size="sm" />
-                        <small>Reading video metadata...</small>
+                      <div className="d-flex align-items-center justify-content-center gap-2 mt-3">
+                        <Spinner animation="border" size="sm" variant="primary" />
+                        <small className="text-muted">Analyzing video...</small>
                       </div>
-                    ) : videoDuration > 0 && (
-                      <>
-                        <p className="text-success mb-0">
+                    ) : videoDuration > 0 ? (
+                      <div className="mt-3">
+                        <Badge className="border px-3 py-2">
+                          <Clock size={14} className="me-1" />
                           Duration: {formatDuration(videoDuration)}
-                        </p>
+                        </Badge>
                         {videoPreviewUrl && (
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
-                            className="mt-3 d-flex align-items-center gap-2 mx-auto"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setShowPreview(!showPreview);
-                            }}
-                          >
-                            <Eye size={14} />
-                            {showPreview ? 'Hide Preview' : 'Show Preview'}
-                          </Button>
+                          <div className="mt-3">
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowPreview(!showPreview);
+                              }}
+                            >
+                              <Eye size={14} className="me-1" />
+                              {showPreview ? 'Hide Preview' : 'Show Preview'}
+                            </Button>
+                          </div>
                         )}
-                      </>
-                    )}
+                      </div>
+                    ) : null}
                   </div>
                 ) : (
-                  <>
-                    <Upload size={48} className="text-muted mb-3" />
-                    <p className="mb-2">Click here to select a video file</p>
-                    <Button
-                      variant="outline-primary"
-                      disabled={uploadVideoMutation.isPending || isGettingDuration}
-                    >
-                      <Upload className="me-2" />
-                      Choose MP4 Video
-                    </Button>
-                    <p className="text-muted mt-3 mb-0">
-                      Only .mp4 files are supported
+                  <div className="py-4">
+                    <div className="rounded-circle d-inline-flex p-3 mb-3">
+                      <Upload size={32} className="text-muted" />
+                    </div>
+                    <h6 className="mb-2">Drop your video here or click to browse</h6>
+                    <p className="text-muted small mb-3">
+                      Supports MP4 format up to 500MB
                     </p>
-                  </>
+                  </div>
                 )}
               </div>
 
@@ -445,79 +362,60 @@ export default function VideoUploadModal({
                 disabled={uploadVideoMutation.isPending || isGettingDuration}
                 className="d-none"
               />
-
-              <Form.Text className="text-muted">
-                Maximum file size: 500MB. Only MP4 format is supported.
-              </Form.Text>
-            </Form.Group>
+            </div>
 
             {/* Video Preview */}
             {showPreview && videoPreviewUrl && (
               <div className="mb-4">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h6 className="fw-medium mb-0">Video Preview</h6>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h6 className="fw-semibold mb-0">Video Preview</h6>
                   <Button
-                    variant="outline-secondary"
+                    variant="link"
                     size="sm"
+                    className="text-decoration-none p-0"
                     onClick={() => setShowPreview(false)}
                   >
-                    <X size={14} />
+                    <X size={18} />
                   </Button>
                 </div>
-                <div className="border rounded overflow-hidden">
+                <div className="border rounded-3 overflow-hidden bg-black">
                   <video
                     ref={videoPreviewRef}
                     src={videoPreviewUrl}
                     controls
                     className="w-100"
-                    style={{ maxHeight: '300px' }}
+                    style={{ maxHeight: '350px', objectFit: 'contain' }}
                     onLoadedMetadata={(e) => {
                       const video = e.currentTarget;
-                      // Auto-play for preview (muted)
                       video.muted = true;
                       video.play().catch(() => {
-                        // Auto-play might be blocked by browser policy
                         console.log('Auto-play blocked');
                       });
                     }}
                   />
                 </div>
-                <div className="mt-2 d-flex justify-content-between text-muted small">
-                  <span>Duration: {formatDuration(videoDuration)}</span>
-                  <span>Size: {formatFileSize(selectedFile?.size || 0)}</span>
-                </div>
               </div>
             )}
 
-            {/* Video Details Card */}
-            {selectedFile && videoDuration > 0 && !isGettingDuration && (
-              <Row className="mb-4">
-                <Col>
-                  <div className="card border-info">
-                    <div className="card-body">
-                      <h6 className="card-title d-flex align-items-center gap-2">
-                        <Hourglass size={20} />
-                        Video Details
-                      </h6>
-                      <div className="row">
-                        <div className="col-md-6">
-                          <p className="mb-1">
-                            <strong>Duration:</strong> {formatDuration(videoDuration)}
-                          </p>
-                          <p className="mb-1">
-                            <strong>Size:</strong> {formatFileSize(selectedFile.size)}
-                          </p>
-                        </div>
-                        <div className="col-md-6">
-                          <p className="mb-1">
-                            <strong>Type:</strong> MP4
-                          </p>
-                          <p className="mb-0">
-                            <strong>File:</strong> {selectedFile.name}
-                          </p>
-                        </div>
-                      </div>
+            {/* Video Stats */}
+            {selectedFile && videoDuration > 0 && !isGettingDuration && !showPreview && (
+              <Row className="g-3 mb-4">
+                <Col xs={6}>
+                  <div className="border rounded-3 p-3 h-100">
+                    <div className="d-flex align-items-center gap-2 mb-2">
+                      <Clock size={16} className="text-primary" />
+                      <small className="text-muted text-uppercase fw-semibold">Duration</small>
                     </div>
+                    <h6 className="mb-0">{formatDuration(videoDuration)}</h6>
+                  </div>
+                </Col>
+                <Col xs={6}>
+                  <div className="border rounded-3 p-3 h-100">
+                    <div className="d-flex align-items-center gap-2 mb-2">
+                      <FileEarmarkPlay size={16} className="text-primary" />
+                      <small className="text-muted text-uppercase fw-semibold">File Size</small>
+                    </div>
+                    <h6 className="mb-0">{formatFileSize(selectedFile.size)}</h6>
                   </div>
                 </Col>
               </Row>
@@ -526,29 +424,30 @@ export default function VideoUploadModal({
             {/* Upload Progress */}
             {uploadVideoMutation.isPending && (
               <div className="mb-4">
-                <div className="d-flex justify-content-between mb-1">
-                  <small>Uploading video...</small>
-                  <small>{uploadProgress}%</small>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <small className="fw-semibold">Uploading video...</small>
+                  <small className="text-primary fw-semibold">{uploadProgress}%</small>
                 </div>
                 <ProgressBar
                   now={uploadProgress}
-                  variant="success"
+                  variant="primary"
                   animated
+                  style={{ height: '8px' }}
                 />
+                <p className="text-muted small mb-0 mt-2">Please don't close this window</p>
               </div>
             )}
           </Form>
-        )}
       </Modal.Body>
-      <Modal.Footer className="border-0">
+      <Modal.Footer className="border-0 pt-0">
         <Button
           variant="outline-secondary"
           onClick={handleClose}
           disabled={uploadVideoMutation.isPending || isGettingDuration}
         >
-          {uploadSuccess ? 'Close' : 'Cancel'}
+          Cancel
         </Button>
-        {!uploadSuccess && selectedFile && videoDuration > 0 && !isGettingDuration && (
+        {selectedFile && videoDuration > 0 && !isGettingDuration && (
           <Button
             variant="primary"
             onClick={handleSubmit}
@@ -566,7 +465,7 @@ export default function VideoUploadModal({
               </>
             ) : (
               <>
-                <Upload className="me-2" />
+                <Upload size={16} className="me-2" />
                 Upload Video
               </>
             )}
