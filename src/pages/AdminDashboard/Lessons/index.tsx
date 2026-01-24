@@ -419,7 +419,6 @@ export default function LessonsDashboard() {
           lessonTitle={selectedLessonForVideo.title}
           courseSlug={courseSlug || ``}
           currentVideoUrl={selectedLessonForVideo.videoUrl == "default.mp4" ? undefined : selectedLessonForVideo.videoUrl}
-          currentDuration={selectedLessonForVideo.durationSeconds}
         />
       )}
 
