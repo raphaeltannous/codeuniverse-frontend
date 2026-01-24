@@ -24,6 +24,7 @@ import TestCasesTab from "~/components/AdminDashboard/Problem/TestCasesTab";
 import CodeSnippetsTab from "~/components/AdminDashboard/Problem/CodeSnippetsTab";
 import HintsTab from "~/components/AdminDashboard/Problem/HintsTab";
 import BasicInfoTab from "~/components/AdminDashboard/Problem/BasicInfoTab";
+import ProblemEditSkeleton from "~/components/AdminDashboard/Problem/ProblemEditSkeleton";
 
 export default function EditProblemPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -328,14 +329,7 @@ export default function EditProblemPage() {
   ];
 
   if (isLoading) {
-    return (
-      <Container fluid className="py-4">
-        <div className="text-center py-5">
-          <Spinner animation="border" variant="primary" />
-          <p className="mt-3 text-muted">Loading problem...</p>
-        </div>
-      </Container>
-    );
+    return <ProblemEditSkeleton />;
   }
 
   if (isProblemError) {

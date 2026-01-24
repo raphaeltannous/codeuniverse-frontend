@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Activity } from 'react';
 import {
   Container,
   Row,
@@ -33,6 +33,7 @@ import StatsCard from '~/components/Shared/StatsCard';
 import DifficultyBadge from '~/components/Shared/DifficultyBadge';
 import VisibilityBadge from '~/components/Shared/VisibilityBadge';
 import PremiumBadge from '~/components/Shared/PremiumBadge';
+import ProblemsListSkeleton from '~/components/AdminDashboard/Problems/ProblemsListSkeleton';
 import type { Filters } from '~/types/problem/problemset';
 
 export default function ProblemsDashboard() {
@@ -417,17 +418,6 @@ export default function ProblemsDashboard() {
     });
   };
 
-  if (isLoading) {
-    return (
-      <Container fluid className="py-4">
-        <div className="text-center py-5">
-          <Spinner animation="border" variant="primary" />
-          <p className="mt-3 text-muted">Loading problems...</p>
-        </div>
-      </Container>
-    );
-  }
-
   if (isError) {
     return (
       <Container fluid className="py-4">
@@ -491,6 +481,7 @@ export default function ProblemsDashboard() {
             bgColorClass="bg-primary"
             value={total}
             label="Total Problems"
+            isLoading={isLoading}
           />
         </Col>
         <Col md={3} sm={6}>
@@ -500,6 +491,7 @@ export default function ProblemsDashboard() {
             bgColorClass="bg-success"
             value={problems.filter(p => p.isPublic).length}
             label="Public Problems"
+            isLoading={isLoading}
           />
         </Col>
         <Col md={3} sm={6}>
@@ -509,6 +501,7 @@ export default function ProblemsDashboard() {
             bgColorClass="bg-warning"
             value={problems.filter(p => p.isPremium).length}
             label="Premium Problems"
+            isLoading={isLoading}
           />
         </Col>
         <Col md={3} sm={6}>
@@ -518,6 +511,7 @@ export default function ProblemsDashboard() {
             bgColorClass="bg-info"
             value={problems.reduce((acc, p) => acc + (p.testcases?.testcases?.length || 0), 0)}
             label="Total Test Cases"
+            isLoading={isLoading}
           />
         </Col>
       </Row>
@@ -547,8 +541,12 @@ export default function ProblemsDashboard() {
         </Card.Body>
       </Card>
 
-      {/* Problems Table */}
-      <Card className="border-0">
+      <Activity mode={isLoading ? "visible" : "hidden"}>
+        <ProblemsListSkeleton />
+      </Activity>
+      <Activity mode={isLoading ? "hidden" : "visible"}>
+        {/* Problems Table */}
+        <Card className="border-0">
         <Card.Body className="p-0">
           <div className="table-responsive">
             <Table hover className="mb-0">
@@ -1367,6 +1365,7 @@ export default function ProblemsDashboard() {
           </Button>
         </Modal.Footer>
       </Modal>
+      </Activity>
     </Container>
   );
 }
