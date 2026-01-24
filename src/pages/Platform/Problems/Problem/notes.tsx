@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Card, Col, Row, Button, Spinner } from 'react-bootstrap';
 import { CheckCircle } from 'react-bootstrap-icons';
 import { useProblemNote } from '~/hooks/useProblemNote';
+import NotesSkeleton from '~/components/Platform/Problem/NotesSkeleton';
 import type { Problem } from '~/types/problem/problem';
 
 interface ProblemNotesProps {
@@ -10,6 +11,7 @@ interface ProblemNotesProps {
 }
 
 export default function ProblemNotes({ problem }: ProblemNotesProps) {
+  const MAX_CHARACTERS = 5000;
   const [value, setValue] = useState<string | undefined>("");
   const [showSaved, setShowSaved] = useState(false);
 
@@ -26,6 +28,14 @@ export default function ProblemNotes({ problem }: ProblemNotesProps) {
     if (problemNote) setValue(problemNote.markdown)
   }, [problemNote])
 
+  const handleChange = (newValue: string | undefined) => {
+    if (newValue && newValue.length > MAX_CHARACTERS) {
+      setValue(newValue.slice(0, MAX_CHARACTERS));
+    } else {
+      setValue(newValue);
+    }
+  };
+
   const handleSave = () => {
     saveMutation.mutate({
       method: problemNote ? "PUT" : "POST",
@@ -33,12 +43,12 @@ export default function ProblemNotes({ problem }: ProblemNotesProps) {
     })
   };
 
+  const currentLength = value?.length || 0;
+  const isNearLimit = currentLength >= MAX_CHARACTERS * 0.9;
+  const isAtLimit = currentLength >= MAX_CHARACTERS;
+
   if (isLoading) {
-    return (
-      <>
-        Loading...
-      </>
-    )
+    return <NotesSkeleton />;
   }
 
   if (isError) {
@@ -86,12 +96,18 @@ export default function ProblemNotes({ problem }: ProblemNotesProps) {
         <Card.Body className="p-0">
           <MDEditor
             value={value}
-            onChange={setValue}
+            onChange={handleChange}
             height={300}
           />
         </Card.Body>
-        <Card.Footer className="text-muted">
-          {value?.length || 0} characters
+        <Card.Footer className={isNearLimit ? (isAtLimit ? "text-danger" : "text-warning") : "text-muted"}>
+          <div className="d-flex justify-content-between align-items-center">
+            <span>
+              {currentLength} / {MAX_CHARACTERS} characters
+              {isAtLimit && <span className="ms-2 fw-bold">(Limit reached)</span>}
+              {isNearLimit && !isAtLimit && <span className="ms-2">(Approaching limit)</span>}
+            </span>
+          </div>
         </Card.Footer>
       </Card>
     </div>
