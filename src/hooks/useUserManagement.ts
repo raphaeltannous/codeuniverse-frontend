@@ -1,20 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAdminUsers } from "./useAdminUsers";
 import { useAuth } from "~/context/AuthContext";
-
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  isVerified: boolean;
-  isActive: boolean;
-  stripeCustomerId: string | null;
-  premiumStatus: "none" | "premium" | "canceled" | null;
-  role: "user" | "admin";
-  createdAt: string;
-  updatedAt: string;
-  avatarUrl: string | null;
-}
+import { useNotification } from "./useNotification";
+import type { User } from "~/types/admin/user";
 
 interface UpdateUserData {
   username?: string;
@@ -46,6 +34,7 @@ interface EditFormErrors {
 
 export function useUserManagement() {
   const { auth } = useAuth();
+  const notification = useNotification();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
@@ -61,8 +50,6 @@ export function useUserManagement() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [actionSuccess, setActionSuccess] = useState("");
-  const [actionError, setActionError] = useState("");
 
   const [editFormData, setEditFormData] = useState<UpdateUserData>({});
   const [editFormErrors, setEditFormErrors] = useState<EditFormErrors>({});
@@ -140,12 +127,10 @@ export function useUserManagement() {
         onSuccess: () => {
           setShowDeleteModal(false);
           setSelectedUser(null);
-          setActionSuccess("User deleted successfully");
-          setTimeout(() => setActionSuccess(""), 3000);
+          notification.success("User deleted successfully", 3000);
         },
         onError: (error: Error) => {
-          setActionError(error.message || "Failed to delete user");
-          setTimeout(() => setActionError(""), 5000);
+          notification.error(error.message || "Failed to delete user", 5000);
         },
       });
     }
@@ -191,20 +176,17 @@ export function useUserManagement() {
           },
           {
             onSuccess: () => {
-              setActionSuccess("User updated successfully");
+              notification.success("User updated successfully", 3000);
               setShowEditModal(false);
               setEditFormErrors({});
-              setTimeout(() => setActionSuccess(""), 3000);
             },
             onError: (error: Error) => {
-              setActionError(error.message || "Failed to update user");
-              setTimeout(() => setActionError(""), 5000);
+              notification.error(error.message || "Failed to update user", 5000);
             },
           }
         );
       } else {
-        setActionError("No changes detected");
-        setTimeout(() => setActionError(""), 3000);
+        notification.error("No changes detected", 3000);
       }
     }
   };
@@ -213,7 +195,7 @@ export function useUserManagement() {
     if (createFormData.username && createFormData.email && createFormData.password) {
       createUserMutation.mutate(createFormData, {
         onSuccess: () => {
-          setActionSuccess("User created successfully");
+          notification.success("User created successfully", 3000);
           setShowCreateModal(false);
           setCreateFormData({
             username: "",
@@ -224,16 +206,13 @@ export function useUserManagement() {
             isVerified: false,
             avatarUrl: "",
           });
-          setTimeout(() => setActionSuccess(""), 3000);
         },
         onError: (error: Error) => {
-          setActionError(error.message || "Failed to create user");
-          setTimeout(() => setActionError(""), 5000);
+          notification.error(error.message || "Failed to create user", 5000);
         },
       });
     } else {
-      setActionError("Username, email, and password are required");
-      setTimeout(() => setActionError(""), 5000);
+      notification.error("Username, email, and password are required", 5000);
     }
   };
 
@@ -330,15 +309,10 @@ export function useUserManagement() {
     showCreateModal,
     setShowCreateModal,
     
-    // Messages
-    actionSuccess,
-    setActionSuccess,
-    actionError,
-    setActionError,
-    
     // Forms
     editFormData,
     editFormErrors,
+    setEditFormErrors,
     createFormData,
     
     // Mutations

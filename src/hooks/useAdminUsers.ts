@@ -1,43 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "~/utils/api";
-
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  isVerified: boolean;
-  isActive: boolean;
-  role: "user" | "admin";
-  createdAt: string;
-  updatedAt: string;
-  avatarUrl: string | null;
-}
-
-interface UsersResponse {
-  users: User[];
-  total: number;
-  offset: number;
-  limit: number;
-}
-
-interface CreateUserData {
-  username: string;
-  email: string;
-  password: string;
-  role: User["role"];
-  isActive: boolean;
-  isVerified: boolean;
-  avatarUrl?: string;
-}
-
-interface UpdateUserData {
-  username?: string;
-  email?: string;
-  role?: User["role"];
-  isActive?: boolean;
-  isVerified?: boolean;
-  avatarUrl?: string | null;
-}
+import type {
+  UsersResponse,
+  CreateUserData,
+  UpdateUserData,
+} from "~/types/admin/user";
 
 interface UseAdminUsersParams {
   offset: number;
