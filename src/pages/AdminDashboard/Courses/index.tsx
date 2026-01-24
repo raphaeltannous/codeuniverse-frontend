@@ -35,8 +35,6 @@ export default function DashboardCourses() {
     difficulty: 'Beginner',
     isPublished: false,
   });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [filter, setFilter] = useState<'all' | 'published' | 'draft'>('all');
   const [showThumbnailModal, setShowThumbnailModal] = useState(false);
   const [selectedCourseForThumbnail, setSelectedCourseForThumbnail] = useState<{
@@ -315,7 +313,6 @@ export default function DashboardCourses() {
         isEditing={!!editingCourse}
         formData={formData}
         isLoading={createMutation.isPending || updateMutation.isPending}
-        error={error || undefined}
         onClose={handleCloseModal}
         onFormChange={handleInputChange}
         onSlugGenerate={handleSlugGenerate}

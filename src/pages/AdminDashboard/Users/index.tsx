@@ -127,7 +127,8 @@ export default function UsersDashboard() {
     );
   }
 
-  const { users = [], total = 0 } = usersData || {};
+  const { users: rawUsers = [], total = 0 } = usersData || {};
+  const users = rawUsers ?? [];
 
   const activeUsers = users.filter((u) => u.isActive).length;
   const verifiedUsers = users.filter((u) => u.isVerified).length;

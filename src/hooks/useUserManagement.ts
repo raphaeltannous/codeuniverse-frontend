@@ -128,6 +128,11 @@ export function useUserManagement() {
           setShowDeleteModal(false);
           setSelectedUser(null);
           notification.success("User deleted successfully", 3000);
+          
+          // If we're on a page beyond the first and only have 1 user left, go back to page 1
+          if (offset > 0 && usersData?.users?.length === 1) {
+            setOffset(0);
+          }
         },
         onError: (error: Error) => {
           notification.error(error.message || "Failed to delete user", 5000);

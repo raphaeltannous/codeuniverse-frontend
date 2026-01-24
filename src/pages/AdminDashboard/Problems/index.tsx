@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Container,
   Row,
@@ -13,7 +13,6 @@ import {
   Modal,
   Pagination,
 } from 'react-bootstrap';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Plus,
   Pencil,
@@ -21,104 +20,24 @@ import {
   Code,
   Lock,
   Globe,
-  CheckCircle,
-  XCircle,
   ListTask,
 } from 'react-bootstrap-icons';
-import { useAuth } from '~/context/AuthContext';
 import MDEditor from '@uiw/react-md-editor';
+import { Link } from 'react-router';
+import { useNotification } from '~/hooks/useNotification';
+import { useAdminProblems } from '~/hooks/useAdminProblems';
+import type { ProblemFormData, Problem, Difficulty, CodeSnippet, ProblemTestcase, ProblemTestcases } from '~/hooks/useAdminProblems';
 import CodeEditor from '~/components/Shared/CodeEditor';
-import { apiFetch } from '~/utils/api';
 import ProblemsFilter from '~/components/Shared/ProblemFilter';
 import StatsCard from '~/components/Shared/StatsCard';
 import DifficultyBadge from '~/components/Shared/DifficultyBadge';
 import VisibilityBadge from '~/components/Shared/VisibilityBadge';
 import PremiumBadge from '~/components/Shared/PremiumBadge';
-import { Link } from 'react-router';
 import type { Filters } from '~/types/problem/problemset';
 
-// Interfaces matching your backend structure
-interface ProblemBasic {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  difficulty: Difficulty;
-  isPremium: boolean;
-  isPublic: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type Difficulty = "Easy" | "Medium" | "Hard";
-
-interface Hint {
-  id: string;
-  problemId: string;
-  hint: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface CodeSnippet {
-  id: string;
-  problemId: string;
-  languageName: string;
-  languageSlug: string;
-  codeSnippet: string;
-  driverCode: string;
-  testerCode: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface ProblemTestcase {
-  input: any;
-  expected: any;
-  isPublic: boolean;
-}
-
-interface ProblemTestcases {
-  timeLimit: number;
-  memoryLimit: number;
-  testcases: ProblemTestcase[];
-}
-
-interface Language {
-  languageName: string;
-  languageSlug: string;
-}
-
-// Combined problem interface for frontend
-interface Problem extends ProblemBasic {
-  hints: Hint[];
-  codeSnippets: CodeSnippet[];
-  testcases: ProblemTestcases | null;
-}
-
-interface ProblemsResponse {
-  problems: Problem[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
-interface ProblemFormData {
-  title: string;
-  slug: string;
-  description: string;
-  difficulty: Difficulty;
-  isPremium: boolean;
-  isPublic: boolean;
-  hints: string[];
-  codeSnippets: Omit<CodeSnippet, 'id' | 'problemId' | 'createdAt' | 'updatedAt'>[];
-  testcases: ProblemTestcases | null;
-}
-
 export default function ProblemsDashboard() {
-  const { auth } = useAuth();
-  const queryClient = useQueryClient();
-
+  const notification = useNotification();
+  
   // State for filtering and pagination
   const [filters, setFilters] = useState<Filters>({
     difficulty: 'all',
@@ -146,10 +65,7 @@ export default function ProblemsDashboard() {
   const [editingProblem, setEditingProblem] = useState<Problem | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [problemToDelete, setProblemToDelete] = useState<string | null>(null);
-  const [actionSuccess, setActionSuccess] = useState('');
-  const [actionError, setActionError] = useState('');
   const [activeFormTab, setActiveFormTab] = useState<'basic' | 'hints' | 'code' | 'testcases'>('basic');
-  const [supportedLanguages, setSupportedLanguages] = useState<Language[]>([]);
 
   // Form state
   const [formData, setFormData] = useState<ProblemFormData>({
@@ -164,173 +80,52 @@ export default function ProblemsDashboard() {
     testcases: null,
   });
 
-  // Fetch supported languages
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      slug: '',
+      description: '',
+      difficulty: 'Easy',
+      isPremium: false,
+      isPublic: true,
+      hints: [],
+      codeSnippets: [],
+      testcases: null,
+    });
+    setEditingProblem(null);
+    setActiveFormTab('basic');
+  };
+
+  // Use custom hook
   const {
-    data: languagesData,
-    isLoading: isLoadingLanguages
-  } = useQuery<Language[]>({
-    queryKey: ['supported-languages'],
-    queryFn: async () => {
-      const response = await apiFetch('/api/admin/supported-languages');
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch supported languages');
-      }
-      return (await response.json()) as Language[];
-    },
-    enabled: !!auth.isAuthenticated,
-  });
-
-  // Use useEffect to handle the side effect when languagesData changes
-  useEffect(() => {
-    if (languagesData && languagesData.length > 0) {
-      setSupportedLanguages(languagesData);
-    }
-  }, [languagesData]);
-
-  // Fetch problems
-  const {
-    data: problemsData,
-    isLoading: isLoadingProblems,
+    problems,
+    total,
+    totalPages,
+    supportedLanguages,
+    isLoading,
     isError,
     error,
-    refetch
-  } = useQuery<ProblemsResponse>({
-    queryKey: ['admin-problems', page, appliedFilters, appliedShowOnlyPremium, appliedVisibilityFilter],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-      });
-
-      // Only add search if it's not empty
-      if (appliedFilters.search.trim()) {
-        params.append('search', appliedFilters.search);
-      }
-
-      // Add sort parameters
-      params.append('sortBy', appliedFilters.sortBy);
-      params.append('sortOrder', appliedFilters.sortOrder);
-
-      // Only add difficulty if it's not 'all'
-      if (appliedFilters.difficulty !== 'all') {
-        params.append('difficulty', appliedFilters.difficulty.toLowerCase());
-      }
-
-      if (appliedVisibilityFilter !== 'all') params.append('public', appliedVisibilityFilter === 'public' ? 'public' : 'private');
-      if (appliedShowOnlyPremium !== 'all') params.append('premium', appliedShowOnlyPremium === 'premium' ? 'premium' : 'free');
-
-      const response = await apiFetch(`/api/admin/problems?${params}`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch problems');
-      }
-      return response.json();
-    },
-    enabled: !!auth.isAuthenticated,
-    staleTime: 1000 * 60 * 2,
-  });
-
-  // Calculate totalPages on client side
-  const total = problemsData?.total || 0;
-  const totalPages = Math.ceil(total / limit);
-  const problems = problemsData?.problems || [];
-
-  // Create problem mutation - only basic info for creation
-  const createProblemMutation = useMutation({
-    mutationFn: async (data: ProblemFormData) => {
-      // Only send basic information for creating a problem
-      const basicData = {
-        title: data.title,
-        slug: data.slug,
-        description: data.description,
-        difficulty: data.difficulty,
-        isPremium: data.isPremium,
-        isPublic: data.isPublic,
-        hints: [],
-        codeSnippets: [],
-        testcases: null,
-      };
-
-      const response = await apiFetch('/api/admin/problems', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(basicData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to create problem');
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-problems'] });
-      setActionSuccess('Problem created successfully');
+    refetch,
+    createProblemMutation,
+    updateProblemMutation,
+    deleteProblemMutation,
+  } = useAdminProblems({
+    page,
+    limit,
+    filters: appliedFilters,
+    showOnlyPremium: appliedShowOnlyPremium,
+    visibilityFilter: appliedVisibilityFilter,
+    onCreateSuccess: () => {
       setShowModal(false);
       resetForm();
-      setTimeout(() => setActionSuccess(''), 3000);
     },
-    onError: (error) => {
-      setActionError(error.message || 'Failed to create problem');
-      setTimeout(() => setActionError(''), 5000);
-    },
-  });
-
-  // Update problem mutation - full data for editing
-  const updateProblemMutation = useMutation({
-    mutationFn: async ({ slug, data }: { slug: string; data: ProblemFormData }) => {
-      const response = await apiFetch(`/api/admin/problems/${slug}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to update problem');
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-problems'] });
-      setActionSuccess('Problem updated successfully');
+    onUpdateSuccess: () => {
       setShowModal(false);
       resetForm();
-      setTimeout(() => setActionSuccess(''), 3000);
     },
-    onError: (error) => {
-      setActionError(error.message || 'Failed to update problem');
-      setTimeout(() => setActionError(''), 5000);
-    },
-  });
-
-  // Delete problem mutation
-  const deleteProblemMutation = useMutation({
-    mutationFn: async (slug: string) => {
-      const response = await apiFetch(`/api/admin/problems/${slug}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete problem');
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-problems'] });
+    onDeleteSuccess: () => {
       setShowDeleteModal(false);
       setProblemToDelete(null);
-      setActionSuccess('Problem deleted successfully');
-      setTimeout(() => setActionSuccess(''), 3000);
-    },
-    onError: (error) => {
-      setActionError(error.message || 'Failed to delete problem');
-      setTimeout(() => setActionError(''), 5000);
     },
   });
 
@@ -487,20 +282,19 @@ export default function ProblemsDashboard() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setActionError('');
 
     if (!formData.title.trim()) {
-      setActionError('Problem title is required');
+      notification.error('Problem title is required.');
       return;
     }
 
     if (!formData.slug.trim()) {
-      setActionError('Problem slug is required');
+      notification.error('Problem slug is required.');
       return;
     }
 
     if (!formData.description.trim()) {
-      setActionError('Problem description is required');
+      notification.error('Problem description is required.');
       return;
     }
 
@@ -533,22 +327,6 @@ export default function ProblemsDashboard() {
     if (problemToDelete) {
       deleteProblemMutation.mutate(problemToDelete);
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      slug: '',
-      description: '',
-      difficulty: 'Easy',
-      isPremium: false,
-      isPublic: true,
-      hints: [],
-      codeSnippets: [],
-      testcases: null,
-    });
-    setEditingProblem(null);
-    setActiveFormTab('basic');
   };
 
   const handleCloseModal = () => {
@@ -639,8 +417,6 @@ export default function ProblemsDashboard() {
     });
   };
 
-  const isLoading = isLoadingProblems || isLoadingLanguages;
-
   if (isLoading) {
     return (
       <Container fluid className="py-4">
@@ -689,21 +465,6 @@ export default function ProblemsDashboard() {
 
   return (
     <Container fluid className="py-4">
-      {/* Success/Error Alerts */}
-      {actionSuccess && (
-        <Alert variant="success" dismissible onClose={() => setActionSuccess('')} className="mb-4">
-          <CheckCircle size={18} className="me-2" />
-          {actionSuccess}
-        </Alert>
-      )}
-
-      {actionError && (
-        <Alert variant="danger" dismissible onClose={() => setActionError('')} className="mb-4">
-          <XCircle size={18} className="me-2" />
-          {actionError}
-        </Alert>
-      )}
-
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
