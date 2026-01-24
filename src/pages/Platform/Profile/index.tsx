@@ -11,7 +11,6 @@ import {
   Alert,
   ProgressBar,
 } from 'react-bootstrap';
-import { useAuth } from '~/context/AuthContext';
 import { apiFetch } from "~/utils/api";
 import type { UserProfile, UserProfileUpdateRequest } from '~/types/user';
 import ProfileLinks from '~/components/Shared/UserProfile/ProfileLinks';
@@ -27,7 +26,6 @@ import AvatarUploadModal from '~/components/Shared/UserProfile/AvatarUploadModal
 export default function UserProfilePage() {
   const { username: urlUsername } = useParams<{ username: string }>();
   const location = useLocation();
-  const { auth } = useAuth();
   const { user } = useUser();
   const queryClient = useQueryClient();
   const [editSection, setEditSection] = useState<string | null>(null);

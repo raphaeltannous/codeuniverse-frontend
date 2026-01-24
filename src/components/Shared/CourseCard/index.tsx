@@ -3,7 +3,7 @@ import { Card } from 'react-bootstrap';
 import { Link } from 'react-router';
 import type { Course } from '~/types/course/course';
 import DifficultyBadge from '../DifficultyBadge';
-import type { ProblemDifficulty } from '~/types/problem/problem';
+import type { ProblemDifficulty } from '~/types/problem/difficulty';
 
 interface CourseCardProps extends Course {
   completionPercentage?: number;
@@ -19,7 +19,6 @@ export default function CourseCard({
   thumbnailURL,
   difficulty,
   totalLessons,
-  createdAt,
   updatedAt,
   completionPercentage = 0,
   buttonLink,

@@ -91,7 +91,7 @@ export function useCourseLessons({ courseSlug, enabled = true }: UseCourseLesson
 
       return { previousProgress };
     },
-    onError: (err, lessonId, context) => {
+    onError: (err, _lessonId, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       if (context?.previousProgress) {
         queryClient.setQueryData<ProgressResponse>(

@@ -3,7 +3,7 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import { Link } from 'react-router';
 import CodeEditor from '~/components/Shared/CodeEditor';
 import DifficultyBadge from '~/components/Shared/DifficultyBadge';
-import type { ProblemDifficulty } from '~/types/problem/problem';
+import type { ProblemDifficulty } from '~/types/problem/difficulty';
 
 const LandingHome: React.FC = () => {
   const featuredProblems = [

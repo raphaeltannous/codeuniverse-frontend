@@ -92,7 +92,6 @@ function CourseLessonsContent() {
     refetch,
     userProgressData,
     isLoadingProgress,
-    refetchProgress,
     markLessonMutation,
   } = useCourseLessons({
     courseSlug: courseSlug || '',

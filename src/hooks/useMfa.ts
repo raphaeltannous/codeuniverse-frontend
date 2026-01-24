@@ -30,7 +30,7 @@ export function useMfa(options?: UseMfaOptions) {
       return (await res.json()) as MfaResponse;
     },
 
-    onSuccess: (response) => {
+    onSuccess: () => {
       completeMfa();
       navigate("/problems");
     },

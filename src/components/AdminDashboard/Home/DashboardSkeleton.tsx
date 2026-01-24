@@ -1,4 +1,4 @@
-import { Container, Row, Col, Card, ProgressBar } from 'react-bootstrap';
+import { Container, Row, Col, Card } from 'react-bootstrap';
 
 export default function DashboardSkeleton() {
   const statsCards = Array.from({ length: 4 }, (_, i) => i);

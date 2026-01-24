@@ -1,5 +1,5 @@
-interface TestCasesListProps {
+import type { TestCase } from "~/types/problem/testcase";
+
+export interface TestCasesListProps {
   testcases?: TestCase[];
 }
-
-export default function TestCasesList({ testcases }: TestCasesListProps) {}

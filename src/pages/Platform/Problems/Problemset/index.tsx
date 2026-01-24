@@ -5,7 +5,6 @@ import {
   Card,
   Button,
   Alert,
-  Badge,
   Table,
   Pagination,
 } from 'react-bootstrap';

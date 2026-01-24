@@ -1,12 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { SuccessResponse } from '~/types/api-success';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import type { SubscriptionResponse, CheckoutSessionResponse, UpdatePaymentResponse } from '~/types/subscription';
 import { apiFetch } from '~/utils/api';
 
 const API_BASE = '/api/subscriptions';
 
 export function useSubscription() {
-  const queryClient = useQueryClient();
 
   // Get subscription status
   const subscriptionQuery = useQuery<SubscriptionResponse>({

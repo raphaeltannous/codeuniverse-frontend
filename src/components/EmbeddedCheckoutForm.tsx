@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { Container, Alert, Spinner } from 'react-bootstrap';
+import { Container, Spinner } from 'react-bootstrap';
 
 interface EmbeddedCheckoutFormProps {
   clientSecret: string;
@@ -15,8 +15,6 @@ const stripePromise = loadStripe(
 
 export function EmbeddedCheckoutForm({
   clientSecret,
-  onSuccess,
-  onCancel,
 }: EmbeddedCheckoutFormProps) {
   const [isReady, setIsReady] = useState(false);
 
@@ -39,7 +37,7 @@ export function EmbeddedCheckoutForm({
       stripe={stripePromise}
       options={{ clientSecret }}
     >
-      <EmbeddedCheckout onComplete={onSuccess} />
+      <EmbeddedCheckout />
     </EmbeddedCheckoutProvider>
   );
 }

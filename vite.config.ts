@@ -2,8 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
-const isElectron = process.argv.includes('--electron')
-
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -13,19 +11,38 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: isElectron ? 'dist' : 'dist',
-    rollupOptions: isElectron
-      ? {
-          input: {
-            main: path.resolve(__dirname, 'index.html'),
-            preload: path.resolve(__dirname, 'src/electron/preload.ts'),
-          },
-          output: {
-            dir: 'dist',
-            format: 'es',
-          },
-        }
-      : {},
+    outDir: 'dist',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React core
+          'react-vendor': ['react', 'react-dom', 'react-router'],
+          
+          // UI libraries
+          'ui-vendor': ['react-bootstrap', 'react-bootstrap-icons', 'bootstrap'],
+          
+          // Code editor
+          'editor-vendor': ['@monaco-editor/react'],
+          
+          'markdown-vendor':  ['@uiw/react-md-editor'],
+          
+          // Data fetching and state
+          'query-vendor': ['@tanstack/react-query'],
+          
+          // Charts
+          'chart-vendor': ['chart.js', 'react-chartjs-2'],
+          
+          // Video player
+          'video-vendor': ['video.js'],
+          
+          // Stripe
+          'stripe-vendor': ['@stripe/stripe-js', '@stripe/react-stripe-js'],
+          
+          // Icons
+          'icon-vendor': ['react-icons'],
+        },
+      },
+    },
   },
   server: {
     host: '0.0.0.0',

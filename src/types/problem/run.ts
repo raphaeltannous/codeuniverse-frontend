@@ -1,4 +1,5 @@
-import type { FailedTestcase, ResultStatus } from "./status";
+import type { ResultStatus } from "./status";
+import type { FailedTestcase } from "./testcase";
 
 export interface RunRequest {
   code: string;
