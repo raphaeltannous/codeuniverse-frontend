@@ -309,11 +309,10 @@ export default function TestCasesTab({
                   <Row className="g-3">
                     <Col md={6}>
                       <Form.Label>Input</Form.Label>
-                      <div
+                      <pre
+                        className="rounded"
                         style={{
                           height: "100px",
-                          border: "1px solid #dee2e6",
-                          borderRadius: "0.375rem",
                         }}
                       >
                         <CodeEditor
@@ -326,15 +325,14 @@ export default function TestCasesTab({
                           onCodeChange={() => {}}
                           readonly={true}
                         />
-                      </div>
+                      </pre>
                     </Col>
                     <Col md={6}>
                       <Form.Label>Expected Output</Form.Label>
-                      <div
+                      <pre
+                        className="rounded"
                         style={{
                           height: "100px",
-                          border: "1px solid #dee2e6",
-                          borderRadius: "0.375rem",
                         }}
                       >
                         <CodeEditor
@@ -347,7 +345,7 @@ export default function TestCasesTab({
                           onCodeChange={() => {}}
                           readonly={true}
                         />
-                      </div>
+                      </pre>
                     </Col>
                   </Row>
                 </Card.Body>

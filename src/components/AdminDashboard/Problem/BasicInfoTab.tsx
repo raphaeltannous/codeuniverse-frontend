@@ -39,7 +39,6 @@ export default function BasicInfoTab({
   handleDescriptionChange,
   handleSaveClick,
   updateProblemMutationPending,
-  onCancel,
 }: BasicInfoTabProps) {
   return (
     <div className="p-3">
@@ -157,15 +156,8 @@ export default function BasicInfoTab({
             </Form.Group>
           </Col>
         </Row>
-        {/* Save/Cancel buttons */}
-        <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-          <Button
-            variant="outline-secondary"
-            className="px-4"
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
+
+        <div className="d-flex justify-content-end gap-2 mt-3">
           <Button
             variant="primary"
             type="button"
