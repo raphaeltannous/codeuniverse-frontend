@@ -19,13 +19,13 @@ export default function PlatformAccountsEmailVerification() {
         {
           onSuccess: () => {
             setTimeout(() => {
-              navigate("/accounts/login");
+              window.location.href = "/accounts/login";
             }, 2000);
           },
         }
       );
     }
-  }, [token, navigate]);
+  }, [token]);
 
   return (
     <Container className="center-content-between-header-footer">
