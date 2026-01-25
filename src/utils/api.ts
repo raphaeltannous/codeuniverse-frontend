@@ -12,7 +12,12 @@ export async function apiFetch(
     credentials: "include",
   });
 
-  if (response.status === 401) {
+  // Don't throw generic 401 on auth pages - let the mutation handle it
+  const isAuthPage = window.location.pathname.startsWith("/accounts/login") || 
+                    window.location.pathname.startsWith("/accounts/signup") ||
+                    window.location.pathname.startsWith("/accounts/password");
+  
+  if (response.status === 401 && !isAuthPage) {
     throw new Error("401: Unauthorized");
   }
 

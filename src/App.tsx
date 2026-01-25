@@ -24,7 +24,11 @@ const queryClient = new QueryClient({
   }),
   mutationCache: new MutationCache({
     onError: (error) => {
-      if (error instanceof Error && error.message.includes("401")) {
+      // Check if we're on auth pages where 401 errors are expected
+      const isAuthPage = window.location.pathname.startsWith("/accounts/login") || 
+                        window.location.pathname.startsWith("/accounts/signup");
+      
+      if (error instanceof Error && error.message.includes("401") && !isAuthPage) {
         // Clear auth and redirect
         localStorage.removeItem("auth");
         queryClient.clear();
