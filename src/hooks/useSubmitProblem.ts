@@ -41,5 +41,7 @@ export function useSubmitProblem(problemSlug: string, language: string) {
     return status !== ResultStatus.Pending && status !== ResultStatus.Started;
   };
 
-  return { submitMutation, submissionStatusQuery, submissionId };
+  const clearSubmissionId = () => setSubmissionId(null);
+
+  return { submitMutation, submissionStatusQuery, submissionId, clearSubmissionId };
 }

@@ -34,18 +34,23 @@ export default function ProblemEditor({ problem, isAuthenticated = true, isVerif
   const [code, setCode] = useState(problem.codeSnippets?.[0]?.code || "");
   const [expandedHints, setExpandedHints] = useState<Set<number>>(new Set());
 
-  const { runMutation, runStatusQuery, runId, isCompleted } = useRunProblem(
+  const { runMutation, runStatusQuery, runId, isCompleted, clearRunId } = useRunProblem(
     problemSlug,
     language,
   );
-  const { submitMutation, submissionStatusQuery } = useSubmitProblem(
+  const { submitMutation, submissionStatusQuery, clearSubmissionId } = useSubmitProblem(
     problemSlug,
     language,
   );
 
-  const handleRun = () => runMutation.mutate({ code });
-  const handleSubmit = () =>
+  const handleRun = () => {
+    clearSubmissionId(); // Clear submit results when running
+    runMutation.mutate({ code });
+  };
+  const handleSubmit = () => {
+    clearRunId(); // Clear run results when submitting
     submitMutation.mutate({ problemSlug, languageSlug: language, code });
+  };
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLang = e.target.value;
     setLanguage(newLang);
@@ -210,7 +215,7 @@ export default function ProblemEditor({ problem, isAuthenticated = true, isVerif
             </Card.Footer>
           </Card>
 
-          {showRunChecking && <StatusRow title="Running..." />}
+          {showRunChecking && <StatusRow title={`${runStatusQuery.data?.status ?? "Running"}...`} />}
           {showRunResult && (
             <StatusRow
               title={runStatusQuery.data?.status ?? "Unknown Result"}
@@ -221,7 +226,7 @@ export default function ProblemEditor({ problem, isAuthenticated = true, isVerif
             />
           )}
 
-          {showSubmitChecking && <StatusRow title="Submitting..." />}
+          {showSubmitChecking && <StatusRow title={`${submissionStatusQuery.data?.status ?? "Submitting"}...`} />}
           {showSubmitResult && (
             <StatusRow
               title={submissionStatusQuery.data?.status}
