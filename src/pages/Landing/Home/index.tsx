@@ -8,10 +8,10 @@ import type { ProblemDifficulty } from '~/types/problem/difficulty';
 const LandingHome: React.FC = () => {
   const featuredProblems = [
     { id: 1, title: 'Two Sum', slug: 'two-sum', difficulty: 'Easy' as ProblemDifficulty, acceptance: '49.5%' },
-    { id: 2, title: 'Reverse Linked List', slug: 'reverse-linked-list', difficulty: 'Easy' as ProblemDifficulty, acceptance: '68.2%' },
-    { id: 3, title: 'Merge Intervals', slug: 'merge-intervals', difficulty: 'Medium' as ProblemDifficulty, acceptance: '42.3%' },
-    { id: 4, title: 'Binary Tree Inorder Traversal', difficulty: 'Medium' as ProblemDifficulty, acceptance: '71.8%' },
-    { id: 5, title: 'N-Queens', difficulty: 'Hard' as ProblemDifficulty, acceptance: '58.9%' },
+    { id: 2, title: 'Add One to Linked List', slug: 'add-one-to-linked-list', difficulty: 'Medium' as ProblemDifficulty, acceptance: '40.2%' },
+    { id: 3, title: 'Roman to Integer', slug: 'roman-to-integer', difficulty: 'Easy' as ProblemDifficulty, acceptance: '60.3%' },
+    { id: 4, title: 'Valid Parentheses', slug: 'valid-parentheses', difficulty: 'Easy' as ProblemDifficulty, acceptance: '40.8%' },
+    { id: 5, title: 'N-Queens', slug: 'n-queens', difficulty: 'Hard' as ProblemDifficulty, acceptance: '30.9%' },
   ];
 
   const features = [
@@ -22,7 +22,7 @@ const LandingHome: React.FC = () => {
     },
     {
       title: 'Multiple Languages',
-      description: 'Support for Go, Python, JavaScript, TypeScript, and C++.',
+      description: 'Support for Go, Python, JavaScript, TypeScript, C++, Java, and Ruby.',
       icon: '🌐'
     },
     {
@@ -84,11 +84,11 @@ const LandingHome: React.FC = () => {
               </div>
               <div className="mt-4 d-flex align-items-center gap-4">
                 <div>
-                  <h3 className="fw-bold mb-0">2000+</h3>
+                  <h3 className="fw-bold mb-0">40+</h3>
                   <p className="text-muted mb-0">Coding Problems</p>
                 </div>
                 <div>
-                  <h3 className="fw-bold mb-0">3+</h3>
+                  <h3 className="fw-bold mb-0">7</h3>
                   <p className="text-muted mb-0">Programming Languages</p>
                 </div>
               </div>
