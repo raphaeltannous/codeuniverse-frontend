@@ -77,8 +77,9 @@ export const useProblemset = ({ limit = 10 }: UseProblemsetParams = {}) => {
       appliedShowOnlyPremium,
     ],
     queryFn: async () => {
+      const offset = (page - 1) * limit;
       const params = new URLSearchParams({
-        page: page.toString(),
+        offset: offset.toString(),
         limit: limit.toString(),
       });
 
